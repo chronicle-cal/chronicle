@@ -1,0 +1,24 @@
+name: Secret Scanning
+
+# run everytime and enable to manually trigger trufflehog
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  trufflehog-scan:
+    name: Scan for Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # check full history
+
+      # run trufflehog
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          extra_args: filesystem --debug
