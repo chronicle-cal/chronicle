@@ -1,0 +1,19 @@
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+
+# Database (async)
+SQLAlchemy==2.0.36
+asyncpg==0.29.0
+alembic==1.13.3
+
+# Password hashing
+passlib[bcrypt]==1.7.4
+
+# Settings / env
+python-dotenv==1.0.1
+
+# Optional (commonly used)
+pydantic==2.10.2
+pydantic-settings==2.6.1
+pydantic[email]==2.10.2
+
