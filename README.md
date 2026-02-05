@@ -16,7 +16,7 @@ You can then access PgAdmin on http://localhost:5050 .
 
 ### API Gateway
 
-Enter the directory `services/api-gateway` and run 
+Enter the directory `services/api-gateway` and run
 ```
 source .venv/bin/activate
 uv run fastapi --app app
@@ -24,7 +24,7 @@ uv run fastapi --app app
 
 ### Scheduling Service
 
-Enter the directory `services/scheduling` and run 
+Enter the directory `services/scheduling` and run
 ```
 source .venv/bin/activate
 uv run main.py
@@ -37,7 +37,7 @@ uv run main.py
 -   Recieves HTTP (WS) API queries
 -   Validates Data with DTOs (pydantic)
 -   Dispatches actions to other services (RabbitMQ)
--   Returns results 
+-   Returns results
 
 ### Integrator Service
 -   Reads external Calendars (ical, CalDAV, Google?) and writes events to database
@@ -47,12 +47,12 @@ uv run main.py
 -     The Scheduling Service runs on the data in the database ()
 
 ### Task Service
--   
+-
 
 ### Notification Service
 -   Sends user notifications (via E-Mail, SMS, Telegram, etc.)
 
-## Shared 
+## Shared
 Shared is a python package that all services depend on. It includes the defintions for the DTOs
 
 ## Configuration
