@@ -31,7 +31,9 @@ async def create_profile(payload: ProfileCreate, db: AsyncSession = Depends(get_
 async def delete_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
     profile = await db.get(ProfileModel, profile_id)
     if profile is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
+        )
     await db.delete(profile)
     await db.commit()
     return None
