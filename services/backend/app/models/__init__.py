@@ -1,2 +1,4 @@
-from app.models.user import User 
-from app.models.profile import Profile  
+from .user import User
+from .profile import Profile
+
+__all__ = ["User", "Profile"]
