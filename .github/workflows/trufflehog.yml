@@ -1,6 +1,5 @@
 name: Secret Scanning
 
-# run everytime and enable to manually trigger trufflehog
 on:
   push:
   pull_request:
@@ -16,9 +15,8 @@ jobs:
         with:
           fetch-depth: 0 # check full history
 
-      # run trufflehog
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          extra_args: filesystem --debug
+          extra_args: --debug --fail --no-update
