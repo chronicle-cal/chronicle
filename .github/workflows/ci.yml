@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Ruff (lint + format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Ruff lint
+        run: uvx ruff check .
+
+      - name: Ruff format check
+        run: uvx ruff format --check .
+
+  test:
+    name: Pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: api-gateway
+            path: services/api-gateway
+            needs_shared: true
+          - name: scheduling
+            path: services/scheduling
+            needs_shared: true
+          - name: integrator
+            path: services/integrator
+            needs_shared: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.needs_shared }}" = "true" ]; then
+            uv pip install -e packages/shared
+          fi
+          uv pip install -e "${{ matrix.path }}"
+          uv pip install pytest pytest-cov
+
+      - name: Run tests
+        working-directory: ${{ matrix.path }}
+        run: |
+          if find . -maxdepth 3 -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
+            pytest -q --cov --cov-report=term-missing
+          else
+            echo "No tests found; skipping."
+          fi
