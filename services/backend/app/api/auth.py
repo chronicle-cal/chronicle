@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Header
+from fastapi import APIRouter, Header, HTTPException, status
+
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter()
