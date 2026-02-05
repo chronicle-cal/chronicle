@@ -1,5 +1,4 @@
 # services/backend/migrations/env.py
-from __future__ import with_statement
 
 import os
 from logging.config import fileConfig
