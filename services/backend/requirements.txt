@@ -16,4 +16,3 @@ python-dotenv==1.0.1
 pydantic==2.10.2
 pydantic-settings==2.6.1
 pydantic[email]==2.10.2
-

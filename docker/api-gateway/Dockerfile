@@ -10,7 +10,7 @@ COPY ./services/api-gateway /app/services/api-gateway
 
 COPY ./packages/shared /app/packages/shared
 
-RUN apt install 
+RUN apt install
 
 WORKDIR /app/services/api-gateway
 RUN uv sync --frozen
