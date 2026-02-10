@@ -6,39 +6,59 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [user, setUser] = useState(null);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const me = await api.me();
+      if (me?.authenticated) {
+        setIsAuthenticated(true);
+        setUser({ email: me.email || "", name: me.name || "" });
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
-    // Optional: check session on reload
     (async () => {
-      try {
-        const me = await api.me();
-        setIsAuthenticated(!!me?.authenticated);
-      } catch {
-        setIsAuthenticated(false);
-      } finally {
-        setIsBootstrapping(false);
-      }
+      await refreshUser();
+      setIsBootstrapping(false);
     })();
-  }, []);
+  }, [refreshUser]);
 
   const login = useCallback(async (email, password) => {
     await api.login({ email, password });
-    setIsAuthenticated(true);
-  }, []);
+    await refreshUser();
+  }, [refreshUser]);
 
   const register = useCallback(async (email, password) => {
-    await api.register({ email, password });
-    setIsAuthenticated(true);
-  }, []);
+    await api.registerAndLogin({ email, password });
+    await refreshUser();
+  }, [refreshUser]);
 
   const logout = useCallback(async () => {
     await api.logout();
     setIsAuthenticated(false);
+    localStorage.removeItem("token");
+    setUser(null);
   }, []);
 
   const value = useMemo(
-    () => ({ isAuthenticated, isBootstrapping, login, register, logout }),
-    [isAuthenticated, isBootstrapping, login, register, logout]
+    () => ({
+      isAuthenticated,
+      isBootstrapping,
+      user,
+      login,
+      register,
+      logout,
+      refreshUser,
+    }),
+    [isAuthenticated, isBootstrapping, user, login, register, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

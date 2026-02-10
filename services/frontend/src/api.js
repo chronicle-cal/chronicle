@@ -41,3 +41,50 @@ export async function login(payload) {
   localStorage.setItem("token", data.access_token);
   return data;
 }
+
+export async function registerAndLogin(payload) {
+  const data = await register(payload);
+  localStorage.setItem("token", data.access_token);
+  return data;
+}
+
+export function logout() {
+  return request("/api/auth/logout", { method: "POST" });
+}
+
+export function me() {
+  return request("/api/auth/me");
+}
+
+export function updateEmail(payload) {
+  return request("/api/auth/update-email", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }).then((data) => {
+    if (data?.access_token) {
+      localStorage.setItem("token", data.access_token);
+    }
+    return data;
+  });
+}
+
+export function updatePassword(payload) {
+  return request("/api/auth/update-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateName(payload) {
+  return request("/api/auth/update-name", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAccount(payload) {
+  return request("/api/auth/delete-account", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
