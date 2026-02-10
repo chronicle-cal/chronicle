@@ -8,6 +8,7 @@ alembic==1.13.3
 
 # Password hashing
 passlib[bcrypt]==1.7.4
+argon2-cffi==23.1.0
 
 # Settings / env
 python-dotenv==1.0.1

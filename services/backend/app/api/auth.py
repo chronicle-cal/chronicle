@@ -1,27 +1,37 @@
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from passlib.context import CryptContext
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.db import get_db
+from app.models.user import User as UserModel
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter()
 
-_users: dict[str, str] = {}
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(payload: RegisterRequest):
+async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
     email = payload.email.lower()
-    if email in _users:
+    existing = await db.execute(select(UserModel).where(UserModel.email == email))
+    if existing.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
-    _users[email] = payload.password
+    user = UserModel(email=email, password_hash=pwd_context.hash(payload.password))
+    db.add(user)
+    await db.commit()
     return {"message": "registered"}
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest):
+async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     email = payload.email.lower()
-    if _users.get(email) != payload.password:
+    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    user = result.scalar_one_or_none()
+    if user is None or not pwd_context.verify(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )

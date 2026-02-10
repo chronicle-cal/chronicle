@@ -6,13 +6,30 @@ Web based calendar tools featuring calendar syncs and smart scheduling.
 
 ### Dev setup
 
-First start the development components (Database, DB Admin, RabbitMQ) with
+First start the development components with
 
 ```bash
-podman-compose -f dev-compose.yaml up --build
+podman-compose up --build
 ```
 
-You can then access PgAdmin on http://localhost:5050 .
+Force recreate:
+```
+podman-compose up --build --force-recreate -d
+```
+### Lookup in the DB
+
+Make sure the compose stack is running before opening the DB shell.
+
+```bash
+podman-compose exec postgres psql -U admin -d appdb
+```
+
+
+Show all tables:
+
+```sql
+\dt
+```
 
 ### API Gateway
 
