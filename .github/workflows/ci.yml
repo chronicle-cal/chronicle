@@ -105,8 +105,8 @@ jobs:
             echo "No tests found; skipping."
           fi
 
-  compose-smoke:
-    name: Compose smoke test (backend + postgres)
+  auth-smoke:
+    name: Auth smoke test (register/login/me/update/delete)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [lint]
@@ -133,6 +133,58 @@ jobs:
           echo "Backend did not become healthy in time."
           docker compose -f compose.yaml logs --no-color postgres backend
           exit 1
+
+      - name: Auth flow
+        env:
+          EMAIL: smoke+${{ github.run_id }}@example.com
+          PASSWORD: Passw0rd123!
+        run: |
+          set -euo pipefail
+          register_resp=$(curl -fsS -X POST http://127.0.0.1:8000/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}")
+          token=$(python3 - <<'PY'
+import json,sys
+data=json.loads(sys.stdin.read())
+print(data["access_token"])
+PY
+<<<"$register_resp")
+
+          me_resp=$(curl -fsS http://127.0.0.1:8000/api/auth/me \
+            -H "Authorization: Bearer $token")
+          python3 - <<'PY'
+import json,sys
+data=json.loads(sys.stdin.read())
+assert data.get("authenticated") is True, data
+assert data.get("email"), data
+PY
+<<<"$me_resp"
+
+          curl -fsS -X POST http://127.0.0.1:8000/api/auth/update-name \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $token" \
+            -d "{\"name\":\"Smoke User\",\"password\":\"$PASSWORD\"}" >/dev/null
+
+          update_email_resp=$(curl -fsS -X POST http://127.0.0.1:8000/api/auth/update-email \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $token" \
+            -d "{\"new_email\":\"smoke-updated+${{ github.run_id }}@example.com\",\"password\":\"$PASSWORD\"}")
+          token=$(python3 - <<'PY'
+import json,sys
+data=json.loads(sys.stdin.read())
+print(data["access_token"])
+PY
+<<<"$update_email_resp")
+
+          curl -fsS -X POST http://127.0.0.1:8000/api/auth/update-password \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $token" \
+            -d "{\"current_password\":\"$PASSWORD\",\"new_password\":\"Passw0rd456!\"}" >/dev/null
+
+          curl -fsS -X POST http://127.0.0.1:8000/api/auth/delete-account \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $token" \
+            -d "{\"confirm\":\"delete\"}" >/dev/null
 
       - name: Shutdown
         if: always()
