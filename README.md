@@ -13,7 +13,7 @@ podman-compose up --build
 ```
 
 Force recreate:
-```
+```bash
 podman-compose up --build --force-recreate -d
 ```
 ### Lookup in the DB

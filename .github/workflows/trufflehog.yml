@@ -1,22 +1,19 @@
 name: Secret Scanning
 
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
+    push:
+    pull_request:
+    workflow_dispatch:
 
 jobs:
-  trufflehog-scan:
-    name: Scan for Secrets
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    trufflehog-scan:
+        name: Scan for Secrets
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@v3.93.0 
-        with:
-          path: ./
-          extra_args: --fail --no-update
+            - name: TruffleHog OSS
+              uses: trufflesecurity/trufflehog@v3.93.0
