@@ -11,8 +11,10 @@ log() {
 init_compose_cmd() {
   if command -v podman-compose >/dev/null 2>&1; then
     COMPOSE_CMD=(podman-compose -f compose.yaml)
+  elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD=(docker compose -f compose.yaml)
   else
-    echo "podman-compose is not available."
+    echo "Neither podman-compose nor docker compose is available."
     exit 1
   fi
 }
