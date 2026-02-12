@@ -3,7 +3,7 @@ import datetime
 from ortools.sat.python import cp_model
 
 from models import Task, TaskEvent
-from utils import schedule_time_to_datetime
+from services.worker.sched.utils import schedule_time_to_datetime
 
 DAY_DURATION_IN_MINUTES = 24 * 60
 

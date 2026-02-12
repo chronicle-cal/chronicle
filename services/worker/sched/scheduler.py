@@ -1,11 +1,11 @@
 import datetime
 import logging
 import os
-from solver import SchedulingSolver
+from services.worker.sched.solver import SchedulingSolver
 import caldav
 
 from models import Task, SchedulerConfig
-from utils import datetime_to_schedule_time
+from services.worker.sched.utils import datetime_to_schedule_time
 
 HORIZON = datetime.timedelta(weeks=2)
 
