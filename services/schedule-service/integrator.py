@@ -9,6 +9,7 @@ import re
 import icalendar
 import os
 
+
 @dataclass
 class NormalizedEvent:
     uid: str
@@ -18,16 +19,19 @@ class NormalizedEvent:
     dtend: datetime
     # Only used for hashing/rules, not for updating/creating events
 
+
 @dataclass
 class Condition:
     field: str
     operator: str
     value: str
 
+
 @dataclass
 class Action:
     type: str
     field: dict
+
 
 @dataclass
 class Rule:
@@ -36,11 +40,13 @@ class Rule:
     conditions: list[Condition]
     actions: list[Action]
 
+
 @dataclass
 class Source:
     type: str
     url: str
     rules: list[Rule]
+
 
 @dataclass
 class SyncConfig:
@@ -49,6 +55,7 @@ class SyncConfig:
     sources: list[Source]
     username: str
     password: str
+
 
 def evaluate_condition(event: NormalizedEvent, condition: Condition) -> bool:
     field_value = getattr(event, condition.field, "")
@@ -65,12 +72,14 @@ def evaluate_condition(event: NormalizedEvent, condition: Condition) -> bool:
             return re.search(condition.value, field_value) is not None
     return False
 
+
 def apply_actions(event: NormalizedEvent, actions: list[Action]) -> NormalizedEvent:
     for action in actions:
         match action.type:
             case "set_field":
                 setattr(event, action.field["name"], action.field["value"])
     return event
+
 
 def apply_rules(event: NormalizedEvent, rules: list[Rule]) -> NormalizedEvent:
     for rule in rules:
@@ -80,6 +89,7 @@ def apply_rules(event: NormalizedEvent, rules: list[Rule]) -> NormalizedEvent:
         if all(evaluate_condition(event, cond) for cond in rule.conditions):
             event = apply_actions(event, rule.actions)
     return event
+
 
 def hash_event(event: NormalizedEvent) -> str:
     canonical = (
@@ -92,6 +102,7 @@ def hash_event(event: NormalizedEvent) -> str:
     logging.debug(f"Canonical representation for hashing: {canonical}")
 
     return hashlib.sha256(repr(canonical).encode()).hexdigest()
+
 
 class IcsSource:
     def __init__(self, url: str):
@@ -117,6 +128,7 @@ class IcsSource:
             events.append((norm, component))
         logging.info(f"Fetched {len(events)} events from ICS source")
         return events
+
 
 class CaldavTarget:
     def __init__(self, url, username, password):
@@ -178,7 +190,7 @@ class CaldavTarget:
         ) as client:
             calendar = client.calendar(url=self.url)
             logging.info(f"Updating event UID={raw_ical.get('UID')} at href={href}")
-            ev = calendar.event_by_url(href)           
+            ev = calendar.event_by_url(href)
             ev.component = raw_ical
             ev.save()
 
@@ -193,12 +205,15 @@ class CaldavTarget:
             ev = calendar.event_by_url(href)
             ev.delete()
 
-    def _update_event_component(self, component: icalendar.Event, event: NormalizedEvent):
+    def _update_event_component(
+        self, component: icalendar.Event, event: NormalizedEvent
+    ):
         component["SUMMARY"] = event.summary
         component["DESCRIPTION"] = event.description
         component["DTSTART"] = event.dtstart
         component["DTEND"] = event.dtend
         return component
+
 
 class SyncEngine:
     def __init__(self, config: SyncConfig):
@@ -213,7 +228,6 @@ class SyncEngine:
                 raise ValueError(f"Unsupported source type: {source.type}")
         self.target = CaldavTarget(config.destination, config.username, config.password)
 
-        
     def run(self):
         logging.info("Starting sync run...")
         for source, config in self.sources:
@@ -232,7 +246,7 @@ class SyncEngine:
                 # apply the final event data to the raw iCal component for updating/creating
                 raw_ical["SUMMARY"] = final_event.summary
                 raw_ical["DESCRIPTION"] = final_event.description
-                
+
                 if norm_event.uid in dest_index:
                     dest = dest_index[norm_event.uid]
                     dest_hash = hash_event(dest["event"])
@@ -240,10 +254,14 @@ class SyncEngine:
                     logging.debug(f"Source event: {final_event}")
                     logging.debug(f"Destination event: {dest['event']}")
 
-                    logging.debug(f"Comparing event UID={norm_event.uid}: source hash={final_hash} vs dest hash={dest_hash}")
+                    logging.debug(
+                        f"Comparing event UID={norm_event.uid}: source hash={final_hash} vs dest hash={dest_hash}"
+                    )
 
                     if final_hash != dest_hash:
-                        logging.info(f"Updating event UID={norm_event.uid} due to hash mismatch")
+                        logging.info(
+                            f"Updating event UID={norm_event.uid} due to hash mismatch"
+                        )
                         self.target.update_raw(dest["href"], raw_ical)
                         print(f"Updated event {raw_ical.to_ical().decode()}")
                     else:
@@ -260,7 +278,9 @@ class SyncEngine:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
     config = SyncConfig(
         id=os.environ.get("SYNC_ID", "sync1"),
         destination=os.environ["CALDAV_DESTINATION"],
@@ -269,7 +289,10 @@ if __name__ == "__main__":
         sources=[
             Source(
                 type="ics",
-                url=os.environ.get("ICS_SOURCE_URL", "https://vorlesungsplan.stuvma.de/profiles/TINF23CS2"),
+                url=os.environ.get(
+                    "ICS_SOURCE_URL",
+                    "https://vorlesungsplan.stuvma.de/profiles/TINF23CS2",
+                ),
                 rules=[
                     Rule(
                         enabled=True,
@@ -278,7 +301,13 @@ if __name__ == "__main__":
                             Condition(field="summary", operator="regex", value=".*")
                         ],
                         actions=[
-                            Action(type="set_field", field={"name": "description", "value": "Viel Spaß in der Vorlesung!"})
+                            Action(
+                                type="set_field",
+                                field={
+                                    "name": "description",
+                                    "value": "Viel Spaß in der Vorlesung!",
+                                },
+                            )
                         ],
                     )
                 ],

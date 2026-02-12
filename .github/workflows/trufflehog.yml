@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@v3.93.0 
+        uses: trufflesecurity/trufflehog@v3.93.0
         with:
           path: ./
           extra_args: --fail --no-update
