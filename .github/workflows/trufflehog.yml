@@ -17,5 +17,3 @@ jobs:
 
             - name: TruffleHog OSS
               uses: trufflesecurity/trufflehog@v3.93.0
-              with:
-                  extra_args: --no-update
