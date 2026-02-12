@@ -127,4 +127,7 @@ jobs:
 
       - name: Shutdown
         if: always()
-        run: docker compose -f compose.yaml down -v
+        run: |
+          echo "[smoke-tests] Shutting backend stack down..."
+          docker compose -f compose.yaml down -v
+          echo "[smoke-tests] Shutdown complete."
