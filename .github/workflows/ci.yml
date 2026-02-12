@@ -105,8 +105,8 @@ jobs:
             echo "No tests found; skipping."
           fi
 
-  compose-smoke:
-    name: Compose smoke test (backend + postgres)
+  smoke-tests:
+    name: Smoke tests (backend + user lifecycle)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [lint]
@@ -114,26 +114,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build images
-        run: docker compose -f compose.yaml build
-
-      - name: Start backend stack
-        run: docker compose -f compose.yaml up -d postgres backend
-
-      - name: Wait for backend health endpoint
+      - name: Run smoke test suite
         run: |
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8000/api/health >/dev/null; then
-              echo "Backend is healthy."
-              exit 0
-            fi
-            echo "Waiting for backend..."
-            sleep 2
-          done
-          echo "Backend did not become healthy in time."
-          docker compose -f compose.yaml logs --no-color postgres backend
-          exit 1
+          chmod +x scripts/smoke/*.sh
+          bash scripts/smoke/smoke-backend-start-health.sh
+          bash scripts/smoke/smoke-user-auth.sh
+          bash scripts/smoke/smoke-user-profile-edit.sh
+
+      - name: Dump backend logs on failure
+        if: failure()
+        run: docker compose -f compose.yaml logs --no-color postgres backend
 
       - name: Shutdown
         if: always()
-        run: docker compose -f compose.yaml down -v
+        run: |
+          echo "[smoke-tests] Shutting backend stack down..."
+          docker compose -f compose.yaml down -v
+          echo "[smoke-tests] Shutdown complete."
