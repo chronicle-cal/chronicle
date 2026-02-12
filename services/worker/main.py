@@ -2,7 +2,6 @@
 import pika
 import sys
 import os
-import threading
 import json
 import logging
 import time
