@@ -5,7 +5,7 @@ from solver import SchedulingSolver
 import caldav
 
 from models import Task, SchedulerConfig
-from utils import datetime_to_schedule_time, schedule_time_to_datetime
+from utils import datetime_to_schedule_time
 
 HORIZON = datetime.timedelta(weeks=2)
 
@@ -65,7 +65,6 @@ def merge_overlapping_events(events):
 
 
 def update_schedule(scheduler_config: SchedulerConfig):
-
     schedule_start, schedule_end = calc_schedule_start_end(HORIZON)
     logging.info(
         f"Calculated schedule start: {schedule_start}, schedule end: {schedule_end}"
