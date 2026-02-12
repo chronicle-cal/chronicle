@@ -21,6 +21,7 @@ radicale-config/
 
 # VSCode
 .prettierrc
+.vscode/
 
 # dependencies
 /node_modules
