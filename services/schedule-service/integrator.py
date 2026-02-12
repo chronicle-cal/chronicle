@@ -17,7 +17,6 @@ class NormalizedEvent:
     description: str
     dtstart: datetime
     dtend: datetime
-    # Only used for hashing/rules, not for updating/creating events
 
 
 @dataclass
@@ -43,6 +42,7 @@ class Rule:
 
 @dataclass
 class Source:
+    id: str
     type: str
     url: str
     rules: list[Rule]
@@ -93,6 +93,7 @@ def apply_rules(event: NormalizedEvent, rules: list[Rule]) -> NormalizedEvent:
 
 def hash_event(event: NormalizedEvent) -> str:
     canonical = (
+        event.uid,
         event.summary,
         event.description,
         event.dtstart.isoformat(),
@@ -172,38 +173,20 @@ class CaldavTarget:
 
     def update(self, href: str, event: NormalizedEvent):
         logging.info(f"Updating event UID={event.uid} at href={href}")
-        with caldav.DAVClient(
-            url=self.url,
-            username=self.username,
-            password=self.password,
-        ) as client:
-            calendar = client.calendar(url=self.url)
-            ev = calendar.event_by_url(href)
-            ev.data = self._update_event_component(ev.component, event)
-            ev.save()
+        ev = self.calendar.event_by_url(href)
+        ev.data = self._update_event_component(ev.component, event)
+        ev.save()
 
     def update_raw(self, href: str, raw_ical: icalendar.Event):
-        with caldav.DAVClient(
-            url=self.url,
-            username=self.username,
-            password=self.password,
-        ) as client:
-            calendar = client.calendar(url=self.url)
-            logging.info(f"Updating event UID={raw_ical.get('UID')} at href={href}")
-            ev = calendar.event_by_url(href)
-            ev.component = raw_ical
-            ev.save()
+        logging.info(f"Updating event UID={raw_ical.get('UID')} at href={href}")
+        ev = self.calendar.event_by_url(href)
+        ev.component = raw_ical
+        ev.save()
 
     def delete(self, href: str):
         logging.info(f"Deleting event at href={href}")
-        with caldav.DAVClient(
-            url=self.url,
-            username=self.username,
-            password=self.password,
-        ) as client:
-            calendar = client.calendar(url=self.url)
-            ev = calendar.event_by_url(href)
-            ev.delete()
+        ev = self.calendar.event_by_url(href)
+        ev.delete()
 
     def _update_event_component(
         self, component: icalendar.Event, event: NormalizedEvent
@@ -230,69 +213,89 @@ class SyncEngine:
 
     def run(self):
         logging.info("Starting sync run...")
-        for source, config in self.sources:
-            logging.info(f"Processing source: {config.url}")
+        for source, source_config in self.sources:
+            logging.info(f"Processing source: {source_config.url}")
             source_events = source.fetch()
             dest_index = self.target.build_index()
 
             source_uids = set()
 
-            for norm_event, raw_ical in source_events:
-                source_uids.add(norm_event.uid)
+            for norm_event, source_event in source_events:
+                # Generate our own UID based on a hash of the event's canonical data
+                our_uid = str(norm_event.uid) + "@" + source_config.id + ".chronicle"
+                source_uids.add(our_uid)
 
-                final_event = apply_rules(norm_event, config.rules)
+                # Apply rules to get the final event data that we want to represent in the destination calendar
+                final_event = apply_rules(norm_event, source_config.rules)
+
+                # Set our own UID in both the normalized event and the raw iCal component
+                final_event.uid = our_uid
+                source_event["UID"] = our_uid
+
+                # Hash the final event data to detect changes later
                 final_hash = hash_event(final_event)
 
                 # apply the final event data to the raw iCal component for updating/creating
-                raw_ical["SUMMARY"] = final_event.summary
-                raw_ical["DESCRIPTION"] = final_event.description
+                source_event["SUMMARY"] = final_event.summary
+                source_event["DESCRIPTION"] = final_event.description
+                # raw_ical["DTSTART"] = final_event.dtstart
+                # raw_ical["DTEND"] = final_event.dtend
+                source_event["X-CHRONICLE-SOURCE"] = source_config.id
+                source_event["X-CHRONICLE"] = True
 
-                if norm_event.uid in dest_index:
-                    dest = dest_index[norm_event.uid]
+                if our_uid in dest_index:
+                    dest = dest_index[our_uid]
                     dest_hash = hash_event(dest["event"])
 
                     logging.debug(f"Source event: {final_event}")
                     logging.debug(f"Destination event: {dest['event']}")
 
                     logging.debug(
-                        f"Comparing event UID={norm_event.uid}: source hash={final_hash} vs dest hash={dest_hash}"
+                        f"Comparing event UID={our_uid}: source hash={final_hash} vs dest hash={dest_hash}"
                     )
 
                     if final_hash != dest_hash:
                         logging.info(
-                            f"Updating event UID={norm_event.uid} due to hash mismatch"
+                            f"Updating event UID={our_uid} due to hash mismatch"
                         )
-                        self.target.update_raw(dest["href"], raw_ical)
-                        print(f"Updated event {raw_ical.to_ical().decode()}")
+                        self.target.update_raw(dest["href"], source_event)
+                        print(f"Updated event {source_event.to_ical().decode()}")
                     else:
-                        logging.info(f"Event UID={norm_event.uid} unchanged")
+                        logging.info(f"Event UID={our_uid} unchanged")
                 else:
-                    logging.info(f"Creating new event UID={norm_event.uid}")
-                    self.target.create(raw_ical)
+                    logging.info(f"Creating new event UID={our_uid}")
+                    self.target.create(source_event)
 
             # Deletions (optional, policy-based)
+            # Only delete events that were created by this source (check X-CHRONICLE-SOURCE)
             for uid, dest in dest_index.items():
+                logging.debug(f"Checking if destination event UID={uid} needs deletion")
                 if uid not in source_uids:
-                    logging.info(f"Deleting event UID={uid} not found in source")
-                    self.target.delete(dest["href"])
+                    # Only delete if the event has X-CHRONICLE-SOURCE matching this source
+                    raw_event = self.target.calendar.event_by_url(
+                        dest["href"]
+                    ).component
+                    if str(raw_event.get("X-CHRONICLE-SOURCE", "")) == source_config.id:
+                        logging.info(
+                            f"Deleting event UID={uid} not found in source {source_config.id}"
+                        )
+                        self.target.delete(dest["href"])
 
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+        level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s"
     )
     config = SyncConfig(
-        id=os.environ.get("SYNC_ID", "sync1"),
+        id="sync1",
         destination=os.environ["CALDAV_DESTINATION"],
         username=os.environ["CALDAV_USERNAME"],
         password=os.environ["CALDAV_PASSWORD"],
         sources=[
             Source(
+                id="source1",
                 type="ics",
-                url=os.environ.get(
-                    "ICS_SOURCE_URL",
-                    "https://vorlesungsplan.stuvma.de/profiles/TINF23CS2",
-                ),
+                url="https://vorlesungsplan.stuvma.de/profiles/TINF23CS2",
                 rules=[
                     Rule(
                         enabled=True,
@@ -311,7 +314,7 @@ if __name__ == "__main__":
                         ],
                     )
                 ],
-            )
+            ),
         ],
     )
 
