@@ -77,3 +77,23 @@ clear_db_state() {
   rm -f "$SMOKE_CONTEXT_FILE"
   log "Database cleanup done."
 }
+
+cleanup_smoke_users_only() {
+  init_compose_cmd
+  log "Deleting only smoke users from database..."
+
+  if ! "${COMPOSE_CMD[@]}" exec -T postgres pg_isready -U admin -d appdb; then
+    log "Postgres not reachable; skipping smoke user cleanup."
+    rm -f "$SMOKE_CONTEXT_FILE"
+    return 0
+  fi
+
+  "${COMPOSE_CMD[@]}" exec -T postgres psql -U admin -d appdb -v ON_ERROR_STOP=1 -c "
+    DELETE FROM users
+    WHERE email LIKE 'smoke+%@example.com'
+       OR email LIKE 'smoke-updated+%@example.com';
+  "
+
+  rm -f "$SMOKE_CONTEXT_FILE"
+  log "Smoke user cleanup done."
+}
