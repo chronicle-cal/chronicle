@@ -1,9 +1,7 @@
 from sqlalchemy import DateTime, String, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from app.core.db import Base
 
 
 class User(Base):
@@ -16,4 +14,8 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+    profiles = relationship(
+        "Profile", back_populates="user", cascade="all, delete-orphan"
     )
