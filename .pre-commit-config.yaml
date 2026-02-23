@@ -37,3 +37,31 @@ repos:
             language: system
             pass_filenames: false
             stages: [pre-commit]
+
+    # Backend API smoke test via Docker compose
+    - repo: local
+      hooks:
+          - id: smoke-backend-start-health
+            name: backend startup and health smoke test
+            entry: bash scripts/smoke/smoke-backend-start-health.sh
+            language: system
+            pass_filenames: false
+            stages: [pre-commit]
+          - id: smoke-user-auth
+            name: user auth smoke test
+            entry: bash scripts/smoke/smoke-user-auth.sh
+            language: system
+            pass_filenames: false
+            stages: [pre-commit]
+          - id: smoke-user-profile-edit
+            name: user profile edit smoke test
+            entry: bash scripts/smoke/smoke-user-profile-edit.sh
+            language: system
+            pass_filenames: false
+            stages: [pre-commit]
+          - id: smoke-db-cleanup
+            name: db cleanup after smoke test
+            entry: bash scripts/smoke/smoke-db-reset.sh
+            language: system
+            pass_filenames: false
+            stages: [pre-commit]
