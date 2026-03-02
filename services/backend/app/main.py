@@ -4,26 +4,38 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.profiles import router as profiles_router
-from app.core.db import Base, engine
+from app.api.integration import (
+    sync_config_router,
+    scheduler_config_router,
+    source_router,
+    rule_router,
+    condition_router,
+    action_router,
+    task_router,
+)
 
 app = FastAPI(title="Chronicle API", version="0.1.0")
 
-
-@app.on_event("startup")
-async def create_missing_tables() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # statt "*"
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Health auch unter /api (optional, aber konsistent)
 app.include_router(health_router, prefix="/api", tags=["health"])
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(profiles_router, prefix="/api/profiles", tags=["profiles"])
+
+app.include_router(
+    sync_config_router, prefix="/api/sync-configs", tags=["sync-configs"]
+)
+app.include_router(
+    scheduler_config_router, prefix="/api/scheduler-configs", tags=["scheduler-configs"]
+)
+app.include_router(source_router, prefix="/api/sources", tags=["sources"])
+app.include_router(rule_router, prefix="/api/rules", tags=["rules"])
+app.include_router(condition_router, prefix="/api/conditions", tags=["conditions"])
+app.include_router(action_router, prefix="/api/actions", tags=["actions"])
+app.include_router(task_router, prefix="/api/tasks", tags=["tasks"])
