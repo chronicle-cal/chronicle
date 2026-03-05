@@ -63,7 +63,7 @@ async def get_sync_config(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
     return item
@@ -100,7 +100,7 @@ async def update_sync_config(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
 
@@ -126,7 +126,7 @@ async def delete_sync_config(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
     await db.delete(item)
@@ -156,7 +156,7 @@ async def get_scheduler_config(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
     return item
@@ -193,7 +193,7 @@ async def update_scheduler_config(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
 
@@ -219,7 +219,7 @@ async def delete_scheduler_config(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
     await db.delete(item)
@@ -287,7 +287,7 @@ async def get_source(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
     return item
@@ -308,7 +308,7 @@ async def update_source(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
 
@@ -336,7 +336,7 @@ async def delete_source(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
     await db.delete(item)
@@ -408,7 +408,7 @@ async def get_rule(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
     return item
@@ -430,7 +430,7 @@ async def update_rule(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
 
@@ -459,7 +459,7 @@ async def delete_rule(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
     await db.delete(item)
@@ -534,7 +534,7 @@ async def get_condition(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
     return item
@@ -557,7 +557,7 @@ async def update_condition(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
 
@@ -587,7 +587,7 @@ async def delete_condition(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
     await db.delete(item)
@@ -662,7 +662,7 @@ async def get_action(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
     return item
@@ -685,7 +685,7 @@ async def update_action(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
 
@@ -715,7 +715,7 @@ async def delete_action(
             SyncConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
     await db.delete(item)
@@ -785,7 +785,7 @@ async def get_task(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return item
@@ -806,7 +806,7 @@ async def update_task(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
@@ -834,7 +834,7 @@ async def delete_task(
             SchedulerConfig.user_id == current_user.id,
         )
     )
-    item = result.scalar_one_or_none()
+    item = result.unique().scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
     await db.delete(item)
