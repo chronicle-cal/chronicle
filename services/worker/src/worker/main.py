@@ -6,7 +6,7 @@ import json
 import logging
 import time
 import signal
-import actions
+from worker import actions
 
 # Configure logging
 logging.basicConfig(

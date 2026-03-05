@@ -1,4 +1,4 @@
-from db import fetch_sync_config_by_user
+from worker.db import fetch_sync_config_by_user
 import logging
 
 from sync.engine import SyncEngine
