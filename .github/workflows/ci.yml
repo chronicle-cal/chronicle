@@ -103,3 +103,35 @@ jobs:
           echo "[smoke-tests] Shutting backend stack down..."
           docker compose -f compose.yaml down -v
           echo "[smoke-tests] Shutdown complete."
+  worker-tests:
+    name: Worker tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+      - name: Create virtual environment
+        run: |
+          uv venv
+          echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
+      - name: Install dependencies
+        run: |
+          uv pip install -r services/worker/requirements.txt
+          uv pip install pytest pytest-cov
+      - name: Run worker tests
+        working-directory: services/worker
+        run: |
+          if find . -maxdepth 4 -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
+            pytest -q --cov --cov-report=term-missing
+          else
+            echo "No tests found; skipping."
+          fi
