@@ -7,7 +7,7 @@ from app.api.profiles import router as profiles_router
 from app.api.integration import (
     sync_config_router,
     scheduler_config_router,
-    source_router,
+    calendar_profile_router,
     rule_router,
     condition_router,
     action_router,
@@ -26,16 +26,18 @@ app.add_middleware(
 
 app.include_router(health_router, prefix="/api", tags=["health"])
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
-app.include_router(profiles_router, prefix="/api/profiles", tags=["profiles"])
+app.include_router(profiles_router, prefix="/api/profile", tags=["profile"])
 
+# -------------
+
+app.include_router(sync_config_router, prefix="/api/sync-config", tags=["sync-config"])
 app.include_router(
-    sync_config_router, prefix="/api/sync-configs", tags=["sync-configs"]
+    scheduler_config_router, prefix="/api/scheduler-config", tags=["scheduler-config"]
 )
 app.include_router(
-    scheduler_config_router, prefix="/api/scheduler-configs", tags=["scheduler-configs"]
+    calendar_profile_router, prefix="/api/calendar-profile", tags=["source"]
 )
-app.include_router(source_router, prefix="/api/sources", tags=["sources"])
-app.include_router(rule_router, prefix="/api/rules", tags=["rules"])
-app.include_router(condition_router, prefix="/api/conditions", tags=["conditions"])
-app.include_router(action_router, prefix="/api/actions", tags=["actions"])
-app.include_router(task_router, prefix="/api/tasks", tags=["tasks"])
+app.include_router(rule_router, prefix="/api/rule", tags=["rule"])
+app.include_router(condition_router, prefix="/api/condition", tags=["condition"])
+app.include_router(action_router, prefix="/api/action", tags=["action"])
+app.include_router(task_router, prefix="/api/task", tags=["task"])

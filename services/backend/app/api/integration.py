@@ -6,7 +6,7 @@ from app.api.auth import get_current_user
 from app.core.db import get_db
 from app.models.integration import (
     SyncConfig,
-    Source,
+    CalendarProfile,
     Rule,
     Condition,
     Action,
@@ -19,8 +19,8 @@ from app.schemas.integration import (
     SyncConfigCreate,
     SchedulerConfig as SchedulerConfigSchema,
     SchedulerConfigCreate,
-    Source as SourceSchema,
-    SourceCreate,
+    CalendarProfile as CalendarProfileSchema,
+    CalendarProfileCreate,
     Rule as RuleSchema,
     RuleCreate,
     Condition as ConditionSchema,
@@ -33,7 +33,7 @@ from app.schemas.integration import (
 
 sync_config_router = APIRouter()
 scheduler_config_router = APIRouter()
-source_router = APIRouter()
+calendar_profile_router = APIRouter()
 rule_router = APIRouter()
 condition_router = APIRouter()
 action_router = APIRouter()
@@ -87,7 +87,7 @@ async def create_sync_config(
     return db_obj
 
 
-@sync_config_router.put("/{id}", response_model=SyncConfigSchema)
+@sync_config_router.post("/{id}", response_model=SyncConfigSchema)
 async def update_sync_config(
     id: str,
     payload: dict,
@@ -180,7 +180,7 @@ async def create_scheduler_config(
     return db_obj
 
 
-@scheduler_config_router.put("/{id}", response_model=SchedulerConfigSchema)
+@scheduler_config_router.post("/{id}", response_model=SchedulerConfigSchema)
 async def update_scheduler_config(
     id: str,
     payload: dict,
@@ -226,31 +226,33 @@ async def delete_scheduler_config(
     await db.commit()
 
 
-@source_router.get("/sync-config/{sync_config_id}", response_model=list[SourceSchema])
-async def list_sources_for_sync_config(
+@calendar_profile_router.get(
+    "/sync-config/{sync_config_id}", response_model=list[CalendarProfileSchema]
+)
+async def list_calendar_profiles_for_sync_config(
     sync_config_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Source)
+        select(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Source.sync_config_id == sync_config_id,
+            CalendarProfile.sync_config_id == sync_config_id,
             SyncConfig.user_id == current_user.id,
         )
     )
     return list(result.scalars().all())
 
 
-@source_router.post(
+@calendar_profile_router.post(
     "/sync-config/{sync_config_id}",
-    response_model=SourceSchema,
+    response_model=CalendarProfileSchema,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_source_for_sync_config(
+async def create_calendar_profile_for_sync_config(
     sync_config_id: str,
-    payload: SourceCreate,
+    payload: CalendarProfileCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -266,51 +268,51 @@ async def create_source_for_sync_config(
 
     data = payload.model_dump()
     data["sync_config_id"] = sync_config_id
-    db_obj = Source(**data)
+    db_obj = CalendarProfile(**data)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
     return db_obj
 
 
-@source_router.get("/{id}", response_model=SourceSchema)
-async def get_source(
+@calendar_profile_router.get("/{id}", response_model=CalendarProfileSchema)
+async def get_calendar_profile(
     id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Source)
+        select(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Source.id == id,
+            CalendarProfile.id == id,
             SyncConfig.user_id == current_user.id,
         )
     )
     item = result.unique().scalar_one_or_none()
     if item is None:
-        raise HTTPException(status_code=404, detail="Source not found")
+        raise HTTPException(status_code=404, detail="CalendarProfile not found")
     return item
 
 
-@source_router.put("/{id}", response_model=SourceSchema)
-async def update_source(
+@calendar_profile_router.post("/{id}", response_model=CalendarProfileSchema)
+async def update_calendar_profile(
     id: str,
     payload: dict,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Source)
+        select(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Source.id == id,
+            CalendarProfile.id == id,
             SyncConfig.user_id == current_user.id,
         )
     )
     item = result.unique().scalar_one_or_none()
     if item is None:
-        raise HTTPException(status_code=404, detail="Source not found")
+        raise HTTPException(status_code=404, detail="CalendarProfile not found")
 
     obj_data = payload
     for field, value in obj_data.items():
@@ -322,39 +324,41 @@ async def update_source(
     return item
 
 
-@source_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_source(
+@calendar_profile_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_calendar_profile(
     id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Source)
+        select(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Source.id == id,
+            CalendarProfile.id == id,
             SyncConfig.user_id == current_user.id,
         )
     )
     item = result.unique().scalar_one_or_none()
     if item is None:
-        raise HTTPException(status_code=404, detail="Source not found")
+        raise HTTPException(status_code=404, detail="CalendarProfile not found")
     await db.delete(item)
     await db.commit()
 
 
-@rule_router.get("/source/{source_id}", response_model=list[RuleSchema])
-async def list_rules_for_source(
-    source_id: str,
+@rule_router.get(
+    "/calendar-profile/{calendar_profile_id}", response_model=list[RuleSchema]
+)
+async def list_rules_for_calendar_profile(
+    calendar_profile_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Rule.source_id == source_id,
+            Rule.calendar_profile_id == calendar_profile_id,
             SyncConfig.user_id == current_user.id,
         )
     )
@@ -362,30 +366,30 @@ async def list_rules_for_source(
 
 
 @rule_router.post(
-    "/source/{source_id}",
+    "/calendar-profile/{calendar_profile_id}",
     response_model=RuleSchema,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_rule_for_source(
-    source_id: str,
+async def create_rule_for_calendar_profile(
+    calendar_profile_id: str,
     payload: RuleCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     parent_result = await db.execute(
-        select(Source)
+        select(CalendarProfile)
         .join(SyncConfig)
         .where(
-            Source.id == source_id,
+            CalendarProfile.id == calendar_profile_id,
             SyncConfig.user_id == current_user.id,
         )
     )
     parent = parent_result.scalar_one_or_none()
     if parent is None:
-        raise HTTPException(status_code=404, detail="Source not found")
+        raise HTTPException(status_code=404, detail="CalendarProfile not found")
 
     data = payload.model_dump()
-    data["source_id"] = source_id
+    data["calendar_profile_id"] = calendar_profile_id
     db_obj = Rule(**data)
     db.add(db_obj)
     await db.commit()
@@ -401,7 +405,7 @@ async def get_rule(
 ):
     result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Rule.id == id,
@@ -414,7 +418,7 @@ async def get_rule(
     return item
 
 
-@rule_router.put("/{id}", response_model=RuleSchema)
+@rule_router.post("/{id}", response_model=RuleSchema)
 async def update_rule(
     id: int,
     payload: dict,
@@ -423,7 +427,7 @@ async def update_rule(
 ):
     result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Rule.id == id,
@@ -436,7 +440,7 @@ async def update_rule(
 
     obj_data = payload
     for field, value in obj_data.items():
-        if hasattr(item, field) and field != "source_id":
+        if hasattr(item, field) and field != "calendar_profile_id":
             setattr(item, field, value)
 
     await db.commit()
@@ -452,7 +456,7 @@ async def delete_rule(
 ):
     result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Rule.id == id,
@@ -475,7 +479,7 @@ async def list_conditions_for_rule(
     result = await db.execute(
         select(Condition)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Condition.rule_id == rule_id,
@@ -498,7 +502,7 @@ async def create_condition_for_rule(
 ):
     parent_result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Rule.id == rule_id,
@@ -527,7 +531,7 @@ async def get_condition(
     result = await db.execute(
         select(Condition)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Condition.id == id,
@@ -540,7 +544,7 @@ async def get_condition(
     return item
 
 
-@condition_router.put("/{id}", response_model=ConditionSchema)
+@condition_router.post("/{id}", response_model=ConditionSchema)
 async def update_condition(
     id: int,
     payload: dict,
@@ -550,7 +554,7 @@ async def update_condition(
     result = await db.execute(
         select(Condition)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Condition.id == id,
@@ -580,7 +584,7 @@ async def delete_condition(
     result = await db.execute(
         select(Condition)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Condition.id == id,
@@ -603,7 +607,7 @@ async def list_actions_for_rule(
     result = await db.execute(
         select(Action)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Action.rule_id == rule_id,
@@ -626,7 +630,7 @@ async def create_action_for_rule(
 ):
     parent_result = await db.execute(
         select(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Rule.id == rule_id,
@@ -655,7 +659,7 @@ async def get_action(
     result = await db.execute(
         select(Action)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Action.id == id,
@@ -668,7 +672,7 @@ async def get_action(
     return item
 
 
-@action_router.put("/{id}", response_model=ActionSchema)
+@action_router.post("/{id}", response_model=ActionSchema)
 async def update_action(
     id: int,
     payload: dict,
@@ -678,7 +682,7 @@ async def update_action(
     result = await db.execute(
         select(Action)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Action.id == id,
@@ -708,7 +712,7 @@ async def delete_action(
     result = await db.execute(
         select(Action)
         .join(Rule)
-        .join(Source)
+        .join(CalendarProfile)
         .join(SyncConfig)
         .where(
             Action.id == id,
@@ -791,7 +795,7 @@ async def get_task(
     return item
 
 
-@task_router.put("/{id}", response_model=TaskSchema)
+@task_router.post("/{id}", response_model=TaskSchema)
 async def update_task(
     id: str,
     payload: dict,

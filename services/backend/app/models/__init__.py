@@ -2,7 +2,7 @@ from .profile import Profile
 from .user import User
 from .integration import (
     SyncConfig,
-    Source,
+    CalendarProfile,
     Rule,
     Condition,
     Action,
@@ -14,7 +14,7 @@ __all__ = [
     "User",
     "Profile",
     "SyncConfig",
-    "Source",
+    "CalendarProfile",
     "Rule",
     "Condition",
     "Action",

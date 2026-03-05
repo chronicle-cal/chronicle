@@ -37,8 +37,8 @@ class Rule(Base):
     __tablename__ = "rules"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source_id: Mapped[str] = mapped_column(
-        ForeignKey("sources.id", ondelete="CASCADE"), nullable=False
+    calendar_profile_id: Mapped[str] = mapped_column(
+        ForeignKey("calendar_profiles.id", ondelete="CASCADE"), nullable=False
     )
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -53,11 +53,11 @@ class Rule(Base):
         "Action", back_populates="rule", cascade="all, delete-orphan", lazy="joined"
     )
 
-    source = relationship("Source", back_populates="rules")
+    calendar_profile = relationship("CalendarProfile", back_populates="rules")
 
 
-class Source(Base):
-    __tablename__ = "sources"
+class CalendarProfile(Base):
+    __tablename__ = "calendar_profiles"
 
     id: Mapped[str] = mapped_column(
         String(64), primary_key=True, default=lambda: str(uuid.uuid4())
@@ -65,14 +65,19 @@ class Source(Base):
     sync_config_id: Mapped[str] = mapped_column(
         ForeignKey("sync_configs.id", ondelete="CASCADE"), nullable=False
     )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    color: Mapped[str] = mapped_column(String(7), nullable=False, default="#3B82F6")
     type: Mapped[str] = mapped_column(String(64), nullable=False)
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
 
     rules = relationship(
-        "Rule", back_populates="source", cascade="all, delete-orphan", lazy="joined"
+        "Rule",
+        back_populates="calendar_profile",
+        cascade="all, delete-orphan",
+        lazy="joined",
     )
 
-    sync_config = relationship("SyncConfig", back_populates="sources")
+    sync_config = relationship("SyncConfig", back_populates="calendar_profiles")
 
 
 class SyncConfig(Base):
@@ -89,7 +94,7 @@ class SyncConfig(Base):
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     sources = relationship(
-        "Source",
+        "CalendarProfile",
         back_populates="sync_config",
         cascade="all, delete-orphan",
         lazy="joined",

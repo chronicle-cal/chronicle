@@ -30,7 +30,7 @@ class ActionCreate(BaseModel):
 
 class Rule(BaseModel):
     id: int
-    source_id: str
+    calendar_profile_id: str
     enabled: bool
     name: str
 
@@ -40,14 +40,14 @@ class RuleCreate(BaseModel):
     name: str = Field(...)
 
 
-class Source(BaseModel):
+class CalendarProfile(BaseModel):
     id: str
     sync_config_id: str
     type: str
     url: str
 
 
-class SourceCreate(BaseModel):
+class CalendarProfileCreate(BaseModel):
     type: str = Field(...)
     url: str = Field(...)
 
