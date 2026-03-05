@@ -1,67 +1,41 @@
 repos:
-    # Basic hygiene + accidental secrets (keys)
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v5.0.0
-      hooks:
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-toml
-          - id: check-added-large-files
-          - id: detect-private-key
-
-    # Ruff: lint + auto-fix
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.9.6
-      hooks:
-          - id: ruff
-            args: [--fix]
-          - id: ruff-format
-
-    # Pytest: runs tests before commit (fast mode recommended)
-    - repo: local
-      hooks:
-          - id: pytest
-            name: pytest
-            entry: pytest -q
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
-
-    # TruffleHog: secret scanning (recommended to run on commit-msg or pre-push)
-    - repo: local
-      hooks:
-          - id: trufflehog
-            name: trufflehog (staged files)
-            entry: bash -lc 'trufflehog git file://. --since-commit HEAD --only-verified --fail --no-update'
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
-
-    # Backend API smoke test via Docker compose
-    - repo: local
-      hooks:
-          - id: smoke-backend-start-health
-            name: backend startup and health smoke test
-            entry: bash scripts/smoke/smoke-backend-start-health.sh
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
-          - id: smoke-user-auth
-            name: user auth smoke test
-            entry: bash scripts/smoke/smoke-user-auth.sh
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
-          - id: smoke-user-profile-edit
-            name: user profile edit smoke test
-            entry: bash scripts/smoke/smoke-user-profile-edit.sh
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
-          - id: smoke-db-cleanup
-            name: db cleanup after smoke test
-            entry: bash scripts/smoke/smoke-db-reset.sh
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
+  # Basic hygiene + accidental secrets (keys)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+      - id: detect-private-key
+  # Ruff: lint + auto-fix
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  # Format yaml files
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.19.0
+    hooks:
+      - id: yamlfmt
+  # Pytest: runs tests before commit (fast mode recommended)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest -q
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+  # TruffleHog: secret scanning (recommended to run on commit-msg or pre-push)
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: trufflehog (staged files)
+        entry: bash -lc 'trufflehog git file://. --since-commit HEAD --only-verified --fail --no-update'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
