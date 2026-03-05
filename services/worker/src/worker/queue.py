@@ -49,7 +49,7 @@ def get_connection():
     sys.exit(1)
 
 
-def main():
+def start():
     connection = get_connection()
     channel = connection.channel()
     channel.queue_declare(queue="worker", durable=True)
@@ -91,4 +91,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    start()

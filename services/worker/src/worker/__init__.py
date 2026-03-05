@@ -1,5 +1,5 @@
-from worker.main import main
+from worker.queue import start
 
 
-if __name__ == "__main__":
-    main()
+def main():
+    start()
