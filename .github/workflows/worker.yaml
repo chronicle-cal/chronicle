@@ -24,4 +24,4 @@ jobs:
         run: uv sync
       - name: Run tests with pytest
         working-directory: services/worker
-        run: uv run pytest --cov=worker --cov-report=term-only
+        run: uv run pytest --cov=worker --cov-report=term-missing
