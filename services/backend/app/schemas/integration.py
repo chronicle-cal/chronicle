@@ -48,7 +48,6 @@ class Source(BaseModel):
 
 
 class SourceCreate(BaseModel):
-    id: str = Field(...)
     type: str = Field(...)
     url: str = Field(...)
 
@@ -56,12 +55,9 @@ class SourceCreate(BaseModel):
 class SyncConfig(BaseModel):
     id: str
     destination: str
-    username: str
-    password: str
 
 
 class SyncConfigCreate(BaseModel):
-    id: str = Field(...)
     destination: str = Field(...)
     username: str = Field(...)
     password: str = Field(...)
@@ -79,7 +75,6 @@ class Task(BaseModel):
 
 
 class TaskCreate(BaseModel):
-    id: str = Field(...)
     title: str = Field(...)
     description: str = Field(...)
     due_date: datetime | None = Field(None)
@@ -92,13 +87,10 @@ class SchedulerConfig(BaseModel):
     id: str
     name: str
     calendar_url: str
-    calendar_password: str
-    calendar_username: str
 
 
 class SchedulerConfigCreate(BaseModel):
-    id: str = Field(...)
     name: str = Field(...)
     calendar_url: str = Field(...)
-    calendar_password: str = Field(...)
     calendar_username: str = Field(...)
+    calendar_password: str = Field(...)

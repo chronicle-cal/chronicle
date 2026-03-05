@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.api.auth import get_current_user
 from app.core.db import get_db
-from app.core.crud import CRUDBase
 from app.models.integration import (
     SyncConfig,
     Source,
@@ -13,6 +13,7 @@ from app.models.integration import (
     SchedulerConfig,
     Task,
 )
+from app.models.user import User
 from app.schemas.integration import (
     SyncConfig as SyncConfigSchema,
     SyncConfigCreate,
@@ -38,27 +39,30 @@ condition_router = APIRouter()
 action_router = APIRouter()
 task_router = APIRouter()
 
-sync_config_crud = CRUDBase(SyncConfig)
-scheduler_config_crud = CRUDBase(SchedulerConfig)
-source_crud = CRUDBase(Source)
-rule_crud = CRUDBase(Rule)
-condition_crud = CRUDBase(Condition)
-action_crud = CRUDBase(Action)
-task_crud = CRUDBase(Task)
-
 
 @sync_config_router.get("", response_model=list[SyncConfigSchema])
 async def list_sync_configs(
-    skip: int = 0,
-    limit: int = 100,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await sync_config_crud.get_multi(db, skip=skip, limit=limit)
+    result = await db.execute(
+        select(SyncConfig).where(SyncConfig.user_id == current_user.id)
+    )
+    return list(result.scalars().all())
 
 
 @sync_config_router.get("/{id}", response_model=SyncConfigSchema)
-async def get_sync_config(id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(SyncConfig).where(SyncConfig.id == id))
+async def get_sync_config(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(SyncConfig).where(
+            SyncConfig.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
@@ -69,23 +73,40 @@ async def get_sync_config(id: str, db: AsyncSession = Depends(get_db)):
     "", response_model=SyncConfigSchema, status_code=status.HTTP_201_CREATED
 )
 async def create_sync_config(
-    payload: SyncConfigCreate, db: AsyncSession = Depends(get_db)
+    payload: SyncConfigCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
-    return await sync_config_crud.create(db, payload)
+    data = payload.model_dump()
+    data["user_id"] = current_user.id
+
+    db_obj = SyncConfig(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @sync_config_router.put("/{id}", response_model=SyncConfigSchema)
 async def update_sync_config(
-    id: str, payload: dict, db: AsyncSession = Depends(get_db)
+    id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(SyncConfig).where(SyncConfig.id == id))
+    result = await db.execute(
+        select(SyncConfig).where(
+            SyncConfig.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
 
     obj_data = payload
     for field, value in obj_data.items():
-        if hasattr(item, field):
+        if hasattr(item, field) and field != "user_id":
             setattr(item, field, value)
 
     await db.commit()
@@ -94,8 +115,17 @@ async def update_sync_config(
 
 
 @sync_config_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_sync_config(id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(SyncConfig).where(SyncConfig.id == id))
+async def delete_sync_config(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(SyncConfig).where(
+            SyncConfig.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
@@ -105,16 +135,27 @@ async def delete_sync_config(id: str, db: AsyncSession = Depends(get_db)):
 
 @scheduler_config_router.get("", response_model=list[SchedulerConfigSchema])
 async def list_scheduler_configs(
-    skip: int = 0,
-    limit: int = 100,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await scheduler_config_crud.get_multi(db, skip=skip, limit=limit)
+    result = await db.execute(
+        select(SchedulerConfig).where(SchedulerConfig.user_id == current_user.id)
+    )
+    return list(result.scalars().all())
 
 
 @scheduler_config_router.get("/{id}", response_model=SchedulerConfigSchema)
-async def get_scheduler_config(id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(SchedulerConfig).where(SchedulerConfig.id == id))
+async def get_scheduler_config(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(SchedulerConfig).where(
+            SchedulerConfig.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
@@ -125,23 +166,40 @@ async def get_scheduler_config(id: str, db: AsyncSession = Depends(get_db)):
     "", response_model=SchedulerConfigSchema, status_code=status.HTTP_201_CREATED
 )
 async def create_scheduler_config(
-    payload: SchedulerConfigCreate, db: AsyncSession = Depends(get_db)
+    payload: SchedulerConfigCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
-    return await scheduler_config_crud.create(db, payload)
+    data = payload.model_dump()
+    data["user_id"] = current_user.id
+
+    db_obj = SchedulerConfig(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @scheduler_config_router.put("/{id}", response_model=SchedulerConfigSchema)
 async def update_scheduler_config(
-    id: str, payload: dict, db: AsyncSession = Depends(get_db)
+    id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(SchedulerConfig).where(SchedulerConfig.id == id))
+    result = await db.execute(
+        select(SchedulerConfig).where(
+            SchedulerConfig.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
 
     obj_data = payload
     for field, value in obj_data.items():
-        if hasattr(item, field):
+        if hasattr(item, field) and field != "user_id":
             setattr(item, field, value)
 
     await db.commit()
@@ -150,8 +208,17 @@ async def update_scheduler_config(
 
 
 @scheduler_config_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_scheduler_config(id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(SchedulerConfig).where(SchedulerConfig.id == id))
+async def delete_scheduler_config(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(SchedulerConfig).where(
+            SchedulerConfig.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
     item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
@@ -162,10 +229,16 @@ async def delete_scheduler_config(id: str, db: AsyncSession = Depends(get_db)):
 @source_router.get("/sync-config/{sync_config_id}", response_model=list[SourceSchema])
 async def list_sources_for_sync_config(
     sync_config_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Source).where(Source.sync_config_id == sync_config_id)
+        select(Source)
+        .join(SyncConfig)
+        .where(
+            Source.sync_config_id == sync_config_id,
+            SyncConfig.user_id == current_user.id,
+        )
     )
     return list(result.scalars().all())
 
@@ -178,34 +251,70 @@ async def list_sources_for_sync_config(
 async def create_source_for_sync_config(
     sync_config_id: str,
     payload: SourceCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.get(SyncConfig, sync_config_id)
+    parent_result = await db.execute(
+        select(SyncConfig).where(
+            SyncConfig.id == sync_config_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    parent = parent_result.scalar_one_or_none()
     if parent is None:
         raise HTTPException(status_code=404, detail="SyncConfig not found")
 
     data = payload.model_dump()
     data["sync_config_id"] = sync_config_id
-    return await source_crud.create(db, data)
+    db_obj = Source(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @source_router.get("/{id}", response_model=SourceSchema)
-async def get_source(id: str, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Source, id)
+async def get_source(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Source)
+        .join(SyncConfig)
+        .where(
+            Source.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
     return item
 
 
 @source_router.put("/{id}", response_model=SourceSchema)
-async def update_source(id: str, payload: dict, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Source, id)
+async def update_source(
+    id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Source)
+        .join(SyncConfig)
+        .where(
+            Source.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
 
     obj_data = payload
     for field, value in obj_data.items():
-        if hasattr(item, field):
+        if hasattr(item, field) and field != "sync_config_id":
             setattr(item, field, value)
 
     await db.commit()
@@ -214,8 +323,20 @@ async def update_source(id: str, payload: dict, db: AsyncSession = Depends(get_d
 
 
 @source_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_source(id: str, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Source, id)
+async def delete_source(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Source)
+        .join(SyncConfig)
+        .where(
+            Source.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Source not found")
     await db.delete(item)
@@ -225,9 +346,18 @@ async def delete_source(id: str, db: AsyncSession = Depends(get_db)):
 @rule_router.get("/source/{source_id}", response_model=list[RuleSchema])
 async def list_rules_for_source(
     source_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Rule).where(Rule.source_id == source_id))
+    result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.source_id == source_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     return list(result.scalars().all())
 
 
@@ -239,47 +369,119 @@ async def list_rules_for_source(
 async def create_rule_for_source(
     source_id: str,
     payload: RuleCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.get(Source, source_id)
+    parent_result = await db.execute(
+        select(Source)
+        .join(SyncConfig)
+        .where(
+            Source.id == source_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    parent = parent_result.scalar_one_or_none()
     if parent is None:
         raise HTTPException(status_code=404, detail="Source not found")
 
     data = payload.model_dump()
     data["source_id"] = source_id
-    return await rule_crud.create(db, data)
+    db_obj = Rule(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @rule_router.get("/{id}", response_model=RuleSchema)
-async def get_rule(id: int, db: AsyncSession = Depends(get_db)):
-    item = await rule_crud.get(db, id)
+async def get_rule(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
     return item
 
 
 @rule_router.put("/{id}", response_model=RuleSchema)
-async def update_rule(id: int, payload: dict, db: AsyncSession = Depends(get_db)):
-    item = await rule_crud.update(db, id, payload)
+async def update_rule(
+    id: int,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
+
+    obj_data = payload
+    for field, value in obj_data.items():
+        if hasattr(item, field) and field != "source_id":
+            setattr(item, field, value)
+
+    await db.commit()
+    await db.refresh(item)
     return item
 
 
 @rule_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_rule(id: int, db: AsyncSession = Depends(get_db)):
-    item = await rule_crud.get(db, id)
+async def delete_rule(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Rule not found")
-    await rule_crud.delete(db, id)
+    await db.delete(item)
+    await db.commit()
 
 
 @condition_router.get("/rule/{rule_id}", response_model=list[ConditionSchema])
 async def list_conditions_for_rule(
     rule_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Condition).where(Condition.rule_id == rule_id))
+    result = await db.execute(
+        select(Condition)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Condition.rule_id == rule_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     return list(result.scalars().all())
 
 
@@ -291,89 +493,233 @@ async def list_conditions_for_rule(
 async def create_condition_for_rule(
     rule_id: int,
     payload: ConditionCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.get(Rule, rule_id)
+    parent_result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.id == rule_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    parent = parent_result.scalar_one_or_none()
     if parent is None:
         raise HTTPException(status_code=404, detail="Rule not found")
 
     data = payload.model_dump()
     data["rule_id"] = rule_id
-    return await condition_crud.create(db, data)
+    db_obj = Condition(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @condition_router.get("/{id}", response_model=ConditionSchema)
-async def get_condition(id: int, db: AsyncSession = Depends(get_db)):
-    item = await condition_crud.get(db, id)
+async def get_condition(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Condition)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Condition.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
     return item
 
 
 @condition_router.put("/{id}", response_model=ConditionSchema)
-async def update_condition(id: int, payload: dict, db: AsyncSession = Depends(get_db)):
-    item = await condition_crud.update(db, id, payload)
+async def update_condition(
+    id: int,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Condition)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Condition.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
+
+    obj_data = payload
+    for field, value in obj_data.items():
+        if hasattr(item, field) and field != "rule_id":
+            setattr(item, field, value)
+
+    await db.commit()
+    await db.refresh(item)
     return item
 
 
 @condition_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_condition(id: int, db: AsyncSession = Depends(get_db)):
-    item = await condition_crud.get(db, id)
+async def delete_condition(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Condition)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Condition.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Condition not found")
-    await condition_crud.delete(db, id)
+    await db.delete(item)
+    await db.commit()
 
 
 @action_router.get("/rule/{rule_id}", response_model=list[ActionSchema])
 async def list_actions_for_rule(
     rule_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Action).where(Action.rule_id == rule_id))
+    result = await db.execute(
+        select(Action)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Action.rule_id == rule_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
     return list(result.scalars().all())
 
 
 @action_router.post(
-    "/rule/{rule_id}", response_model=ActionSchema, status_code=status.HTTP_201_CREATED
+    "/rule/{rule_id}",
+    response_model=ActionSchema,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_action_for_rule(
     rule_id: int,
     payload: ActionCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.get(Rule, rule_id)
+    parent_result = await db.execute(
+        select(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Rule.id == rule_id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    parent = parent_result.scalar_one_or_none()
     if parent is None:
         raise HTTPException(status_code=404, detail="Rule not found")
 
     data = payload.model_dump()
     data["rule_id"] = rule_id
-    return await action_crud.create(db, data)
+    db_obj = Action(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @action_router.get("/{id}", response_model=ActionSchema)
-async def get_action(id: int, db: AsyncSession = Depends(get_db)):
-    item = await action_crud.get(db, id)
+async def get_action(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Action)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Action.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
     return item
 
 
 @action_router.put("/{id}", response_model=ActionSchema)
-async def update_action(id: int, payload: dict, db: AsyncSession = Depends(get_db)):
-    item = await action_crud.update(db, id, payload)
+async def update_action(
+    id: int,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Action)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Action.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
+
+    obj_data = payload
+    for field, value in obj_data.items():
+        if hasattr(item, field) and field != "rule_id":
+            setattr(item, field, value)
+
+    await db.commit()
+    await db.refresh(item)
     return item
 
 
 @action_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_action(id: int, db: AsyncSession = Depends(get_db)):
-    item = await action_crud.get(db, id)
+async def delete_action(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Action)
+        .join(Rule)
+        .join(Source)
+        .join(SyncConfig)
+        .where(
+            Action.id == id,
+            SyncConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Action not found")
-    await action_crud.delete(db, id)
+    await db.delete(item)
+    await db.commit()
 
 
 @task_router.get(
@@ -381,10 +727,16 @@ async def delete_action(id: int, db: AsyncSession = Depends(get_db)):
 )
 async def list_tasks_for_scheduler_config(
     scheduler_config_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Task).where(Task.scheduler_config_id == scheduler_config_id)
+        select(Task)
+        .join(SchedulerConfig)
+        .where(
+            Task.scheduler_config_id == scheduler_config_id,
+            SchedulerConfig.user_id == current_user.id,
+        )
     )
     return list(result.scalars().all())
 
@@ -397,34 +749,70 @@ async def list_tasks_for_scheduler_config(
 async def create_task_for_scheduler_config(
     scheduler_config_id: str,
     payload: TaskCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    parent = await db.get(SchedulerConfig, scheduler_config_id)
+    parent_result = await db.execute(
+        select(SchedulerConfig).where(
+            SchedulerConfig.id == scheduler_config_id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
+    parent = parent_result.scalar_one_or_none()
     if parent is None:
         raise HTTPException(status_code=404, detail="SchedulerConfig not found")
 
     data = payload.model_dump()
     data["scheduler_config_id"] = scheduler_config_id
-    return await task_crud.create(db, data)
+    db_obj = Task(**data)
+    db.add(db_obj)
+    await db.commit()
+    await db.refresh(db_obj)
+    return db_obj
 
 
 @task_router.get("/{id}", response_model=TaskSchema)
-async def get_task(id: str, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Task, id)
+async def get_task(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Task)
+        .join(SchedulerConfig)
+        .where(
+            Task.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return item
 
 
 @task_router.put("/{id}", response_model=TaskSchema)
-async def update_task(id: str, payload: dict, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Task, id)
+async def update_task(
+    id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Task)
+        .join(SchedulerConfig)
+        .where(
+            Task.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
     obj_data = payload
     for field, value in obj_data.items():
-        if hasattr(item, field):
+        if hasattr(item, field) and field != "scheduler_config_id":
             setattr(item, field, value)
 
     await db.commit()
@@ -433,8 +821,20 @@ async def update_task(id: str, payload: dict, db: AsyncSession = Depends(get_db)
 
 
 @task_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(id: str, db: AsyncSession = Depends(get_db)):
-    item = await db.get(Task, id)
+async def delete_task(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Task)
+        .join(SchedulerConfig)
+        .where(
+            Task.id == id,
+            SchedulerConfig.user_id == current_user.id,
+        )
+    )
+    item = result.scalar_one_or_none()
     if item is None:
         raise HTTPException(status_code=404, detail="Task not found")
     await db.delete(item)

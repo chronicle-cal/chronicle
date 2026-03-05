@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import ForeignKey, Integer, String, Boolean, JSON, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime
@@ -58,7 +59,9 @@ class Rule(Base):
 class Source(Base):
     __tablename__ = "sources"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     sync_config_id: Mapped[str] = mapped_column(
         ForeignKey("sync_configs.id", ondelete="CASCADE"), nullable=False
     )
@@ -75,7 +78,12 @@ class Source(Base):
 class SyncConfig(Base):
     __tablename__ = "sync_configs"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     destination: Mapped[str] = mapped_column(String(255), nullable=False)
     username: Mapped[str] = mapped_column(String(255), nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -91,7 +99,9 @@ class SyncConfig(Base):
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     scheduler_config_id: Mapped[str] = mapped_column(
         ForeignKey("scheduler_configs.id", ondelete="CASCADE"), nullable=False
     )
@@ -112,7 +122,12 @@ class Task(Base):
 class SchedulerConfig(Base):
     __tablename__ = "scheduler_configs"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     calendar_url: Mapped[str] = mapped_column(String(2048), nullable=False)
     calendar_password: Mapped[str] = mapped_column(String(255), nullable=False)
