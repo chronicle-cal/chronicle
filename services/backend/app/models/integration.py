@@ -93,7 +93,7 @@ class SyncConfig(Base):
     username: Mapped[str] = mapped_column(String(255), nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    sources = relationship(
+    calendar_profiles = relationship(
         "CalendarProfile",
         back_populates="sync_config",
         cascade="all, delete-orphan",

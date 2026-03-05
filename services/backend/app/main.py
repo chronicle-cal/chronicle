@@ -35,7 +35,7 @@ app.include_router(
     scheduler_config_router, prefix="/api/scheduler-config", tags=["scheduler-config"]
 )
 app.include_router(
-    calendar_profile_router, prefix="/api/calendar-profile", tags=["source"]
+    calendar_profile_router, prefix="/api/calendar-profile", tags=["calendar-profile"]
 )
 app.include_router(rule_router, prefix="/api/rule", tags=["rule"])
 app.include_router(condition_router, prefix="/api/condition", tags=["condition"])

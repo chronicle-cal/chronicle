@@ -43,11 +43,15 @@ class RuleCreate(BaseModel):
 class CalendarProfile(BaseModel):
     id: str
     sync_config_id: str
+    name: str
+    color: str
     type: str
     url: str
 
 
 class CalendarProfileCreate(BaseModel):
+    name: str = Field(...)
+    color: str = Field("#3B82F6")
     type: str = Field(...)
     url: str = Field(...)
 

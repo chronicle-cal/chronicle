@@ -5,7 +5,7 @@ from app.core.db import Base
 
 
 class Profile(Base):
-    __tablename__ = "profiles"
+    __tablename__ = "user_profiles"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
