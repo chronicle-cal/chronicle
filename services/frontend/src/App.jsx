@@ -7,6 +7,8 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Profile from "./pages/Profile.jsx";
+import CalendarProfiles from "./pages/CalendarProfiles.jsx";
+import CreateCalendarProfile from "./pages/CreateCalendarProfile.jsx";
 
 export default function App() {
   return (
@@ -30,6 +32,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar-profiles"
+          element={
+            <ProtectedRoute>
+              <CalendarProfiles />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar-profiles/new"
+          element={
+            <ProtectedRoute>
+              <CreateCalendarProfile />
             </ProtectedRoute>
           }
         />

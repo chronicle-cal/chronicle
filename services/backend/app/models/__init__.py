@@ -1,23 +1,21 @@
 from .profile import Profile
 from .user import User
 from .integration import (
-    SyncConfig,
+    Calendar,
     CalendarProfile,
+    CalendarSource,
     Rule,
     Condition,
     Action,
-    SchedulerConfig,
-    Task,
 )
 
 __all__ = [
     "User",
     "Profile",
-    "SyncConfig",
+    "Calendar",
     "CalendarProfile",
+    "CalendarSource",
     "Rule",
     "Condition",
     "Action",
-    "SchedulerConfig",
-    "Task",
 ]

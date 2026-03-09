@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict, AliasChoices
 
 
 class Condition(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     rule_id: int
     field: str
@@ -17,84 +18,69 @@ class ConditionCreate(BaseModel):
 
 
 class Action(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     rule_id: int
-    type: str
-    field: dict
+    name: str
+    arguments: dict
 
 
 class ActionCreate(BaseModel):
-    type: str = Field(...)
-    field: dict = Field(...)
+    name: str = Field(..., validation_alias=AliasChoices("name", "type"))
+    arguments: dict = Field(...)
 
 
 class Rule(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
-    calendar_profile_id: str
+    source_id: str
     enabled: bool
     name: str
+    conditions: list[Condition] = Field(default_factory=list)
+    actions: list[Action] = Field(default_factory=list)
 
 
 class RuleCreate(BaseModel):
     enabled: bool = Field(True)
     name: str = Field(...)
+    source_id: str | None = Field(None)
+    conditions: list[ConditionCreate] = Field(default_factory=list)
+    actions: list[ActionCreate] = Field(default_factory=list)
+
+
+class Calendar(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    type: str
+    url: str
+    username: str | None
+    password: str | None
+
+
+class CalendarCreate(BaseModel):
+    type: str = Field(...)
+    url: str = Field(...)
+    username: str | None = Field(None)
+    password: str | None = Field(None)
 
 
 class CalendarProfile(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
-    sync_config_id: str
+    user_id: int
     name: str
-    color: str
-    type: str
-    url: str
+    main_calendar_id: str | None
+    rules: list[Rule] = Field(default_factory=list)
 
 
 class CalendarProfileCreate(BaseModel):
     name: str = Field(...)
-    color: str = Field("#3B82F6")
-    type: str = Field(...)
-    url: str = Field(...)
+    main_calendar: CalendarCreate = Field(...)
 
 
-class SyncConfig(BaseModel):
-    id: str
-    destination: str
-
-
-class SyncConfigCreate(BaseModel):
-    destination: str = Field(...)
-    username: str = Field(...)
-    password: str = Field(...)
-
-
-class Task(BaseModel):
-    id: str
-    scheduler_config_id: str
-    title: str
-    description: str
-    due_date: datetime | None
-    duration: int
-    not_before: datetime | None
-    priority: int
-
-
-class TaskCreate(BaseModel):
-    title: str = Field(...)
-    description: str = Field(...)
-    due_date: datetime | None = Field(None)
-    duration: int = Field(30)
-    not_before: datetime | None = Field(None)
-    priority: int = Field(3)
-
-
-class SchedulerConfig(BaseModel):
-    id: str
-    name: str
-    calendar_url: str
-
-
-class SchedulerConfigCreate(BaseModel):
-    name: str = Field(...)
-    calendar_url: str = Field(...)
-    calendar_username: str = Field(...)
-    calendar_password: str = Field(...)
+class CalendarProfileUpdate(BaseModel):
+    name: str | None = Field(None)
