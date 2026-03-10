@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.auth import get_current_user
-from app.db.session import get_db
+from app.db.session import get_async_db
 from app.models.integration import (
     CalendarProfile,
     Calendar,
@@ -89,7 +89,7 @@ def _get_default_source_id(profile: CalendarProfile) -> str | None:
 @profile_router.get("", response_model=list[CalendarProfileSchema])
 async def list_profiles(
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     result = await db.execute(
         select(CalendarProfile)
@@ -120,7 +120,7 @@ async def list_profiles(
 async def create_profile(
     payload: CalendarProfileCreate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     calendar_data = payload.main_calendar.model_dump()
     calendar = Calendar(**calendar_data)
@@ -148,7 +148,7 @@ async def create_profile(
 async def get_profile(
     id: str,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(id, current_user, db)
     source_ids = [source.id for source in profile.calendar_sources]
@@ -161,7 +161,7 @@ async def update_profile(
     id: str,
     payload: CalendarProfileUpdate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(id, current_user, db)
     if payload.name is not None:
@@ -179,7 +179,7 @@ async def update_profile(
 async def delete_profile(
     id: str,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(id, current_user, db)
     await db.delete(profile)
@@ -190,7 +190,7 @@ async def delete_profile(
 async def list_rules(
     id: str,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(id, current_user, db)
     source_ids = [source.id for source in profile.calendar_sources]
@@ -205,7 +205,7 @@ async def create_rule(
     id: str,
     payload: RuleCreate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(id, current_user, db)
 
@@ -252,7 +252,7 @@ async def update_rule(
     rule_id: int,
     payload: RuleCreate,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     await _get_profile_or_404(profile_id, current_user, db)
     rule_result = await db.execute(
@@ -288,7 +288,7 @@ async def delete_rule(
     profile_id: str,
     rule_id: int,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
 ):
     await _get_profile_or_404(profile_id, current_user, db)
     rule_result = await db.execute(
