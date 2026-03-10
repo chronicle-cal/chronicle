@@ -14,6 +14,8 @@ services:
             interval: 5s
             timeout: 3s
             retries: 20
+        networks:
+            - chronicle-internal
 
     backend:
         build:
@@ -29,6 +31,8 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+        networks:
+            - chronicle-internal
 
     rabbitmq:
         image: rabbitmq:3-management
@@ -38,6 +42,9 @@ services:
         environment:
             RABBITMQ_DEFAULT_USER: guest
             RABBITMQ_DEFAULT_PASS: guest
+        networks:
+            - chronicle-internal
+
 
     pgadmin:
         image: dpage/pgadmin4
@@ -50,6 +57,8 @@ services:
             PGADMIN_DEFAULT_PASSWORD: password
         volumes:
            - pgadmin-data:/var/lib/pgadmin
+        networks:
+            - chronicle-internal
 
     frontend:
         build:
@@ -63,8 +72,14 @@ services:
             - ./services/frontend:/app
             - frontend_node_modules:/app/node_modules
         command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+        networks:
+            - chronicle-internal
 
 volumes:
     postgres_data: {}
     frontend_node_modules: {}
     pgadmin-data: {}
+
+networks:
+    chronicle-internal:
+        driver: bridge

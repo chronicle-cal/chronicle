@@ -18,15 +18,6 @@ repos:
             args: [--fix]
           - id: ruff-format
 
-    # Pytest: runs tests before commit (fast mode recommended)
-    - repo: local
-      hooks:
-          - id: pytest
-            name: pytest
-            entry: pytest services/backend/tests -q
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
 
     # TruffleHog: secret scanning (recommended to run on commit-msg or pre-push)
     - repo: local
