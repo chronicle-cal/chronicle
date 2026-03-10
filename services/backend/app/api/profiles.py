@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_db
+from app.db.session import get_db
 from app.models.profile import Profile as ProfileModel
 from app.schemas.profiles import Profile as ProfileSchema
 from app.schemas.profiles import ProfileCreate

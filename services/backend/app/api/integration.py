@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.auth import get_current_user
-from app.core.db import get_db
+from app.db.session import get_db
 from app.models.integration import (
     CalendarProfile,
     Calendar,

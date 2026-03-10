@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy import ForeignKey, Integer, String, Boolean, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import Base
+from app.db.base import Base
 
 
 class Condition(Base):
@@ -114,4 +114,6 @@ class CalendarProfile(Base):
         lazy="joined",
     )
 
-    main_calendar = relationship("Calendar", foreign_keys=[main_calendar_id])
+    main_calendar = relationship(
+        "Calendar", foreign_keys=[main_calendar_id], lazy="joined"
+    )

@@ -1,7 +1,7 @@
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.db import Base
+from app.db.base import Base
 
 
 class User(Base):
@@ -17,5 +17,5 @@ class User(Base):
     )
 
     profiles = relationship(
-        "Profile", back_populates="user", cascade="all, delete-orphan"
+        "Profile", back_populates="user", cascade="all, delete-orphan", lazy="joined"
     )

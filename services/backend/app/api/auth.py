@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_db
+from app.db.session import get_db
 from app.models.profile import Profile as ProfileModel
 from app.models.user import User as UserModel
 from app.schemas.auth import (
