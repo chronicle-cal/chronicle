@@ -9,6 +9,7 @@ from app.api.health import router as health_router
 from app.api.profiles import router as profiles_router
 from app.api.integration import profile_router
 from app.core.db import Base, engine
+import app.models
 
 app = FastAPI(title="Chronicle API", version="0.1.0")
 
