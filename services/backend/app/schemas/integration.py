@@ -93,3 +93,36 @@ class CalendarProfileCreate(BaseModel):
 
 class CalendarProfileUpdate(BaseModel):
     name: str | None = Field(None)
+
+
+class ProfileCreate(BaseModel):
+    name: str = Field(...)
+    main_calendar_id: str = Field(
+        ..., validation_alias=AliasChoices("main_calendar_id", "main_calendar")
+    )
+
+
+class ProfileReadShort(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    name: str
+    main_calendar_id: str | None
+
+
+class ProfileReadFull(ProfileReadShort):
+    main_calendar: CalendarRead | None
+    rules: list[Rule] = Field(default_factory=list)
+
+
+class SourceRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    calendar_id: str
+    calendar: CalendarRead
+
+
+class SourceCreate(BaseModel):
+    calendar_id: str = Field(
+        ..., validation_alias=AliasChoices("calendar_id", "calendar")
+    )

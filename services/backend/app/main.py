@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
-from app.api.integration import profile_router
+from app.api.profile import profile_router
 from app.api.calendar import calendar_router
 
 app = FastAPI(title="Chronicle API", version="0.1.0")
