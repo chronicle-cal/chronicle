@@ -16,6 +16,13 @@ Force recreate:
 ```
 podman-compose up --build --force-recreate -d
 ```
+
+/ Stopping Services:
+
+```bash
+podman-compose -f compose.yaml down
+```
+
 ### Lookup in the DB
 
 Make sure the compose stack is running before opening the DB shell.
