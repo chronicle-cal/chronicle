@@ -16,6 +16,8 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    fullname: Mapped[str] = mapped_column(String(255), nullable=True)
+
     profiles = relationship(
         "Profile", back_populates="user", cascade="all, delete-orphan", lazy="joined"
     )

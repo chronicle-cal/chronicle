@@ -8,16 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
 
 from app.db.session import get_async_db
-from app.models.profile import Profile as ProfileModel
 from app.models.user import User as UserModel
 from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
     TokenResponse,
-    UpdateEmailRequest,
-    UpdateNameRequest,
-    UpdatePasswordRequest,
-    DeleteAccountRequest,
 )
 
 router = APIRouter()
@@ -62,20 +57,12 @@ async def get_current_user(
         )
 
     result = await db.execute(select(UserModel).where(UserModel.email == email))
-    user = result.scalar_one_or_none()
+    user = result.unique().scalar_one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
     return user
-
-
-async def get_profile_name(db: AsyncSession, user_id: int) -> str:
-    profile_result = await db.execute(
-        select(ProfileModel).where(ProfileModel.user_id == user_id)
-    )
-    profile_row = profile_result.scalar_one_or_none()
-    return profile_row.name if profile_row else ""
 
 
 @router.post(
@@ -116,96 +103,4 @@ async def me(
     user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db),
 ):
-    name = await get_profile_name(db, user.id)
-    return {"authenticated": True, "email": user.email, "name": name}
-
-
-@router.post("/update-email")
-async def update_email(
-    payload: UpdateEmailRequest,
-    user: UserModel = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db),
-):
-    new_email = payload.new_email.lower()
-    if user.email == new_email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="New email must be different",
-        )
-
-    if not pwd_context.verify(payload.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-        )
-
-    conflict = await db.execute(select(UserModel).where(UserModel.email == new_email))
-    if conflict.scalar_one_or_none() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
-        )
-
-    user.email = new_email
-    await db.commit()
-    return {
-        "message": "email updated",
-        "email": new_email,
-        "access_token": create_token(new_email),
-    }
-
-
-@router.post("/update-password")
-async def update_password(
-    payload: UpdatePasswordRequest,
-    user: UserModel = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db),
-):
-    if not pwd_context.verify(payload.current_password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-        )
-
-    user.password_hash = pwd_context.hash(payload.new_password)
-    await db.commit()
-    return {"message": "password updated"}
-
-
-@router.post("/update-name")
-async def update_name(
-    payload: UpdateNameRequest,
-    user: UserModel = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db),
-):
-    if not pwd_context.verify(payload.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-        )
-
-    profile = await db.execute(
-        select(ProfileModel).where(ProfileModel.user_id == user.id)
-    )
-    profile = profile.scalar_one_or_none()
-    if profile is None:
-        profile = ProfileModel(user_id=user.id, name=payload.name)
-        db.add(profile)
-    else:
-        profile.name = payload.name
-
-    await db.commit()
-    return {"message": "name updated"}
-
-
-@router.post("/delete-account")
-async def delete_account(
-    payload: DeleteAccountRequest,
-    user: UserModel = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db),
-):
-    if payload.confirm.strip().lower() != "delete":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Confirmation text must be 'delete'",
-        )
-
-    await db.delete(user)
-    await db.commit()
-    return {"message": "account deleted"}
+    return {"authenticated": True, "email": user.email, "name": user.fullname}
