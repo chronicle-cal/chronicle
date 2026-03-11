@@ -1,6 +1,6 @@
 import caldav
 import icalendar
-from models import NormalizedEvent
+from worker.models import NormalizedEvent
 import logging
 
 

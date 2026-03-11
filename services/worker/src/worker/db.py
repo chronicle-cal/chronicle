@@ -1,4 +1,4 @@
-from models import Source, Rule, SyncConfig, Condition, Action
+from worker.models import Source, Rule, SyncConfig, Condition, Action
 import os
 
 

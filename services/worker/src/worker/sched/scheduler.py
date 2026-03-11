@@ -1,11 +1,11 @@
 import datetime
 import logging
 import os
-from services.worker.sched.solver import SchedulingSolver
+from worker.sched.solver import SchedulingSolver
 import caldav
 
-from models import Task, SchedulerConfig
-from services.worker.sched.utils import datetime_to_schedule_time
+from worker.models import Task, SchedulerConfig
+from worker.sched.utils import datetime_to_schedule_time
 
 HORIZON = datetime.timedelta(weeks=2)
 
@@ -23,7 +23,7 @@ def get_events_between(
         url=caldav_url,
         username=username,
         password=password,
-    ) as client:
+    ) as client:  # pyright: ignore[reportCallIssue]
         calendar = client.calendar(url=caldav_url)
         events = calendar.date_search(start, end)
         print(events)

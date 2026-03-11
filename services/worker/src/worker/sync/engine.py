@@ -2,9 +2,9 @@ import hashlib
 import logging
 import re
 
-from sync.sources import IcsSource, BaseSource
-from sync.targets import CaldavTarget
-from models import NormalizedEvent, Condition, Action, Rule, Source, SyncConfig
+from worker.sync.sources import IcsSource, BaseSource
+from worker.sync.targets import CaldavTarget
+from worker.models import NormalizedEvent, Condition, Action, Rule, Source, SyncConfig
 
 
 def evaluate_condition(event: NormalizedEvent, condition: Condition) -> bool:

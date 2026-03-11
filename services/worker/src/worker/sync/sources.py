@@ -3,7 +3,7 @@ import abc
 import icalendar
 import requests
 
-from models import NormalizedEvent
+from worker.models import NormalizedEvent
 
 
 class BaseSource(abc.ABC):
