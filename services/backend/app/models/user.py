@@ -18,6 +18,6 @@ class User(Base):
 
     fullname: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    profiles = relationship(
-        "Profile", back_populates="user", cascade="all, delete-orphan", lazy="joined"
+    calendars = relationship(
+        "Calendar", back_populates="owner", cascade="all, delete-orphan"
     )

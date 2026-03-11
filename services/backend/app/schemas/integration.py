@@ -67,6 +67,15 @@ class CalendarCreate(BaseModel):
     password: str | None = Field(None)
 
 
+class CalendarRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    type: str
+    url: str
+    username: str | None
+    password: str | None
+
+
 class CalendarProfile(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

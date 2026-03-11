@@ -92,6 +92,9 @@ class Calendar(Base):
     username: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    owner_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    owner = relationship("User", back_populates="calendars")
+
 
 class CalendarProfile(Base):
     __tablename__ = "calendar_profiles"
