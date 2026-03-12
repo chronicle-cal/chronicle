@@ -4,7 +4,8 @@ import re
 
 from worker.sync.sources import IcsSource, BaseSource
 from worker.sync.targets import CaldavTarget
-from worker.models import NormalizedEvent, Condition, Action, Rule, Source, SyncConfig
+from worker.models import NormalizedEvent
+from chronicle_shared.models import Condition, Action, Rule, Source, Profile
 
 
 def evaluate_condition(event: NormalizedEvent, condition: Condition) -> bool:
@@ -56,22 +57,28 @@ def hash_event(event: NormalizedEvent) -> str:
 
 
 class SyncEngine:
-    def __init__(self, config: SyncConfig):
-        logging.info(f"Initializing SyncEngine for destination: {config.destination}")
+    def __init__(self, config: Profile):
+        logging.info(
+            f"Initializing SyncEngine for destination: {config.main_calendar.url}"
+        )
         self.sources: list[tuple[BaseSource, Source]] = []
         for source in config.sources:
-            if source.type == "ics":
-                self.sources.append((IcsSource(source.url), source))
-                logging.info(f"Added ICS source: {source.url}")
+            if source.calendar.type == "ics":
+                self.sources.append((IcsSource(source.calendar.url), source))
+                logging.info(f"Added ICS source: {source.calendar.url}")
             else:
-                logging.error(f"Unsupported source type: {source.type}")
-                raise ValueError(f"Unsupported source type: {source.type}")
-        self.target = CaldavTarget(config.destination, config.username, config.password)
+                logging.error(f"Unsupported source type: {source.calendar.type}")
+                raise ValueError(f"Unsupported source type: {source.calendar.type}")
+        self.target = CaldavTarget(
+            config.main_calendar.url,
+            config.main_calendar.username,
+            config.main_calendar.password,
+        )
 
     def run(self):
         logging.info("Starting sync run...")
         for source, source_config in self.sources:
-            logging.info(f"Processing source: {source_config.url}")
+            logging.info(f"Processing source: {source_config.calendar.url}")
             source_events = source.fetch()
             dest_index = self.target.build_index()
 

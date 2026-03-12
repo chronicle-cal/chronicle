@@ -1,10 +1,8 @@
 import datetime
 import logging
-import os
 from worker.sched.solver import SchedulingSolver
 import caldav
-
-from worker.models import Task, SchedulerConfig
+from chronicle_shared.models import Profile
 from worker.sched.utils import datetime_to_schedule_time
 
 HORIZON = datetime.timedelta(weeks=2)
@@ -64,7 +62,7 @@ def merge_overlapping_events(events):
     return merged_events
 
 
-def update_schedule(scheduler_config: SchedulerConfig):
+def update_schedule(profile_config: Profile):
     schedule_start, schedule_end = calc_schedule_start_end(HORIZON)
     logging.info(
         f"Calculated schedule start: {schedule_start}, schedule end: {schedule_end}"
@@ -74,9 +72,9 @@ def update_schedule(scheduler_config: SchedulerConfig):
     events = get_events_between(
         schedule_start,
         schedule_end,
-        scheduler_config.calendar_url,
-        scheduler_config.calendar_username,
-        scheduler_config.calendar_password,
+        profile_config.main_calendar.url,
+        profile_config.main_calendar.username,
+        profile_config.main_calendar.password,
     )
 
     for event in events:
@@ -106,9 +104,9 @@ def update_schedule(scheduler_config: SchedulerConfig):
 
     print(solver_events)
 
-    solver_tasks = scheduler_config.tasks.copy()
+    solver_tasks = profile_config.tasks.copy()
 
-    for task in scheduler_config.tasks:
+    for task in profile_config.tasks:
         logging.info(
             f"Task: {task.title}, duration: {task.duration}, due_date: {task.due_date}"
         )
@@ -150,6 +148,7 @@ if __name__ == "__main__":
     logging.info("Starting scheduler")
     logging.info(f"Timezone: {TZ_INFO}")
 
+    """
     config = SchedulerConfig(
         id="sched1",
         name="Test Scheduler",
@@ -179,5 +178,4 @@ if __name__ == "__main__":
     )
 
     update_schedule(config)
-
-    # get the current date and time
+    """

@@ -2,7 +2,7 @@ import datetime
 
 from ortools.sat.python import cp_model
 
-from worker.models import Task, TaskEvent
+from chronicle_shared.models import Task, TaskEvent
 from worker.sched.utils import schedule_time_to_datetime
 
 DAY_DURATION_IN_MINUTES = 24 * 60
