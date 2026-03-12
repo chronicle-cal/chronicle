@@ -24,6 +24,7 @@ services:
         environment:
             DATABASE_URL: postgresql://admin:password@postgres:5432/appdb
             ASYNC_DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/appdb
+            RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
         command: >
             sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
         ports:
@@ -84,7 +85,8 @@ services:
             - backend
         networks:
             - chronicle-internal
-
+        environment:
+            RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
 volumes:
     postgres_data: {}
     frontend_node_modules: {}
