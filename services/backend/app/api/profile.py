@@ -125,13 +125,16 @@ async def delete_profile(
 ):
     result = await db.execute(
         select(CalendarProfile).where(
-            CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
+            CalendarProfile.id == profile_id,
+            CalendarProfile.user_id == current_user.id,
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
+
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found",
         )
 
     await db.delete(profile)
