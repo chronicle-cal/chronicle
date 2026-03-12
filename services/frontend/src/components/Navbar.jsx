@@ -51,6 +51,9 @@ export default function Navbar() {
             <Link className="pill" to="/dashboard">
               Dashboard
             </Link>
+            <Link className="pill" to="/calendar-profiles">
+              Calendar Profiles
+            </Link>
             <div className="profile-menu" ref={profileRef}>
               <button className="avatar-btn" type="button" onClick={toggleProfile}>
                 <span className="avatar-circle">
