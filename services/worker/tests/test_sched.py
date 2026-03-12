@@ -1,5 +1,5 @@
 import datetime
-from worker.models import Task
+from chronicle_shared.models import Task
 from worker.sched.scheduler import calc_schedule_start_end, merge_overlapping_events
 from worker.sched.utils import datetime_to_schedule_time, schedule_time_to_datetime
 

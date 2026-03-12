@@ -2,7 +2,7 @@ import datetime
 import sys
 import os
 from chronicle_shared.models import Action, Condition, Rule
-from src.worker.models import NormalizedEvent
+from worker.models import NormalizedEvent
 
 _WORKER_DIR = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.abspath(os.path.join(_WORKER_DIR, "../.."))

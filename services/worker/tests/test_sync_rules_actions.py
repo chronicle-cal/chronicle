@@ -1,4 +1,4 @@
-from worker.models import Condition, Action, Rule
+from chronicle_shared.models import Condition, Action, Rule
 from worker.sync.engine import evaluate_condition, apply_actions, apply_rules
 
 from helpers import make_event, make_rule
