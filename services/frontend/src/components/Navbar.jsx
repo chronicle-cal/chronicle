@@ -51,6 +51,9 @@ export default function Navbar() {
             <Link className="pill" to="/dashboard">
               Dashboard
             </Link>
+            <Link className="pill" to="/calendars">
+              Calendars
+            </Link>
             <Link className="pill" to="/calendar-profiles">
               Calendar Profiles
             </Link>
@@ -60,16 +63,13 @@ export default function Navbar() {
                   {((user?.name || user?.email || "U").trim().charAt(0) || "U").toUpperCase()}
                 </span>
               </button>
-              {isProfileOpen && (
-                <div className="profile-dropdown">
-                  <Link className="pill" to="/profile" onClick={toggleProfile}>
-                    Edit Profile
-                  </Link>
-                  <button className="pill btn-danger" type="button" onClick={onLogout}>
-                    Logout
-                  </button>
-                </div>
-              )}
+            {isProfileOpen && (
+              <div className="profile-dropdown">
+                <button className="pill btn-danger" type="button" onClick={onLogout}>
+                  Logout
+                </button>
+              </div>
+            )}
             </div>
           </>
         ) : (

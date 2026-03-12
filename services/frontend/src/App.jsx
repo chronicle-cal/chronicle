@@ -6,9 +6,9 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Profile from "./pages/Profile.jsx";
 import CalendarProfiles from "./pages/CalendarProfiles.jsx";
 import CreateCalendarProfile from "./pages/CreateCalendarProfile.jsx";
+import Calendars from "./pages/Calendars.jsx";
 
 export default function App() {
   return (
@@ -28,14 +28,6 @@ export default function App() {
           }
         />
         <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/calendar-profiles"
           element={
             <ProtectedRoute>
@@ -51,6 +43,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/calendars"
+          element={
+            <ProtectedRoute>
+              <Calendars />
+            </ProtectedRoute>
+  }
+/>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -2,220 +2,216 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import {
+  CalendarApi,
+  CalendarProfileApi,
+  Configuration,
+} from "../api-client";
 
-async function request(path, options = {}) {
-  const token = localStorage.getItem("token");
+const configuration = new Configuration({
+  basePath: "http://localhost:8000",
+});
 
-  let res;
-  try {
-    res = await fetch(`/api${path}`, {
-      method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-  } catch (err) {
-    throw new Error("Network error");
-  }
-
-  const data = await res.json().catch(() => null);
-
-  if (!res.ok) {
-    throw new Error(data?.detail ? `${res.status}: ${data.detail}` : `Request failed (${res.status})`);
-  }
-
-  return data;
-}
+const profileApi = new CalendarProfileApi(configuration);
+const calendarApi = new CalendarApi(configuration);
 
 export default function CalendarProfiles() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { addFlash } = useFlash();
+
   const [profiles, setProfiles] = useState([]);
+  const [calendars, setCalendars] = useState([]);
+  const [sourcesByProfile, setSourcesByProfile] = useState({});
+  const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState({});
   const [loading, setLoading] = useState(true);
-  const [editingRule, setEditingRule] = useState(null);
-  const [viewingRule, setViewingRule] = useState(null);
   const hasLoadedRef = useRef(false);
-
-  const emptyRule = {
-    enabled: true,
-    name: "",
-    conditions: [],
-    actions: [],
-  };
-
-  const [ruleDraft, setRuleDraft] = useState(emptyRule);
 
   useEffect(() => {
     if (!isAuthenticated) {
       hasLoadedRef.current = false;
+      setProfiles([]);
+      setCalendars([]);
+      setSourcesByProfile({});
+      setLoading(false);
       return;
     }
+
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
-    loadProfiles();
+    loadAll();
   }, [isAuthenticated]);
 
-  async function loadProfiles() {
+  function getAuthHeader() {
+    const token = localStorage.getItem("token");
+    return token ? `Bearer ${token}` : undefined;
+  }
+
+  async function loadAll() {
     try {
-      const data = await request("/profile");
-      setProfiles(data);
-    } catch (err) {
-      addFlash("error", err.message);
+      setLoading(true);
+      const authHeader = getAuthHeader();
+
+      const [profilesResponse, calendarsResponse] = await Promise.all([
+        profileApi.listProfilesApiProfileGet(authHeader),
+        calendarApi.listCalendarsApiCalendarGet(authHeader),
+      ]);
+
+      const loadedProfiles = profilesResponse.data;
+      const loadedCalendars = calendarsResponse.data;
+
+      setProfiles(loadedProfiles);
+      setCalendars(loadedCalendars);
+
+      const sourceEntries = await Promise.all(
+        loadedProfiles.map(async (profile) => {
+          const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
+            profile.id,
+            authHeader
+          );
+          return [profile.id, response.data];
+        })
+      );
+
+      setSourcesByProfile(Object.fromEntries(sourceEntries));
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to load profiles.";
+      addFlash("error", message);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDeleteProfile(id) {
-    const profile = profiles.find(p => p.id === id);
-    if (!confirm(`Delete calendar profile "${profile?.name || "this profile"}"?`)) return;
+    const profile = profiles.find((item) => item.id === id);
+    const confirmed = window.confirm(
+      `Delete calendar profile "${profile?.name || "this profile"}"?`
+    );
+
+    if (!confirmed) return;
 
     try {
-      await request(`/profile/${id}`, { method: "DELETE" });
+      const authHeader = getAuthHeader();
+      await profileApi.deleteProfileApiProfileProfileIdDelete(id, authHeader);
+
+      setProfiles((current) => current.filter((item) => item.id !== id));
+
+      setSourcesByProfile((current) => {
+        const updated = { ...current };
+        delete updated[id];
+        return updated;
+      });
+
+      setSelectedCalendarByProfile((current) => {
+        const updated = { ...current };
+        delete updated[id];
+        return updated;
+      });
+
       addFlash("success", "Calendar profile deleted");
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to delete profile.";
+      addFlash("error", message);
     }
   }
 
-  function normalizeConditions(conditions = []) {
-    return conditions.map((cond) => ({
-      field: cond.field || "title",
-      operator: cond.operator || "starts_with",
-      value: cond.value || "",
-    }));
-  }
+  async function handleAddSource(profileId) {
+    const calendarId = selectedCalendarByProfile[profileId];
+    if (!calendarId) {
+      addFlash("error", "Please select a calendar first.");
+      return;
+    }
 
-  function normalizeActions(actions = []) {
-    return actions.map((action) => ({
-      name: action.name || "set_field",
-      arguments: {
-        name: action.arguments?.name || "",
-        value: action.arguments?.value || "",
-      },
-    }));
-  }
-
-  function startCreateRule(profileId) {
-    setEditingRule({ profileId, ruleId: null });
-    setRuleDraft({ ...emptyRule });
-  }
-
-  function startEditRule(profileId, rule) {
-    setEditingRule({ profileId, ruleId: rule.id });
-    setRuleDraft({
-      enabled: rule.enabled ?? true,
-      name: rule.name ?? "",
-      source_id: rule.source_id,
-      conditions: normalizeConditions(rule.conditions),
-      actions: normalizeActions(rule.actions),
-    });
-  }
-
-  async function handleCreateRule(profileId, e) {
-    e.preventDefault();
     try {
-      await request(`/profile/${profileId}/rule`, {
-        method: "POST",
-        body: ruleDraft,
-      });
-      addFlash("success", "Rule created");
-      setEditingRule(null);
-      setRuleDraft({ ...emptyRule });
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+      const authHeader = getAuthHeader();
+
+      await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
+        profileId,
+        { calendar_id: calendarId },
+        authHeader
+      );
+
+      const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
+        profileId,
+        authHeader
+      );
+
+      setSourcesByProfile((current) => ({
+        ...current,
+        [profileId]: response.data,
+      }));
+
+      setSelectedCalendarByProfile((current) => ({
+        ...current,
+        [profileId]: "",
+      }));
+
+      addFlash("success", "Source added");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to add source.";
+      addFlash("error", message);
     }
   }
 
-  async function handleUpdateRule(profileId, ruleId, e) {
-    e.preventDefault();
+  async function handleDeleteSource(profileId, sourceId) {
+    const confirmed = window.confirm("Delete this source?");
+    if (!confirmed) return;
+
     try {
-      await request(`/profile/${profileId}/rule/${ruleId}`, {
-        method: "POST",
-        body: ruleDraft,
-      });
-      addFlash("success", "Rule updated");
-      setEditingRule(null);
-      setRuleDraft({ ...emptyRule });
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+      const authHeader = getAuthHeader();
+
+      await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+        profileId,
+        sourceId,
+        authHeader
+      );
+
+      setSourcesByProfile((current) => ({
+        ...current,
+        [profileId]: (current[profileId] || []).filter(
+          (source) => source.id !== sourceId
+        ),
+      }));
+
+      addFlash("success", "Source deleted");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to delete source.";
+      addFlash("error", message);
     }
   }
 
-  async function handleDeleteRule(profileId, ruleId) {
-    if (!confirm("Delete this rule?")) return;
+  async function handleTriggerSync(profileId) {
     try {
-      await request(`/profile/${profileId}/rule/${ruleId}`, {
-        method: "DELETE",
-      });
-      addFlash("success", "Rule deleted");
-      setViewingRule(null);
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+      const authHeader = getAuthHeader();
+      await profileApi.triggerProfileSyncApiProfileProfileIdSyncPost(
+        profileId,
+        authHeader
+      );
+      addFlash("success", "Profile sync triggered");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to trigger sync.";
+      addFlash("error", message);
     }
   }
 
-  function addCondition() {
-    setRuleDraft({
-      ...ruleDraft,
-      conditions: [
-        ...ruleDraft.conditions,
-        { field: "title", operator: "starts_with", value: "" },
-      ],
-    });
+  function getAvailableCalendarsForProfile(profile) {
+    const currentSources = sourcesByProfile[profile.id] || [];
+    const usedCalendarIds = new Set([
+      profile.main_calendar_id,
+      ...currentSources.map((source) => source.calendar_id),
+    ]);
+
+    return calendars.filter((calendar) => !usedCalendarIds.has(calendar.id));
   }
 
-  function updateCondition(index, field, value) {
-    const updated = [...ruleDraft.conditions];
-    updated[index] = { ...updated[index], [field]: value };
-    setRuleDraft({ ...ruleDraft, conditions: updated });
+  if (loading) {
+    return <div className="loading">Loading calendar profiles...</div>;
   }
-
-  function removeCondition(index) {
-    setRuleDraft({
-      ...ruleDraft,
-      conditions: ruleDraft.conditions.filter((_, i) => i !== index),
-    });
-  }
-
-  function addAction() {
-    setRuleDraft({
-      ...ruleDraft,
-      actions: [
-        ...ruleDraft.actions,
-        { name: "set_field", arguments: { name: "", value: "" } },
-      ],
-    });
-  }
-
-  function updateAction(index, field, value) {
-    const updated = [...ruleDraft.actions];
-    if (field === "name") {
-      updated[index] = { ...updated[index], name: value };
-    } else {
-      updated[index] = {
-        ...updated[index],
-        arguments: { ...updated[index].arguments, [field]: value },
-      };
-    }
-    setRuleDraft({ ...ruleDraft, actions: updated });
-  }
-
-  function removeAction(index) {
-    setRuleDraft({
-      ...ruleDraft,
-      actions: ruleDraft.actions.filter((_, i) => i !== index),
-    });
-  }
-
-  if (loading) return <div className="loading">Loading calendar profiles...</div>;
 
   return (
     <div className="container">
@@ -224,14 +220,17 @@ export default function CalendarProfiles() {
           <h1>Calendar Profiles</h1>
           <p className="subtle">Manage your calendar synchronisation profiles</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate("/calendar-profiles/new")}>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/calendar-profiles/new")}
+        >
           + Create Profile
         </button>
       </div>
 
       <div className="spacer" />
 
-      {profiles.length === 0 && (
+      {profiles.length === 0 ? (
         <div className="card empty-state">
           <div className="empty-state-content">
             <h3>No Calendar Profiles</h3>
@@ -244,287 +243,117 @@ export default function CalendarProfiles() {
             </button>
           </div>
         </div>
-      )}
+      ) : (
+        profiles.map((profile) => {
+          const sources = sourcesByProfile[profile.id] || [];
+          const availableCalendars = getAvailableCalendarsForProfile(profile);
 
-      {profiles.map((profile) => (
-        <div key={profile.id} className="card">
-          <div className="card-header">
-            <div>
-              <h2>{profile.name}</h2>
-              <p className="subtle">
-                Calendar ID: {profile.main_calendar_id?.slice(0, 8)}...
-              </p>
-            </div>
-            <button
-              className="btn btn-small btn-danger"
-              onClick={() => handleDeleteProfile(profile.id)}
-            >
-              Delete
-            </button>
-          </div>
-
-          <div className="card-section">
-            <h3>Rules & Filters</h3>
-            {editingRule?.profileId === profile.id ? (
-              <form
-                onSubmit={(e) =>
-                  editingRule.ruleId
-                    ? handleUpdateRule(profile.id, editingRule.ruleId, e)
-                    : handleCreateRule(profile.id, e)
-                }
-              >
-                <div className="form-group">
-                  <label>Rule Name</label>
-                  <input
-                    value={ruleDraft.name}
-                    onChange={(e) =>
-                      setRuleDraft({ ...ruleDraft, name: e.target.value })
-                    }
-                    placeholder="Remove unwanted events"
-                    required
-                  />
+          return (
+            <div key={profile.id} className="card">
+              <div className="card-header">
+                <div>
+                  <h2>{profile.name}</h2>
+                  <p className="subtle">
+                    Profile ID: {profile.id.slice(0, 8)}...
+                  </p>
+                  <p className="subtle">
+                    Main Calendar ID: {profile.main_calendar_id?.slice(0, 8) || "-"}...
+                  </p>
                 </div>
-
-                <div className="form-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={ruleDraft.enabled}
-                      onChange={(e) =>
-                        setRuleDraft({ ...ruleDraft, enabled: e.target.checked })
-                      }
-                    />
-                    <span>Enabled</span>
-                  </label>
-                </div>
-
-                <h4>Conditions (AND - all must match)</h4>
-                {ruleDraft.conditions.map((cond, idx) => (
-                  <div key={idx} className="rule-item">
-                    <select
-                      value={cond.field}
-                      onChange={(e) =>
-                        updateCondition(idx, "field", e.target.value)
-                      }
-                    >
-                      <option value="title">Title</option>
-                      <option value="description">Description</option>
-                      <option value="location">Location</option>
-                    </select>
-                    <select
-                      value={cond.operator}
-                      onChange={(e) =>
-                        updateCondition(idx, "operator", e.target.value)
-                      }
-                    >
-                      <option value="starts_with">Starts with</option>
-                      <option value="contains">Contains</option>
-                      <option value="equals">Equals</option>
-                    </select>
-                    <input
-                      value={cond.value}
-                      onChange={(e) =>
-                        updateCondition(idx, "value", e.target.value)
-                      }
-                      placeholder="Value"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-small btn-danger"
-                      onClick={() => removeCondition(idx)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-small"
-                  onClick={addCondition}
-                >
-                  + Add Condition
-                </button>
-
-                <h4>Actions</h4>
-                {ruleDraft.actions.map((action, idx) => (
-                  <div key={idx} className="rule-item">
-                    <select
-                      value={action.name}
-                      onChange={(e) => updateAction(idx, "name", e.target.value)}
-                    >
-                      <option value="set_field">Set Field</option>
-                      <option value="remove_field">Remove Field</option>
-                    </select>
-                    <input
-                      value={action.arguments.name || ""}
-                      onChange={(e) =>
-                        updateAction(idx, "name", e.target.value)
-                      }
-                      placeholder="Field name"
-                    />
-                    <input
-                      value={action.arguments.value || ""}
-                      onChange={(e) =>
-                        updateAction(idx, "value", e.target.value)
-                      }
-                      placeholder="Field value"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-small btn-danger"
-                      onClick={() => removeAction(idx)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-small"
-                  onClick={addAction}
-                >
-                  + Add Action
-                </button>
 
                 <div className="actions">
-                  <button type="submit" className="btn btn-primary">
-                    {editingRule.ruleId ? "Update Rule" : "Save Rule"}
+                  <button
+                    className="btn btn-small"
+                    onClick={() => handleTriggerSync(profile.id)}
+                  >
+                    Sync Now
                   </button>
                   <button
-                    type="button"
-                    className="btn"
-                    onClick={() => {
-                      setEditingRule(null);
-                      setRuleDraft({ ...emptyRule });
-                    }}
+                    className="btn btn-small btn-danger"
+                    onClick={() => handleDeleteProfile(profile.id)}
                   >
-                    Cancel
+                    Delete
                   </button>
                 </div>
-              </form>
-            ) : (
-              <>
-                <button
-                  className="btn btn-small"
-                  onClick={() => startCreateRule(profile.id)}
-                >
-                  + Add Rule
-                </button>
-                {profile.rules && profile.rules.length > 0 ? (
+              </div>
+
+              <div className="card-section">
+                <h3>Sources</h3>
+
+                {sources.length === 0 ? (
+                  <p className="subtle">No sources added yet.</p>
+                ) : (
                   <ul className="rule-list">
-                    {profile.rules.map((rule) => (
-                      <li key={rule.id} className="rule-item">
+                    {sources.map((source) => (
+                      <li key={source.id} className="rule-item">
                         <div className="rule-info">
-                          <strong>{rule.name}</strong>
-                          <span className="rule-status">
-                            {rule.enabled ? "✓ Enabled" : "✗ Disabled"}
+                          <strong>
+                            {source.calendar?.url || source.calendar_id}
+                          </strong>
+                          <span className="subtle">
+                            Calendar ID: {source.calendar_id.slice(0, 8)}...
                           </span>
                           <span className="subtle">
-                            {rule.conditions?.length || 0} conditions, {rule.actions?.length || 0} actions
+                            Type: {source.calendar?.type || "-"}
                           </span>
                         </div>
                         <div className="rule-actions">
                           <button
-                            className="btn btn-small"
-                            onClick={() => setViewingRule(rule)}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="btn btn-small"
-                            onClick={() => startEditRule(profile.id, rule)}
-                          >
-                            Edit
-                          </button>
-                          <button
                             className="btn btn-small btn-danger"
                             onClick={() =>
-                              handleDeleteRule(profile.id, rule.id)
+                              handleDeleteSource(profile.id, source.id)
                             }
                           >
-                            Delete
+                            Delete Source
                           </button>
                         </div>
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  <p className="subtle">No rules configured yet</p>
                 )}
-              </>
-            )}
-          </div>
-        </div>
-      ))}
 
-      {/* View Rule Modal */}
-      {viewingRule && (
-        <div className="modal-overlay" onClick={() => setViewingRule(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Rule Details: {viewingRule.name}</h2>
-              <button
-                className="btn btn-small"
-                onClick={() => setViewingRule(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="rule-details">
-              <p className="rule-status">
-                {viewingRule.enabled ? "✓ Enabled" : "✗ Disabled"}
-              </p>
+                <div className="form-row" style={{ marginTop: "1rem" }}>
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <label>Add existing calendar as source</label>
+                    <select
+                      value={selectedCalendarByProfile[profile.id] || ""}
+                      onChange={(e) =>
+                        setSelectedCalendarByProfile((current) => ({
+                          ...current,
+                          [profile.id]: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select a calendar</option>
+                      {availableCalendars.map((calendar) => (
+                        <option key={calendar.id} value={calendar.id}>
+                          {calendar.type} — {calendar.url}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <h3>Conditions ({viewingRule.conditions?.length || 0})</h3>
-              {viewingRule.conditions && viewingRule.conditions.length > 0 ? (
-                <ul className="detail-list">
-                  {viewingRule.conditions.map((cond, idx) => (
-                    <li key={idx}>
-                      <strong>{cond.field}</strong> {cond.operator} "{cond.value}"
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="subtle">No conditions</p>
-              )}
+                  <div className="actions" style={{ alignItems: "end" }}>
+                    <button
+                      className="btn btn-primary"
+                      type="button"
+                      onClick={() => handleAddSource(profile.id)}
+                      disabled={availableCalendars.length === 0}
+                    >
+                      Add Source
+                    </button>
+                  </div>
+                </div>
 
-              <h3>Actions ({viewingRule.actions?.length || 0})</h3>
-              {viewingRule.actions && viewingRule.actions.length > 0 ? (
-                <ul className="detail-list">
-                  {viewingRule.actions.map((action, idx) => (
-                    <li key={idx}>
-                      <strong>{action.name}</strong>:{" "}
-                      {JSON.stringify(action.arguments)}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="subtle">No actions</p>
-              )}
+                {availableCalendars.length === 0 && (
+                  <p className="subtle">
+                    No additional calendars available to add as sources.
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="actions">
-              <button
-                className="btn btn-danger"
-                onClick={() => {
-                  const profile = profiles.find(p =>
-                    p.rules && p.rules.some(r => r.id === viewingRule.id)
-                  );
-                  if (profile) {
-                    handleDeleteRule(profile.id, viewingRule.id);
-                  }
-                }}
-              >
-                Delete Rule
-              </button>
-              <button
-                className="btn"
-                onClick={() => setViewingRule(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+          );
+        })
       )}
     </div>
   );

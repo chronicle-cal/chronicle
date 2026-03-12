@@ -2,37 +2,24 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import {
+  CalendarApi,
+  CalendarProfileApi,
+  Configuration,
+} from "../api-client";
 
-async function request(path, options = {}) {
-  const token = localStorage.getItem("token");
+const configuration = new Configuration({
+  basePath: "http://localhost:8000",
+});
 
-  let res;
-  try {
-    res = await fetch(`/api${path}`, {
-      method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-  } catch (err) {
-    throw new Error("Network error");
-  }
-
-  const data = await res.json().catch(() => null);
-
-  if (!res.ok) {
-    throw new Error(data?.detail ? `${res.status}: ${data.detail}` : `Request failed (${res.status})`);
-  }
-
-  return data;
-}
+const calendarApi = new CalendarApi(configuration);
+const profileApi = new CalendarProfileApi(configuration);
 
 export default function CreateCalendarProfile() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { addFlash } = useFlash();
+
   const [newProfile, setNewProfile] = useState({
     name: "",
     main_calendar: {
@@ -51,15 +38,37 @@ export default function CreateCalendarProfile() {
 
   async function handleCreateProfile(e) {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const authHeader = token ? `Bearer ${token}` : undefined;
+
     try {
-      await request("/profile", {
-        method: "POST",
-        body: newProfile,
-      });
+      const calendarResponse = await calendarApi.createCalendarApiCalendarPost(
+        {
+          type: newProfile.main_calendar.type,
+          url: newProfile.main_calendar.url,
+          username: newProfile.main_calendar.username || null,
+          password: newProfile.main_calendar.password || null,
+        },
+        authHeader
+      );
+
+      const calendarId = calendarResponse.data.id;
+
+      await profileApi.createProfileApiProfilePost(
+        {
+          name: newProfile.name,
+          main_calendar_id: calendarId,
+        },
+        authHeader
+      );
+
       addFlash("success", "Calendar profile created");
       navigate("/calendar-profiles");
-    } catch (err) {
-      addFlash("error", err.message);
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Request failed.";
+      addFlash("error", message);
     }
   }
 
@@ -88,6 +97,7 @@ export default function CreateCalendarProfile() {
           </div>
 
           <h2>Main Calendar Configuration</h2>
+
           <div className="form-group">
             <label>Calendar Type</label>
             <select

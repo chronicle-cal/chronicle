@@ -42,12 +42,14 @@ export function AuthProvider({ children }) {
   }, [refreshUser]);
 
   const logout = useCallback(async () => {
-    await api.logout();
-    setIsAuthenticated(false);
-    localStorage.removeItem("token");
-    setUser(null);
+    try {
+      await api.logout();
+    } finally {
+      setIsAuthenticated(false);
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   }, []);
-
   const value = useMemo(
     () => ({
       isAuthenticated,
