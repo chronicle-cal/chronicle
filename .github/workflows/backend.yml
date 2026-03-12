@@ -1,0 +1,117 @@
+name: Backend CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/backend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/backend/**'
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+env:
+  PYTHON_VERSION: "3.12"
+jobs:
+  lint:
+    name: Ruff (lint + format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements*.txt
+            **/pyproject.toml
+            **/uv.lock
+      - name: Ruff lint
+        run: uvx ruff check .
+      - name: Ruff format check
+        run: uvx ruff format --check .
+  backend-tests:
+    name: Backend Pytest (with Postgres)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: appdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U admin -d appdb" --health-interval=5s --health-timeout=3s --health-retries=20
+    env:
+      DATABASE_URL: postgresql+asyncpg://admin:password@127.0.0.1:5432/appdb
+      TEST_DATABASE_URL: postgresql+asyncpg://admin:password@127.0.0.1:5432/testdb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements*.txt
+            **/pyproject.toml
+            **/uv.lock
+      - name: Create virtual environment
+        run: |
+          uv venv
+          echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
+      - name: Install dependencies
+        run: |
+          uv pip install -r services/backend/requirements.txt
+          uv pip install pytest pytest-cov pytest-asyncio
+      - name: Run migrations
+        working-directory: services/backend
+        run: |
+          alembic upgrade head
+
+      - name: Create test database
+        run: |
+          PGPASSWORD=password psql -h 127.0.0.1 -U admin -d appdb -c "CREATE DATABASE testdb;"
+
+      - name: Run tests
+        working-directory: services/backend
+        run: |
+          if find . -maxdepth 4 -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
+            pytest -q --cov --cov-report=term-missing
+          else
+            echo "No tests found; skipping."
+          fi
+  smoke-tests:
+    name: Smoke tests (backend + user lifecycle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke test suite
+        run: |
+          chmod +x scripts/smoke/*.sh
+          bash scripts/smoke/smoke-backend-start-health.sh
+          bash scripts/smoke/smoke-user-auth.sh
+          bash scripts/smoke/smoke-user-profile-edit.sh
+      - name: Dump backend logs on failure
+        if: failure()
+        run: docker compose -f compose.yaml logs --no-color postgres backend
+      - name: Shutdown
+        if: always()
+        run: |
+          echo "[smoke-tests] Shutting backend stack down..."
+          docker compose -f compose.yaml down -v
+          echo "[smoke-tests] Shutdown complete."

@@ -1,0 +1,21 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aio-pika>=9.6.1",
+    "alembic>=1.18.4",
+    "argon2-cffi>=25.1.0",
+    "asyncpg>=0.31.0",
+    "chronicle-shared",
+    "fastapi[standard]>=0.115.6",
+    "passlib>=1.7.4",
+    "psycopg2>=2.9.11",
+    "pyjwt>=2.11.0",
+    "sqlalchemy>=2.0.48",
+]
+
+[tool.uv.sources]
+chronicle-shared = { path = "../../packages/chronicle-shared", editable = true }

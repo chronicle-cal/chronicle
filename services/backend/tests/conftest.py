@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.pool import NullPool
 
 from app.main import app
-from app.core.db import Base, get_db
+from app.db.session import Base, get_db
 
 
 test_engine = create_async_engine(DB_URL, poolclass=NullPool)

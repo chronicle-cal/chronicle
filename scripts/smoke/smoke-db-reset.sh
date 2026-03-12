@@ -4,5 +4,5 @@ set -euo pipefail
 LOG_LABEL="db-reset-smoke"
 source "$(dirname "$0")/stack-lib.sh"
 
-clear_db_state
-log "DB reset smoke test OK"
+cleanup_smoke_users_only
+log "DB smoke cleanup test OK"
