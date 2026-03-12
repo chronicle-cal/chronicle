@@ -21,7 +21,6 @@ jobs:
     name: Backend Pytest (with Database)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint]
     services:
       postgres:
         image: postgres:15
