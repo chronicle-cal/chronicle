@@ -21,6 +21,7 @@ from app.schemas.integration import (
     SourceCreate,
 )
 from app.core.sync_config_helper import profile_to_shared_profile
+from app.core.auth import auth_responses
 
 ROUTING_KEY = "sync_queue"
 
@@ -64,7 +65,7 @@ async def _get_source_or_404(
     return source
 
 
-profile_router = APIRouter()
+profile_router = APIRouter(responses=auth_responses)
 
 
 @profile_router.get("", response_model=list[ProfileReadShort])
@@ -151,7 +152,7 @@ async def update_profile(
             CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
