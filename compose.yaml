@@ -75,6 +75,16 @@ services:
         networks:
             - chronicle-internal
 
+    worker:
+        build:
+            context: .
+            dockerfile: services/worker/Dockerfile
+        depends_on:
+            - rabbitmq
+            - backend
+        networks:
+            - chronicle-internal
+
 volumes:
     postgres_data: {}
     frontend_node_modules: {}

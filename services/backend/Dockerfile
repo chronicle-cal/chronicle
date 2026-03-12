@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libpq-dev \
   git
 
-COPY pyproject.toml uv.lock ./
-COPY . .
+COPY services/backend/pyproject.toml services/backend/uv.lock ./
+COPY services/backend ./
 RUN uv sync --frozen --no-dev
 
 EXPOSE 8000
