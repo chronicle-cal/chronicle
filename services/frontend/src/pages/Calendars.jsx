@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { CalendarApi, Configuration } from "../api-client";
+import CalendarModal from "../components/CalendarModal.jsx";
 
 const configuration = new Configuration({
   basePath: "http://localhost:8000",
@@ -9,22 +10,14 @@ const configuration = new Configuration({
 
 const calendarApi = new CalendarApi(configuration);
 
-const emptyForm = {
-  type: "caldav",
-  url: "",
-  username: "",
-  password: "",
-};
-
 export default function Calendars() {
   const { isAuthenticated } = useAuth();
   const { addFlash } = useFlash();
 
   const [calendars, setCalendars] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingCalendarId, setEditingCalendarId] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [showModal, setShowModal] = useState(false);
+  const [editingCalendar, setEditingCalendar] = useState(null);
 
   const hasLoadedRef = useRef(false);
 
@@ -46,10 +39,14 @@ export default function Calendars() {
     return token ? `Bearer ${token}` : undefined;
   }
 
-  function resetForm() {
-    setFormData(emptyForm);
-    setEditingCalendarId(null);
-    setShowForm(false);
+  function openCreateModal() {
+    setEditingCalendar(null);
+    setShowModal(true);
+  }
+
+  function closeModal() {
+    setShowModal(false);
+    setEditingCalendar(null);
   }
 
   async function loadCalendars() {
@@ -67,29 +64,20 @@ export default function Calendars() {
     }
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-
+  async function handleSave(payload) {
     try {
       const authHeader = getAuthHeader();
 
-      const payload = {
-        type: formData.type,
-        url: formData.url,
-        username: formData.type === "caldav" ? formData.username || null : null,
-        password: formData.type === "caldav" ? formData.password || null : null,
-      };
-
-      if (editingCalendarId) {
+      if (editingCalendar) {
         const response = await calendarApi.updateCalendarApiCalendarCalendarIdPut(
-          editingCalendarId,
+          editingCalendar.id,
           payload,
           authHeader
         );
 
         setCalendars((current) =>
           current.map((calendar) =>
-            calendar.id === editingCalendarId ? response.data : calendar
+            calendar.id === editingCalendar.id ? response.data : calendar
           )
         );
 
@@ -104,12 +92,12 @@ export default function Calendars() {
         addFlash("success", "Calendar created");
       }
 
-      resetForm();
+      closeModal();
     } catch (error) {
       const message =
         error.response?.data?.detail ||
         error.message ||
-        (editingCalendarId
+        (editingCalendar
           ? "Failed to update calendar."
           : "Failed to create calendar.");
       addFlash("error", message);
@@ -136,8 +124,8 @@ export default function Calendars() {
         current.filter((item) => item.id !== calendarId)
       );
 
-      if (editingCalendarId === calendarId) {
-        resetForm();
+      if (editingCalendar?.id === calendarId) {
+        closeModal();
       }
 
       addFlash("success", "Calendar deleted");
@@ -157,17 +145,8 @@ export default function Calendars() {
         authHeader
       );
 
-      const calendar = response.data;
-
-      setFormData({
-        type: calendar.type,
-        url: calendar.url,
-        username: calendar.username || "",
-        password: calendar.password || "",
-      });
-
-      setEditingCalendarId(calendar.id);
-      setShowForm(true);
+      setEditingCalendar(response.data);
+      setShowModal(true);
     } catch (error) {
       const message =
         error.response?.data?.detail || error.message || "Failed to load calendar.";
@@ -187,109 +166,19 @@ export default function Calendars() {
           <p className="subtle">Manage your calendars</p>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            if (showForm && !editingCalendarId) {
-              resetForm();
-            } else {
-              setEditingCalendarId(null);
-              setFormData(emptyForm);
-              setShowForm(true);
-            }
-          }}
-        >
-          {showForm && !editingCalendarId ? "Cancel" : "+ Create Calendar"}
+        <button className="btn btn-primary" onClick={openCreateModal}>
+          + Create Calendar
         </button>
       </div>
 
       <div className="spacer" />
 
-      {showForm && (
-        <div className="card">
-          <form onSubmit={handleSubmit}>
-            <h2>{editingCalendarId ? "Edit Calendar" : "Create Calendar"}</h2>
-
-            <div className="form-group">
-              <label>Calendar Type</label>
-              <select
-                value={formData.type}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    type: event.target.value,
-                  }))
-                }
-              >
-                <option value="caldav">CalDAV</option>
-                <option value="ical">iCal</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Calendar URL</label>
-              <input
-                value={formData.url}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    url: event.target.value,
-                  }))
-                }
-                placeholder="https://calendar.example.com/calendar"
-                required
-              />
-            </div>
-
-            {formData.type === "caldav" && (
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Username</label>
-                  <input
-                    value={formData.username}
-                    onChange={(event) =>
-                      setFormData((current) => ({
-                        ...current,
-                        username: event.target.value,
-                      }))
-                    }
-                    placeholder="username"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(event) =>
-                      setFormData((current) => ({
-                        ...current,
-                        password: event.target.value,
-                      }))
-                    }
-                    placeholder="password"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="actions">
-              <button type="submit" className="btn btn-primary">
-                {editingCalendarId ? "Save Changes" : "Save Calendar"}
-              </button>
-
-              <button
-                type="button"
-                className="btn"
-                onClick={resetForm}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <CalendarModal
+        isOpen={showModal}
+        onClose={closeModal}
+        onSave={handleSave}
+        initialData={editingCalendar}
+      />
 
       {calendars.length === 0 ? (
         <div className="card empty-state">

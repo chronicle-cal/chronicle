@@ -63,7 +63,7 @@ export default function CreateCalendarProfile() {
         authHeader
       );
 
-      addFlash("success", "Calendar profile created");
+      addFlash("success", "Profile created");
       navigate("/calendar-profiles");
     } catch (error) {
       const message =
@@ -76,7 +76,7 @@ export default function CreateCalendarProfile() {
     <div className="container">
       <div className="page-header">
         <div>
-          <h1>Create Calendar Profile</h1>
+          <h1>Create Profile</h1>
           <p className="subtle">Set up a new calendar synchronisation profile</p>
         </div>
       </div>
@@ -176,7 +176,7 @@ export default function CreateCalendarProfile() {
 
           <div className="actions">
             <button type="submit" className="btn btn-primary">
-              Create Calendar Profile
+              Create Profile
             </button>
             <button
               type="button"

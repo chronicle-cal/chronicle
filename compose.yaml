@@ -84,7 +84,8 @@ services:
             - backend
         networks:
             - chronicle-internal
-
+        environment:
+            RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
 volumes:
     postgres_data: {}
     frontend_node_modules: {}

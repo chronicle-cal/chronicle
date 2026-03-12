@@ -7,6 +7,7 @@ import {
   CalendarProfileApi,
   Configuration,
 } from "../api-client";
+import CalendarModal from "../components/CalendarModal.jsx";
 
 const configuration = new Configuration({
   basePath: "http://localhost:8000",
@@ -26,6 +27,12 @@ export default function CalendarProfiles() {
   const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const hasLoadedRef = useRef(false);
+
+  // main_calendar_id editing
+  const [editingMainCalendarFor, setEditingMainCalendarFor] = useState(null);
+  const [mainCalendarDraft, setMainCalendarDraft] = useState({});
+  // CalendarModal for creating a new calendar ("main" or "source")
+  const [calendarModalContext, setCalendarModalContext] = useState(null); // { purpose: "main"|"source", profileId }
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -86,7 +93,7 @@ export default function CalendarProfiles() {
   async function handleDeleteProfile(id) {
     const profile = profiles.find((item) => item.id === id);
     const confirmed = window.confirm(
-      `Delete calendar profile "${profile?.name || "this profile"}"?`
+      `Delete profile "${profile?.name || "this profile"}"?`
     );
 
     if (!confirmed) return;
@@ -109,7 +116,7 @@ export default function CalendarProfiles() {
         return updated;
       });
 
-      addFlash("success", "Calendar profile deleted");
+      addFlash("success", "Profile deleted");
     } catch (error) {
       const message =
         error.response?.data?.detail || error.message || "Failed to delete profile.";
@@ -184,6 +191,76 @@ export default function CalendarProfiles() {
     }
   }
 
+  async function handleUpdateMainCalendar(profileId) {
+    const calendarId = mainCalendarDraft[profileId];
+    if (!calendarId) {
+      addFlash("error", "Please select a calendar.");
+      return;
+    }
+
+    const profile = profiles.find((p) => p.id === profileId);
+
+    try {
+      const authHeader = getAuthHeader();
+      const response = await profileApi.updateProfileApiProfileProfileIdPut(
+        profileId,
+        { name: profile.name, main_calendar_id: calendarId },
+        authHeader
+      );
+
+      setProfiles((current) =>
+        current.map((p) => (p.id === profileId ? { ...p, ...response.data } : p))
+      );
+      setEditingMainCalendarFor(null);
+      addFlash("success", "Main calendar updated");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to update profile.";
+      addFlash("error", message);
+    }
+  }
+
+  async function handleCalendarModalSave(payload) {
+    try {
+      const authHeader = getAuthHeader();
+      const response = await calendarApi.createCalendarApiCalendarPost(payload, authHeader);
+      const newCalendar = response.data;
+
+      setCalendars((current) => [...current, newCalendar]);
+
+      if (calendarModalContext?.purpose === "main") {
+        const { profileId } = calendarModalContext;
+        const profile = profiles.find((p) => p.id === profileId);
+
+        const updateResponse = await profileApi.updateProfileApiProfileProfileIdPut(
+          profileId,
+          { name: profile.name, main_calendar_id: newCalendar.id },
+          authHeader
+        );
+
+        setProfiles((current) =>
+          current.map((p) =>
+            p.id === profileId ? { ...p, ...updateResponse.data } : p
+          )
+        );
+        setEditingMainCalendarFor(null);
+        addFlash("success", "Calendar created and set as main calendar");
+      } else if (calendarModalContext?.purpose === "source") {
+        const { profileId } = calendarModalContext;
+        setMainCalendarDraft((current) => ({ ...current, [profileId]: newCalendar.id }));
+        addFlash("success", "Calendar created — select it and click Add Source");
+      } else {
+        addFlash("success", "Calendar created");
+      }
+
+      setCalendarModalContext(null);
+    } catch (error) {
+      const message =
+        error.response?.data?.detail || error.message || "Failed to create calendar.";
+      addFlash("error", message);
+    }
+  }
+
   async function handleTriggerSync(profileId) {
     try {
       const authHeader = getAuthHeader();
@@ -210,14 +287,14 @@ export default function CalendarProfiles() {
   }
 
   if (loading) {
-    return <div className="loading">Loading calendar profiles...</div>;
+    return <div className="loading">Loading profiles...</div>;
   }
 
   return (
     <div className="container">
       <div className="page-header">
         <div>
-          <h1>Calendar Profiles</h1>
+          <h1>Profiles</h1>
           <p className="subtle">Manage your calendar synchronisation profiles</p>
         </div>
         <button
@@ -233,8 +310,8 @@ export default function CalendarProfiles() {
       {profiles.length === 0 ? (
         <div className="card empty-state">
           <div className="empty-state-content">
-            <h3>No Calendar Profiles</h3>
-            <p>Create your first calendar profile to get started</p>
+            <h3>No Profiles</h3>
+            <p>Create your first profile to get started</p>
             <button
               className="btn btn-primary"
               onClick={() => navigate("/calendar-profiles/new")}
@@ -256,9 +333,84 @@ export default function CalendarProfiles() {
                   <p className="subtle">
                     Profile ID: {profile.id.slice(0, 8)}...
                   </p>
-                  <p className="subtle">
-                    Main Calendar ID: {profile.main_calendar_id?.slice(0, 8) || "-"}...
-                  </p>
+                  <div className="main-calendar-row">
+                    <p className="subtle" style={{ margin: 0 }}>
+                      Main Calendar:{" "}
+                      <span>
+                        {calendars.find((c) => c.id === profile.main_calendar_id)
+                          ? `${calendars.find((c) => c.id === profile.main_calendar_id).type} — ${calendars.find((c) => c.id === profile.main_calendar_id).url}`
+                          : profile.main_calendar_id
+                          ? `${profile.main_calendar_id.slice(0, 8)}…`
+                          : "—"}
+                      </span>
+                    </p>
+                    {editingMainCalendarFor !== profile.id ? (
+                      <button
+                        className="btn btn-small"
+                        type="button"
+                        onClick={() => {
+                          setMainCalendarDraft((d) => ({
+                            ...d,
+                            [profile.id]: profile.main_calendar_id || "",
+                          }));
+                          setEditingMainCalendarFor(profile.id);
+                        }}
+                      >
+                        Change
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-small"
+                        type="button"
+                        onClick={() => setEditingMainCalendarFor(null)}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+
+                  {editingMainCalendarFor === profile.id && (
+                    <div className="form-row" style={{ marginTop: "0.75rem" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>Select calendar</label>
+                        <select
+                          value={mainCalendarDraft[profile.id] || ""}
+                          onChange={(e) =>
+                            setMainCalendarDraft((d) => ({
+                              ...d,
+                              [profile.id]: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">— choose —</option>
+                          {calendars.map((calendar) => (
+                            <option key={calendar.id} value={calendar.id}>
+                              {calendar.type} — {calendar.url}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="actions" style={{ alignItems: "end" }}>
+                        <button
+                          className="btn btn-primary"
+                          type="button"
+                          onClick={() => handleUpdateMainCalendar(profile.id)}
+                          disabled={!mainCalendarDraft[profile.id]}
+                        >
+                          Apply
+                        </button>
+                        <button
+                          className="btn"
+                          type="button"
+                          onClick={() =>
+                            setCalendarModalContext({ purpose: "main", profileId: profile.id })
+                          }
+                        >
+                          + New Calendar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="actions">
@@ -355,6 +507,11 @@ export default function CalendarProfiles() {
           );
         })
       )}
-    </div>
+      <CalendarModal
+        isOpen={calendarModalContext !== null}
+        onClose={() => setCalendarModalContext(null)}
+        onSave={handleCalendarModalSave}
+        initialData={null}
+      />    </div>
   );
 }
