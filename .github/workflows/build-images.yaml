@@ -19,13 +19,10 @@ jobs:
                 include:
                     - dockerfile: ./services/backend/Dockerfile
                       image: ghcr.io/chronicle-cal/chronicle-backend
-                      context: ./services/backend
                     - dockerfile: ./services/frontend/Dockerfile
                       image: ghcr.io/chronicle-cal/chronicle-frontend
-                      context: ./services/frontend
                     - dockerfile: ./services/worker/Dockerfile
                       image: ghcr.io/chronicle-cal/chronicle-worker
-                      context: ./services/worker
         permissions:
             contents: read
             packages: write
@@ -58,7 +55,7 @@ jobs:
             - name: Build and push Docker images
               uses: docker/build-push-action@v6
               with:
-                  context: ${{ matrix.context }}
+                  context: .
                   file: ${{ matrix.dockerfile }}
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}
