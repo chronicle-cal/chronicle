@@ -20,7 +20,7 @@ For administration purposes:
 To install chronicle, you need to have Docker or Podman installed on your system. You can then clone the repository and use the provided `compose.yml` file to set up the services.
 
 ```bash
-docker compose -f compose.yml up --build
+docker compose -f compose.yaml up --build
 ```
 
 The services should work out of the box with the provided configuration. You can access the frontend at `http://localhost:3000` and the pgAdmin interface at `http://localhost:8080`.
