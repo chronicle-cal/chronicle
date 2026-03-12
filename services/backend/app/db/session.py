@@ -7,10 +7,11 @@ from sqlalchemy.orm import sessionmaker
 from aio_pika import connect_robust
 
 load_dotenv()
+
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/inventory_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/appdb")
 ASYNC_DATABASE_URL = os.getenv(
-    "ASYNC_DATABASE_URL", "postgresql+asyncpg://localhost/inventory_db"
+    "ASYNC_DATABASE_URL", "postgresql+asyncpg://localhost/appdb"
 )
 
 # Synchronous engine for migrations and initial setup

@@ -25,9 +25,9 @@ def event_loop():
     loop.close()
 
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://admin:password@localhost/appdb")
 ASYNC_DATABASE_URL = os.getenv(
-    "ASYNC_DATABASE_URL", "postgresql+asyncpg://localhost/inventory_db"
+    "ASYNC_DATABASE_URL", "postgresql+asyncpg://admin:password@localhost/appdb"
 )
 
 
