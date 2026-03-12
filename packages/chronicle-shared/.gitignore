@@ -8,14 +8,6 @@ wheels/
 # Virtual environments
 .venv
 
-# container data
-.containers
-
-# volumes
-postgres_data/
-pgadmin-data/
-radicale-data/
-radicale-config/
 
 .env
 
@@ -44,6 +36,3 @@ radicale-config/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# local
-.local/

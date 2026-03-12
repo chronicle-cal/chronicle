@@ -3,34 +3,12 @@
 
 import pytest
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.main import app
 from app.models.user import User
 from app.api.auth import create_token
-from app.db.session import get_async_db, Base
-
-import os
-
-DATABASE_URL = os.environ["TEST_DATABASE_URL"]
-
-
-@pytest.fixture
-async def engine():
-    engine = create_async_engine(DATABASE_URL, echo=False)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield engine
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest.fixture
-async def db_session(engine):
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    async with async_session() as session:
-        yield session
+from app.db.session import get_async_db
 
 
 @pytest.fixture

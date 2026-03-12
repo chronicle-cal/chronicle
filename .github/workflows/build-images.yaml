@@ -21,6 +21,8 @@ jobs:
                       image: ghcr.io/chronicle-cal/chronicle-backend
                     - dockerfile: ./services/frontend/Dockerfile
                       image: ghcr.io/chronicle-cal/chronicle-frontend
+                    - dockerfile: ./services/worker/Dockerfile
+                      image: ghcr.io/chronicle-cal/chronicle-worker
         permissions:
             contents: read
             packages: write
