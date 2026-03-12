@@ -178,6 +178,7 @@ dependencies = [
     { name = "alembic" },
     { name = "argon2-cffi" },
     { name = "asyncpg" },
+    { name = "chronicle-shared" },
     { name = "fastapi", extra = ["standard"] },
     { name = "passlib" },
     { name = "psycopg2" },
@@ -191,6 +192,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "argon2-cffi", specifier = ">=25.1.0" },
     { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "chronicle-shared", editable = "../../packages/chronicle-shared" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.6" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "psycopg2", specifier = ">=2.9.11" },
@@ -276,6 +278,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/bf/41/4c1168c74fac325c0c8156f04b6749c8b6a8f405bbf91413ba088359f60d/cffi-2.0.0-cp314-cp314t-win_amd64.whl", hash = "sha256:d68b6cef7827e8641e8ef16f4494edda8b36104d79773a334beaa1e3521430f6", size = 191726, upload-time = "2025-09-08T23:23:41.742Z" },
     { url = "https://files.pythonhosted.org/packages/ae/3a/dbeec9d1ee0844c679f6bb5d6ad4e9f198b1224f4e7a32825f47f6192b0c/cffi-2.0.0-cp314-cp314t-win_arm64.whl", hash = "sha256:0a1527a803f0a659de1af2e1fd700213caba79377e27e4693648c2923da066f9", size = 184195, upload-time = "2025-09-08T23:23:43.004Z" },
 ]
+
+[[package]]
+name = "chronicle-shared"
+version = "0.1.0"
+source = { editable = "../../packages/chronicle-shared" }
 
 [[package]]
 name = "click"
