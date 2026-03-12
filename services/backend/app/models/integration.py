@@ -16,7 +16,7 @@ class Condition(Base):
     operator: Mapped[str] = mapped_column(String(64), nullable=False)
     value: Mapped[str] = mapped_column(String(2048), nullable=False)
 
-    rule = relationship("Rule", back_populates="conditions")
+    rule = relationship("Rule", back_populates="conditions", lazy="joined")
 
 
 class Action(Base):
@@ -29,7 +29,7 @@ class Action(Base):
     name: Mapped[str] = mapped_column(String(64), nullable=False)
     arguments: Mapped[dict] = mapped_column(JSON, nullable=False)
 
-    rule = relationship("Rule", back_populates="actions")
+    rule = relationship("Rule", back_populates="actions", lazy="joined")
 
 
 class CalendarSource(Base):
@@ -45,8 +45,10 @@ class CalendarSource(Base):
         ForeignKey("calendars.id", ondelete="CASCADE"), nullable=False
     )
 
-    profile = relationship("CalendarProfile", back_populates="calendar_sources")
-    calendar = relationship("Calendar")
+    profile = relationship(
+        "CalendarProfile", back_populates="calendar_sources", lazy="joined"
+    )
+    calendar = relationship("Calendar", lazy="joined")
     rules = relationship(
         "Rule",
         back_populates="calendar_source",
@@ -93,7 +95,7 @@ class Calendar(Base):
     password: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     owner_id = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    owner = relationship("User", back_populates="calendars")
+    owner = relationship("User", back_populates="calendars", lazy="joined")
 
 
 class CalendarProfile(Base):

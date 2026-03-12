@@ -20,17 +20,17 @@ class Rule(BaseModel):
     actions: list[Action]
 
 
-class Calenadar(BaseModel):
+class Calendar(BaseModel):
     id: str
     type: str
     url: str
-    username: str
-    password: str
+    username: str | None = None
+    password: str | None = None
 
 
 class Source(BaseModel):
     id: str
-    calendar: Calenadar
+    calendar: Calendar
     rules: list[Rule]
 
 
@@ -47,7 +47,7 @@ class Task(BaseModel):
 class Profile(BaseModel):
     id: str
     name: str
-    main_calendar: Calenadar
+    main_calendar: Calendar
     sources: list[Source]
     tasks: list[Task]
 

@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +20,7 @@ from app.schemas.integration import (
     ProfileReadFull,
     SourceCreate,
 )
+from app.core.sync_config_helper import profile_to_shared_profile
 
 ROUTING_KEY = "sync_queue"
 
@@ -225,8 +228,15 @@ async def trigger_profile_sync(
 
     channel = await conn.channel()
 
+    payload = {
+        "type": "sync",
+        "payload": profile_to_shared_profile(profile).model_dump(),
+    }
+
+    print(f"Publishing message to queue: {payload}")
+
     await channel.default_exchange.publish(
-        aio_pika.Message(body="Hello {}".format(ROUTING_KEY).encode()),
+        aio_pika.Message(body=json.dumps(payload).encode()),
         routing_key="worker",
     )
 

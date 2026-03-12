@@ -1,4 +1,4 @@
-name: Worker Tests
+name: Worker CI
 on:
   push:
     branches: [main]

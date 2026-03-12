@@ -1,9 +1,13 @@
-name: CI
+name: Backend CI
 on:
-  pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - 'services/backend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/backend/**'
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true

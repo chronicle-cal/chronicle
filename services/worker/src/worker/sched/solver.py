@@ -21,9 +21,9 @@ class SchedulingSolver:
         self.work_start, self.work_end = work_day
         self.schedule_offset = schedule_offset
         self.schedule_start = schedule_start
-        self.all_intervals = []
-        self.task_vars = []  # Store references to retrieve values later
-        self.penalties = []
+        self.all_intervals: list = []
+        self.task_vars: list = []  # Store references to retrieve values later
+        self.penalties: list = []
 
     def _get_working_minutes_domain(self):
         intervals = []
