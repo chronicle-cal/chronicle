@@ -1,17 +1,19 @@
 import os
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from aio_pika import connect_robust
 
-load_dotenv()
+# load_dotenv()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/appdb")
-ASYNC_DATABASE_URL = os.getenv(
-    "ASYNC_DATABASE_URL", "postgresql+asyncpg://localhost/appdb"
+DATABASE_URL = os.getenv("DATABASE_URL")
+ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL")
+
+assert DATABASE_URL is not None, "DATABASE_URL environment variable is not set"
+assert ASYNC_DATABASE_URL is not None, (
+    "ASYNC_DATABASE_URL environment variable is not set"
 )
 
 # Synchronous engine for migrations and initial setup

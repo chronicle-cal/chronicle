@@ -22,10 +22,10 @@ services:
             context: .
             dockerfile: services/backend/Dockerfile
         environment:
-            DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/appdb
+            DATABASE_URL: postgresql://admin:password@postgres:5432/appdb
+            ASYNC_DATABASE_URL: postgresql+asyncpg://admin:password@postgres:5432/appdb
         command: >
-            sh -c "alembic upgrade head &&
-                   uvicorn app.main:app --host 0.0.0.0 --port 8000"
+            sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
         ports:
             - "8000:8000"
         depends_on:
