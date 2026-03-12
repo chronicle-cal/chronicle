@@ -227,7 +227,7 @@ async def trigger_profile_sync(
 
     await channel.default_exchange.publish(
         aio_pika.Message(body="Hello {}".format(ROUTING_KEY).encode()),
-        routing_key=ROUTING_KEY,
+        routing_key="worker",
     )
 
     return {"message": "Sync triggered"}
