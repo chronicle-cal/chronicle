@@ -1,11 +1,6 @@
-import os
-import time
-
-from fastapi import APIRouter, Depends, Header, HTTPException, status
-from passlib.context import CryptContext
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import jwt
 
 from app.db.session import get_async_db
 from app.models.user import User as UserModel
@@ -15,54 +10,15 @@ from app.schemas.auth import (
     TokenResponse,
 )
 
+from app.core.auth import (
+    get_current_user,
+    pwd_context,
+    create_token,
+    get_current_token,
+    auth_responses,
+)
+
 router = APIRouter()
-
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-AUTH_SECRET = os.getenv("AUTH_SECRET", "dev-secret")
-AUTH_TOKEN_TTL = int(os.getenv("AUTH_TOKEN_TTL", "604800"))
-
-
-def create_token(email: str) -> str:
-    payload = {
-        "sub": email,
-        "iat": int(time.time()),
-        "exp": int(time.time()) + AUTH_TOKEN_TTL,
-    }
-    return jwt.encode(payload, AUTH_SECRET, algorithm="HS256")
-
-
-def verify_token(token: str) -> str | None:
-    try:
-        payload = jwt.decode(token, AUTH_SECRET, algorithms=["HS256"])
-        return payload["sub"]
-    except jwt.PyJWTError:
-        return None
-
-
-def get_bearer_token(authorization: str | None = Header(default=None)) -> str:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token"
-        )
-    return authorization.split(" ", 1)[1].strip()
-
-
-async def get_current_user(
-    token: str = Depends(get_bearer_token), db: AsyncSession = Depends(get_async_db)
-) -> UserModel:
-    email = verify_token(token)
-    if not email:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        )
-
-    result = await db.execute(select(UserModel).where(UserModel.email == email))
-    user = result.unique().scalar_one_or_none()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
-        )
-    return user
 
 
 @router.post(
@@ -104,3 +60,10 @@ async def me(
     db: AsyncSession = Depends(get_async_db),
 ):
     return {"authenticated": True, "email": user.email, "name": user.fullname}
+
+
+@router.get("/token", responses=auth_responses)
+async def get_token(
+    token: str = Depends(get_current_token),
+):
+    return {"access_token": token}

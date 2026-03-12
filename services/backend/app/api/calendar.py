@@ -6,8 +6,11 @@ from app.models.integration import Calendar
 from app.schemas.integration import CalendarRead, CalendarCreate
 from app.api.auth import get_current_user
 from app.db.session import get_db
+from app.core.auth import auth_responses
 
-calendar_router = APIRouter()
+calendar_router = APIRouter(
+    responses=auth_responses,
+)
 
 
 @calendar_router.get("", response_model=list[CalendarRead])
