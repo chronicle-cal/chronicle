@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarProfileApi, Configuration } from "../api-client";
-
-const configuration = new Configuration({
-  basePath: "http://localhost:8000",
-});
-
-const profileApi = new CalendarProfileApi(configuration);
+import { profileApi } from "../lib/apiClient.js";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState(0);
@@ -13,14 +7,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchProfiles() {
-      const token = localStorage.getItem("token");
-      const authHeader = token ? `Bearer ${token}` : undefined;
-
       try {
-        const response = await profileApi.listProfilesApiProfileGet(
-          {},
-          authHeader
-        );
+        const response = await profileApi.listProfilesApiProfileGet();
         setProfiles(response.data);
       } catch (error) {
         console.error("Failed to fetch profiles:", error);

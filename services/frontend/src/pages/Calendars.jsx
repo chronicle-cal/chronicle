@@ -1,14 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
-import { CalendarApi, Configuration } from "../api-client";
+import { calendarApi } from "../lib/apiClient.js";
 import CalendarModal from "../components/CalendarModal.jsx";
-
-const configuration = new Configuration({
-  basePath: "http://localhost:8000",
-});
-
-const calendarApi = new CalendarApi(configuration);
 
 export default function Calendars() {
   const { isAuthenticated } = useAuth();
@@ -34,11 +28,6 @@ export default function Calendars() {
     loadCalendars();
   }, [isAuthenticated]);
 
-  function getAuthHeader() {
-    const token = localStorage.getItem("token");
-    return token ? `Bearer ${token}` : undefined;
-  }
-
   function openCreateModal() {
     setEditingCalendar(null);
     setShowModal(true);
@@ -52,8 +41,7 @@ export default function Calendars() {
   async function loadCalendars() {
     try {
       setLoading(true);
-      const authHeader = getAuthHeader();
-      const response = await calendarApi.listCalendarsApiCalendarGet(authHeader);
+      const response = await calendarApi.listCalendarsApiCalendarGet();
       setCalendars(response.data);
     } catch (error) {
       const message =
@@ -66,13 +54,10 @@ export default function Calendars() {
 
   async function handleSave(payload) {
     try {
-      const authHeader = getAuthHeader();
-
       if (editingCalendar) {
         const response = await calendarApi.updateCalendarApiCalendarCalendarIdPut(
           editingCalendar.id,
-          payload,
-          authHeader
+          payload
         );
 
         setCalendars((current) =>
@@ -83,10 +68,7 @@ export default function Calendars() {
 
         addFlash("success", "Calendar updated");
       } else {
-        const response = await calendarApi.createCalendarApiCalendarPost(
-          payload,
-          authHeader
-        );
+        const response = await calendarApi.createCalendarApiCalendarPost(payload);
 
         setCalendars((current) => [...current, response.data]);
         addFlash("success", "Calendar created");
@@ -113,12 +95,7 @@ export default function Calendars() {
     if (!confirmed) return;
 
     try {
-      const authHeader = getAuthHeader();
-
-      await calendarApi.deleteCalendarApiCalendarCalendarIdDelete(
-        calendarId,
-        authHeader
-      );
+      await calendarApi.deleteCalendarApiCalendarCalendarIdDelete(calendarId);
 
       setCalendars((current) =>
         current.filter((item) => item.id !== calendarId)
@@ -138,12 +115,7 @@ export default function Calendars() {
 
   async function handleEdit(calendarId) {
     try {
-      const authHeader = getAuthHeader();
-
-      const response = await calendarApi.getCalendarApiCalendarCalendarIdGet(
-        calendarId,
-        authHeader
-      );
+      const response = await calendarApi.getCalendarApiCalendarCalendarIdGet(calendarId);
 
       setEditingCalendar(response.data);
       setShowModal(true);

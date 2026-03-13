@@ -1,20 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
-import {
-  CalendarApi,
-  CalendarProfileApi,
-  Configuration,
-} from "../api-client";
+import { calendarApi, profileApi } from "../lib/apiClient.js";
 import CalendarModal from "../components/CalendarModal.jsx";
-
-const configuration = new Configuration({
-  basePath: "http://localhost:8000",
-});
-
-const profileApi = new CalendarProfileApi(configuration);
-const calendarApi = new CalendarApi(configuration);
 
 export default function CalendarProfiles() {
   const { isAuthenticated } = useAuth();
@@ -34,6 +23,26 @@ export default function CalendarProfiles() {
   // CalendarModal for creating a new calendar ("main" or "source")
   const [calendarModalContext, setCalendarModalContext] = useState(null); // { purpose: "main"|"source", profileId }
 
+  // Precompute available (not-yet-used) calendars per profile to avoid O(n)
+  // work on every render pass.
+  const availableCalendarsByProfile = useMemo(() => {
+    const result = {};
+    for (const profile of profiles) {
+      const usedIds = new Set([
+        profile.main_calendar_id,
+        ...(sourcesByProfile[profile.id] || []).map((s) => s.calendar_id),
+      ]);
+      result[profile.id] = calendars.filter((c) => !usedIds.has(c.id));
+    }
+    return result;
+  }, [profiles, calendars, sourcesByProfile]);
+
+  // Fast calendar lookup by id for display purposes.
+  const calendarById = useMemo(
+    () => Object.fromEntries(calendars.map((c) => [c.id, c])),
+    [calendars]
+  );
+
   useEffect(() => {
     if (!isAuthenticated) {
       hasLoadedRef.current = false;
@@ -49,19 +58,13 @@ export default function CalendarProfiles() {
     loadAll();
   }, [isAuthenticated]);
 
-  function getAuthHeader() {
-    const token = localStorage.getItem("token");
-    return token ? `Bearer ${token}` : undefined;
-  }
-
   async function loadAll() {
     try {
       setLoading(true);
-      const authHeader = getAuthHeader();
 
       const [profilesResponse, calendarsResponse] = await Promise.all([
-        profileApi.listProfilesApiProfileGet(authHeader),
-        calendarApi.listCalendarsApiCalendarGet(authHeader),
+        profileApi.listProfilesApiProfileGet(),
+        calendarApi.listCalendarsApiCalendarGet(),
       ]);
 
       const loadedProfiles = profilesResponse.data;
@@ -73,8 +76,7 @@ export default function CalendarProfiles() {
       const sourceEntries = await Promise.all(
         loadedProfiles.map(async (profile) => {
           const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-            profile.id,
-            authHeader
+            profile.id
           );
           return [profile.id, response.data];
         })
@@ -99,8 +101,7 @@ export default function CalendarProfiles() {
     if (!confirmed) return;
 
     try {
-      const authHeader = getAuthHeader();
-      await profileApi.deleteProfileApiProfileProfileIdDelete(id, authHeader);
+      await profileApi.deleteProfileApiProfileProfileIdDelete(id);
 
       setProfiles((current) => current.filter((item) => item.id !== id));
 
@@ -132,17 +133,13 @@ export default function CalendarProfiles() {
     }
 
     try {
-      const authHeader = getAuthHeader();
-
       await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
         profileId,
-        { calendar_id: calendarId },
-        authHeader
+        { calendar_id: calendarId }
       );
 
       const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-        profileId,
-        authHeader
+        profileId
       );
 
       setSourcesByProfile((current) => ({
@@ -168,12 +165,9 @@ export default function CalendarProfiles() {
     if (!confirmed) return;
 
     try {
-      const authHeader = getAuthHeader();
-
       await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
         profileId,
-        sourceId,
-        authHeader
+        sourceId
       );
 
       setSourcesByProfile((current) => ({
@@ -201,11 +195,9 @@ export default function CalendarProfiles() {
     const profile = profiles.find((p) => p.id === profileId);
 
     try {
-      const authHeader = getAuthHeader();
       const response = await profileApi.updateProfileApiProfileProfileIdPut(
         profileId,
-        { name: profile.name, main_calendar_id: calendarId },
-        authHeader
+        { name: profile.name, main_calendar_id: calendarId }
       );
 
       setProfiles((current) =>
@@ -222,8 +214,7 @@ export default function CalendarProfiles() {
 
   async function handleCalendarModalSave(payload) {
     try {
-      const authHeader = getAuthHeader();
-      const response = await calendarApi.createCalendarApiCalendarPost(payload, authHeader);
+      const response = await calendarApi.createCalendarApiCalendarPost(payload);
       const newCalendar = response.data;
 
       setCalendars((current) => [...current, newCalendar]);
@@ -234,8 +225,7 @@ export default function CalendarProfiles() {
 
         const updateResponse = await profileApi.updateProfileApiProfileProfileIdPut(
           profileId,
-          { name: profile.name, main_calendar_id: newCalendar.id },
-          authHeader
+          { name: profile.name, main_calendar_id: newCalendar.id }
         );
 
         setProfiles((current) =>
@@ -263,27 +253,13 @@ export default function CalendarProfiles() {
 
   async function handleTriggerSync(profileId) {
     try {
-      const authHeader = getAuthHeader();
-      await profileApi.triggerProfileSyncApiProfileProfileIdSyncPost(
-        profileId,
-        authHeader
-      );
+      await profileApi.triggerProfileSyncApiProfileProfileIdSyncPost(profileId);
       addFlash("success", "Profile sync triggered");
     } catch (error) {
       const message =
         error.response?.data?.detail || error.message || "Failed to trigger sync.";
       addFlash("error", message);
     }
-  }
-
-  function getAvailableCalendarsForProfile(profile) {
-    const currentSources = sourcesByProfile[profile.id] || [];
-    const usedCalendarIds = new Set([
-      profile.main_calendar_id,
-      ...currentSources.map((source) => source.calendar_id),
-    ]);
-
-    return calendars.filter((calendar) => !usedCalendarIds.has(calendar.id));
   }
 
   if (loading) {
@@ -323,7 +299,8 @@ export default function CalendarProfiles() {
       ) : (
         profiles.map((profile) => {
           const sources = sourcesByProfile[profile.id] || [];
-          const availableCalendars = getAvailableCalendarsForProfile(profile);
+          const availableCalendars = availableCalendarsByProfile[profile.id] || [];
+          const mainCal = calendarById[profile.main_calendar_id];
 
           return (
             <div key={profile.id} className="card">
@@ -337,8 +314,8 @@ export default function CalendarProfiles() {
                     <p className="subtle" style={{ margin: 0 }}>
                       Main Calendar:{" "}
                       <span>
-                        {calendars.find((c) => c.id === profile.main_calendar_id)
-                          ? `${calendars.find((c) => c.id === profile.main_calendar_id).type} — ${calendars.find((c) => c.id === profile.main_calendar_id).url}`
+                        {mainCal
+                          ? `${mainCal.type} — ${mainCal.url}`
                           : profile.main_calendar_id
                           ? `${profile.main_calendar_id.slice(0, 8)}…`
                           : "—"}

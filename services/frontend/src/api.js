@@ -1,13 +1,7 @@
-import { Configuration, AuthApi } from "./api-client";
-
-const client = new AuthApi(
-  new Configuration({
-    basePath: "http://localhost:8000",
-  })
-);
+import { authApi } from "./lib/apiClient.js";
 
 export async function login({ email, password }) {
-  const response = await client.loginApiAuthLoginPost({
+  const response = await authApi.loginApiAuthLoginPost({
     email,
     password,
   });
@@ -19,7 +13,7 @@ export async function login({ email, password }) {
 }
 
 export async function registerAndLogin({ email, password }) {
-  await client.registerApiAuthRegisterPost({
+  await authApi.registerApiAuthRegisterPost({
     email,
     password,
   });
@@ -28,26 +22,17 @@ export async function registerAndLogin({ email, password }) {
 }
 
 export async function logout() {
-  const token = localStorage.getItem("token");
-
-  await client.logoutApiAuthLogoutPost({
-    headers: token ? { authorization: `Bearer ${token}` } : {},
-  });
+  await authApi.logoutApiAuthLogoutPost();
 }
 
 export async function me() {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
+  if (!localStorage.getItem("token")) {
     return { authenticated: false };
   }
 
   try {
-    const response = await client.meApiAuthMeGet(`Bearer ${token}`);
-    return {
-      authenticated: true,
-      ...response.data,
-    };
+    const response = await authApi.meApiAuthMeGet();
+    return { authenticated: true, ...response.data };
   } catch {
     localStorage.removeItem("token");
     return { authenticated: false };

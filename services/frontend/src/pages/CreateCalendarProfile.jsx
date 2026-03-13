@@ -2,18 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
-import {
-  CalendarApi,
-  CalendarProfileApi,
-  Configuration,
-} from "../api-client";
-
-const configuration = new Configuration({
-  basePath: "http://localhost:8000",
-});
-
-const calendarApi = new CalendarApi(configuration);
-const profileApi = new CalendarProfileApi(configuration);
+import { calendarApi, profileApi } from "../lib/apiClient.js";
 
 export default function CreateCalendarProfile() {
   const { isAuthenticated } = useAuth();
@@ -39,29 +28,20 @@ export default function CreateCalendarProfile() {
   async function handleCreateProfile(e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    const authHeader = token ? `Bearer ${token}` : undefined;
-
     try {
-      const calendarResponse = await calendarApi.createCalendarApiCalendarPost(
-        {
-          type: newProfile.main_calendar.type,
-          url: newProfile.main_calendar.url,
-          username: newProfile.main_calendar.username || null,
-          password: newProfile.main_calendar.password || null,
-        },
-        authHeader
-      );
+      const calendarResponse = await calendarApi.createCalendarApiCalendarPost({
+        type: newProfile.main_calendar.type,
+        url: newProfile.main_calendar.url,
+        username: newProfile.main_calendar.username || null,
+        password: newProfile.main_calendar.password || null,
+      });
 
       const calendarId = calendarResponse.data.id;
 
-      await profileApi.createProfileApiProfilePost(
-        {
-          name: newProfile.name,
-          main_calendar_id: calendarId,
-        },
-        authHeader
-      );
+      await profileApi.createProfileApiProfilePost({
+        name: newProfile.name,
+        main_calendar_id: calendarId,
+      });
 
       addFlash("success", "Profile created");
       navigate("/calendar-profiles");
