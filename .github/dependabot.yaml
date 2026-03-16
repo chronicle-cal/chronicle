@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "services/worker"
+    schedule:
+      interval: "monthly"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
+  - package-ecosystem: "uv"
+    directory: "services/backend"
+    schedule:
+      interval: "monthly"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
+  - package-ecosystem: "npm"
+    directory: "services/frontend"
+    schedule:
+      interval: monthly
+    groups:
+      js-packages:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
