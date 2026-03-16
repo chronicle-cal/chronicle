@@ -1,4 +1,4 @@
-name: Secret Scanning
+name: General CI
 on:
   push:
     branches:
@@ -6,6 +6,18 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
+
+  yaml-lint:
+    name: Check YAML format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate YAML files
+        run: find . -name "*.yaml" -o -name "*.yml" | xargs yamllint
+
   trufflehog-scan:
     name: Scan for Secrets
     runs-on: ubuntu-latest
