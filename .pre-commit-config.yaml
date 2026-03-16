@@ -24,7 +24,9 @@ repos:
       hooks:
           - id: trufflehog
             name: trufflehog (staged files)
-            entry: bash -lc 'trufflehog git file://. --since-commit HEAD --only-verified --fail --no-update'
+            entry: >
+              bash -lc 'trufflehog git file://. --since-commit HEAD
+              --only-verified --fail --no-update'
             language: system
             pass_filenames: false
             stages: [pre-commit]
