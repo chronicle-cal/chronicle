@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: python
+          package-name: chronicle
+          monorepo-tags: false
+          bump-minor-pre-major: false
+          token: ${{ secrets.GITHUB_TOKEN }}

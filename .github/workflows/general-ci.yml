@@ -1,4 +1,4 @@
-name: Secret Scanning
+name: General CI
 on:
   push:
     branches:
@@ -6,6 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
+
   trufflehog-scan:
     name: Scan for Secrets
     runs-on: ubuntu-latest
