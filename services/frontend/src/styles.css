@@ -302,7 +302,6 @@ input:focus {
 }
 
 /* AUTH */
-.auth-wrapper { display: flex; justify-content: center; margin-top: 28px; }
 .auth-card { width: 100%; max-width: 420px; }
 
 .hero {
