@@ -5,14 +5,17 @@ import FlashStack from "./FlashStack.jsx";
 
 export default function AppLayout() {
   return (
-    <div className="container">
+    <>
       <header className="navbar">
-        <Navbar />
+        <div className="navbar-inner">
+          <Navbar />
+        </div>
       </header>
 
-      <FlashStack />
-
-      <Outlet />
-    </div>
+      <div className="container">
+        <FlashStack />
+        <Outlet />
+      </div>
+    </>
   );
 }

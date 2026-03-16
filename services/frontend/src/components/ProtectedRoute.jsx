@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   if (isBootstrapping) return null; // or a small skeleton/loading card
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/home" replace state={{ from: location.pathname }} />;
   }
 
   return children;

@@ -1,18 +1,18 @@
 :root {
-  --bg: #f4f2ed;
-  --bg-2: #ece8e1;
+  --bg: #f6f3ff;
+  --bg-2: #eee8ff;
 
   --card: rgba(255, 255, 255, 0.75);
   --card-strong: rgba(255, 255, 255, 0.88);
 
-  --text: #1f1f1f;
-  --muted: #6a6a6a;
+  --text: #1d1b22;
+  --muted: #6a5f86;
 
   --border: rgba(30, 30, 30, 0.10);
   --border-light: rgba(255, 255, 255, 0.55);
 
-  --accent: #8b6f47;
-  --accent-2: #d2b17c;
+  --accent: #6b2cff;
+  --accent-2: #b88aff;
 
   --danger: #c84b4b;
 
@@ -20,7 +20,7 @@
   --shadow-sm: 0 10px 24px rgba(0,0,0,0.10);
   --shadow-md: 0 18px 48px rgba(0,0,0,0.16);
 
-  --glow: 0 0 0 0 rgba(210,177,124,0.0);
+  --glow: 0 0 0 0 rgba(184,138,255,0.0);
 
   --radius: 18px;
 }
@@ -35,8 +35,8 @@ body {
   color: var(--text);
 
   background:
-    radial-gradient(900px 520px at 15% 0%, rgba(210,177,124,0.25), transparent 60%),
-    radial-gradient(800px 520px at 85% 5%, rgba(139,111,71,0.22), transparent 55%),
+    radial-gradient(900px 520px at 15% 0%, rgba(184,138,255,0.25), transparent 60%),
+    radial-gradient(800px 520px at 85% 5%, rgba(107,44,255,0.22), transparent 55%),
     linear-gradient(180deg, var(--bg), var(--bg-2));
 }
 
@@ -51,13 +51,10 @@ a:hover { text-decoration: none; }
 
 .navbar {
   position: relative;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  z-index: 100;
 
-  padding: 16px 20px;
-  border-radius: var(--radius);
+  padding: 20px 32px;
+  border-radius: 0;
 
   background: linear-gradient(
     180deg,
@@ -70,26 +67,61 @@ a:hover { text-decoration: none; }
   box-shadow: var(--shadow-sm);
 }
 
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 800;
   letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .brand-badge {
   width: 36px;
   height: 36px;
   border-radius: 14px;
-
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.55),
-    0 10px 26px rgba(139,111,71,0.35);
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
 }
 
-.nav-links { display: flex; gap: 10px; align-items: center; }
+.brand-badge img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+}
+
+
+.nav-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(107,44,255,0.18);
+  border-radius: 999px;
+}
 
 .profile-menu { position: relative; }
 
@@ -111,7 +143,7 @@ a:hover { text-decoration: none; }
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.55),
-    0 10px 26px rgba(139,111,71,0.35);
+    0 10px 26px rgba(107,44,255,0.35);
 }
 
 .profile-dropdown {
@@ -249,9 +281,9 @@ input:focus {
   outline: none;
   transform: translateY(-1px);
 
-  border-color: rgba(139,111,71,0.45);
+  border-color: rgba(107,44,255,0.45);
   box-shadow:
-    0 0 0 6px rgba(210,177,124,0.22),
+    0 0 0 6px rgba(184,138,255,0.22),
     var(--shadow-xs);
 }
 
@@ -291,14 +323,14 @@ input:focus {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.55),
-    0 14px 30px rgba(139,111,71,0.45);
+    0 14px 30px rgba(107,44,255,0.45);
 }
 
 .btn-primary:hover {
   filter: brightness(1.05);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.65),
-    0 18px 40px rgba(139,111,71,0.55);
+    0 18px 40px rgba(107,44,255,0.55);
 }
 
 /* AUTH */
