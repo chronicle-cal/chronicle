@@ -36,12 +36,52 @@ export default function CreateCalendarProfile() {
   const [newProfile, setNewProfile] = useState({
     name: "",
     main_calendar: {
-      type: "caldav",
+      type: "",
       url: "",
       username: "",
       password: "",
     },
   });
+  const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
+
+  const updateProfile = (patch) => {
+    setNewProfile((prev) => ({ ...prev, ...patch }));
+  };
+
+  const updateMainCalendar = (patch) => {
+    setNewProfile((prev) => ({
+      ...prev,
+      main_calendar: { ...prev.main_calendar, ...patch },
+    }));
+  };
+
+  const clearError = (key) => {
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const validate = (profile) => {
+    const nextErrors = {};
+    if (!profile.name.trim()) nextErrors.name = "Please enter a profile name.";
+    if (!profile.main_calendar.type) nextErrors.type = "Please choose a calendar type.";
+    if (!profile.main_calendar.url.trim()) nextErrors.url = "Please enter a calendar URL.";
+
+    if (profile.main_calendar.type === "caldav") {
+      if (!profile.main_calendar.username?.trim()) {
+        nextErrors.username = "Please enter a CalDAV username.";
+      }
+      if (!profile.main_calendar.password?.trim()) {
+        nextErrors.password = "Please enter a CalDAV password.";
+      }
+    }
+
+    return nextErrors;
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -52,6 +92,15 @@ export default function CreateCalendarProfile() {
   async function handleCreateProfile(e) {
     e.preventDefault();
     try {
+      const nextErrors = validate(newProfile);
+      if (Object.keys(nextErrors).length > 0) {
+        setErrors(nextErrors);
+        setSubmitError("");
+        return;
+      }
+
+      setErrors({});
+      setSubmitError("");
       await request("/profile", {
         method: "POST",
         body: newProfile,
@@ -59,7 +108,7 @@ export default function CreateCalendarProfile() {
       addFlash("success", "Calendar profile created");
       navigate("/calendar-profiles");
     } catch (err) {
-      addFlash("error", err.message);
+      setSubmitError(err.message || "Create failed.");
     }
   }
 
@@ -73,96 +122,103 @@ export default function CreateCalendarProfile() {
       </div>
 
       <div className="card">
-        <form onSubmit={handleCreateProfile}>
+        <form className="form form-detailed" onSubmit={handleCreateProfile} noValidate>
+          {submitError && <div className="form-error">{submitError}</div>}
           <div className="form-group">
             <label>Profile Name</label>
             <input
               value={newProfile.name}
-              onChange={(e) =>
-                setNewProfile({ ...newProfile, name: e.target.value })
-              }
+              onChange={(e) => {
+                updateProfile({ name: e.target.value });
+                clearError("name");
+              }}
               placeholder="My Work Calendar"
               required
               autoFocus
             />
+            {errors.name && <div className="field-error">{errors.name}</div>}
           </div>
 
-          <h2>Main Calendar Configuration</h2>
-          <div className="form-group">
-            <label>Calendar Type</label>
-            <select
-              value={newProfile.main_calendar.type}
-              onChange={(e) =>
-                setNewProfile({
-                  ...newProfile,
-                  main_calendar: {
-                    ...newProfile.main_calendar,
-                    type: e.target.value,
-                  },
-                })
-              }
-            >
-              <option value="caldav">CalDAV</option>
-              <option value="ical">iCal</option>
-            </select>
-          </div>
+          <div className="form-section">
+            <h2>Calendar Configuration</h2>
+            <p className="subtle">
+              Connect a calendar so Chronicle can sync it.
+            </p>
 
-          <div className="form-group">
-            <label>Calendar URL</label>
-            <input
-              value={newProfile.main_calendar.url}
-              onChange={(e) =>
-                setNewProfile({
-                  ...newProfile,
-                  main_calendar: {
-                    ...newProfile.main_calendar,
-                    url: e.target.value,
-                  },
-                })
-              }
-              placeholder="https://calendar.example.com/calendar"
-              required
-            />
-          </div>
-
-          {newProfile.main_calendar.type === "caldav" && (
-            <div className="form-row">
-              <div className="form-group">
-                <label>Username</label>
-                <input
-                  value={newProfile.main_calendar.username || ""}
-                  onChange={(e) =>
-                    setNewProfile({
-                      ...newProfile,
-                      main_calendar: {
-                        ...newProfile.main_calendar,
-                        username: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="username"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={newProfile.main_calendar.password || ""}
-                  onChange={(e) =>
-                    setNewProfile({
-                      ...newProfile,
-                      main_calendar: {
-                        ...newProfile.main_calendar,
-                        password: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="password"
-                />
-              </div>
+            <div className="form-group">
+              <label>Calendar Type</label>
+              <select
+                value={newProfile.main_calendar.type}
+                onChange={(e) => {
+                  updateMainCalendar({ type: e.target.value });
+                  clearError("type");
+                }}
+                required
+              >
+                <option value="" disabled>
+                  Choose calendar type
+                </option>
+                <option value="caldav">CalDAV</option>
+                <option value="ical">iCal</option>
+              </select>
+              {errors.type && <div className="field-error">{errors.type}</div>}
             </div>
-          )}
+
+            {newProfile.main_calendar.type && (
+              <>
+                <div className="form-group">
+                  <label>Calendar URL</label>
+                  <input
+                    value={newProfile.main_calendar.url}
+                    onChange={(e) => {
+                      updateMainCalendar({ url: e.target.value });
+                      clearError("url");
+                    }}
+                    placeholder="https://calendar.example.com/calendar"
+                    required
+                  />
+                  {errors.url && <div className="field-error">{errors.url}</div>}
+                </div>
+
+                {newProfile.main_calendar.type === "caldav" && (
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Username</label>
+                      <input
+                        value={newProfile.main_calendar.username || ""}
+                        onChange={(e) => {
+                          updateMainCalendar({ username: e.target.value });
+                          clearError("username");
+                        }}
+                        placeholder="username"
+                        required={newProfile.main_calendar.type === "caldav"}
+                      />
+                      {errors.username && (
+                        <div className="field-error">{errors.username}</div>
+                      )}
+                    </div>
+
+                    <div className="form-group">
+                      <label>Password</label>
+                      <input
+                        type="password"
+                        value={newProfile.main_calendar.password || ""}
+                        onChange={(e) => {
+                          updateMainCalendar({ password: e.target.value });
+                          clearError("password");
+                        }}
+                        placeholder="password"
+                        required={newProfile.main_calendar.type === "caldav"}
+                      />
+                      {errors.password && (
+                        <div className="field-error">{errors.password}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           <div className="actions">
             <button type="submit" className="btn btn-primary">
