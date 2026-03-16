@@ -343,6 +343,18 @@ input:focus {
   gap: 20px;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.spacer {
+  height: 20px;
+}
+
 .settings-grid {
   display: grid;
   gap: 18px;
