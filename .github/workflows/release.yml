@@ -32,4 +32,4 @@ jobs:
           monorepo-tags: false
           bump-minor-pre-major: true
           bump-patch-for-minor-pre-major: true
-          token: ${{ secrets.TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
