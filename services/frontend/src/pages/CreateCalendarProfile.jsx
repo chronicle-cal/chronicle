@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { calendarApi, profileApi } from "../lib/apiClient.js";
+import CalendarModal from "../components/CalendarModal.jsx";
 
 export default function CreateCalendarProfile() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { addFlash } = useFlash();
+
+  const [calendarModalContext, setCalendarModalContext] = useState(null); // { purpose: "main"|"source", profileId }
 
   const [newProfile, setNewProfile] = useState({
     name: "",
@@ -52,6 +55,56 @@ export default function CreateCalendarProfile() {
     }
   }
 
+  function handleCalendarModalSave(payload) {
+    // Persist the modal payload back into the page form so submit still works.
+    if (payload.type != "caldav") {
+      addFlash("warning", "Only CalDAV calendars are currently supported. Please choose a different calendar!");
+      setCalendarModalContext(null);
+      return;
+    }
+
+    setNewProfile((current) => ({
+      ...current,
+      main_calendar: {
+        type: payload.type,
+        url: payload.url,
+        username: payload.username || "",
+        password: payload.password || "",
+      },
+    }));
+
+
+
+
+    addFlash("success", "Calendar details updated");
+    setCalendarModalContext(null);
+  }
+
+  function openCalendarModal() {
+    setCalendarModalContext({ purpose: "main" });
+  }
+
+  const [existingCalendars, setExistingCalendars] = useState([]);
+  const [loadingCalendars, setLoadingCalendars] = useState(false);
+
+  useEffect(() => {
+    async function fetchCalendars() {
+      try {
+        setLoadingCalendars(true);
+        const response = await calendarApi.listCalendarsApiCalendarGet();
+        const caldavCalendars = response.data.filter(cal => cal.type === "caldav") || [];
+        setExistingCalendars(caldavCalendars || []);
+      } catch (error) {
+        console.error("Failed to load calendars:", error);
+      } finally {
+        setLoadingCalendars(false);
+      }
+    }
+    if (isAuthenticated) {
+      fetchCalendars();
+    }
+  }, [isAuthenticated]);
+
   return (
     <div className="container">
       <div className="page-header">
@@ -70,89 +123,41 @@ export default function CreateCalendarProfile() {
               onChange={(e) =>
                 setNewProfile({ ...newProfile, name: e.target.value })
               }
-              placeholder="My Work Calendar"
+              placeholder="Work"
               required
               autoFocus
             />
           </div>
 
-          <h2>Main Calendar Configuration</h2>
-
           <div className="form-group">
-            <label>Calendar Type</label>
+            <label>Main Calendar</label>
             <select
-              value={newProfile.main_calendar.type}
-              onChange={(e) =>
-                setNewProfile({
-                  ...newProfile,
-                  main_calendar: {
-                    ...newProfile.main_calendar,
-                    type: e.target.value,
-                  },
-                })
-              }
+              value={newProfile.main_calendar.id || ""}
+              onChange={(e) => {
+                if (e.target.value === "new") {
+                  openCalendarModal();
+                } else {
+                  const calendar = existingCalendars.find(c => c.id === e.target.value);
+                  if (calendar) {
+                    setNewProfile({
+                      ...newProfile,
+                      main_calendar: calendar,
+                    });
+                  }
+                }
+              }}
+              disabled={loadingCalendars}
             >
-              <option value="caldav">CalDAV</option>
-              <option value="ical">iCal</option>
+              <option value="">-- Select or create --</option>
+              {existingCalendars.map((cal) => (
+                <option key={cal.id} value={cal.id}>
+                  {cal.url}
+                </option>
+              ))}
+              <option value="new">+ Create New Calendar</option>
             </select>
+              <p>The calendar you choose must be a CalDAV calendar.</p>
           </div>
-
-          <div className="form-group">
-            <label>Calendar URL</label>
-            <input
-              value={newProfile.main_calendar.url}
-              onChange={(e) =>
-                setNewProfile({
-                  ...newProfile,
-                  main_calendar: {
-                    ...newProfile.main_calendar,
-                    url: e.target.value,
-                  },
-                })
-              }
-              placeholder="https://calendar.example.com/calendar"
-              required
-            />
-          </div>
-
-          {newProfile.main_calendar.type === "caldav" && (
-            <div className="form-row">
-              <div className="form-group">
-                <label>Username</label>
-                <input
-                  value={newProfile.main_calendar.username || ""}
-                  onChange={(e) =>
-                    setNewProfile({
-                      ...newProfile,
-                      main_calendar: {
-                        ...newProfile.main_calendar,
-                        username: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="username"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={newProfile.main_calendar.password || ""}
-                  onChange={(e) =>
-                    setNewProfile({
-                      ...newProfile,
-                      main_calendar: {
-                        ...newProfile.main_calendar,
-                        password: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="password"
-                />
-              </div>
-            </div>
-          )}
 
           <div className="actions">
             <button type="submit" className="btn btn-primary">
@@ -168,6 +173,15 @@ export default function CreateCalendarProfile() {
           </div>
         </form>
       </div>
+
+      <CalendarModal
+        isOpen={!!calendarModalContext}
+        onClose={() => setCalendarModalContext(null)}
+        onSave={handleCalendarModalSave}
+        initialData={
+          newProfile.main_calendar?.url ? newProfile.main_calendar : null
+        }
+      />
     </div>
   );
 }

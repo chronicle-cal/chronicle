@@ -41,7 +41,7 @@ export default function Navbar() {
   return (
     <>
       <div className="brand">
-        <img className="logo" src="src/logo.svg" alt="Logo" />
+        <img className="logo" src="/src/assets/logo.svg" alt="Logo" />
         <div>Chronicle</div>
       </div>
 
