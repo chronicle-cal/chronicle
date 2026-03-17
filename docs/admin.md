@@ -1,4 +1,4 @@
-# Admin Documentation
+# Admin Guide
 
 This document will show you how to install, configure and administrate chronicle.
 Common mistakes are described if these are known.

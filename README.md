@@ -12,7 +12,7 @@ docker compose -f compose.yaml up --build
 
 ## Installation
 
-Please refer to the [Admin Guide](docs/guides/admin.md) for detailed instructions on how to set up Chronicle.
+Please refer to the [Admin Guide](docs/admin.md) for detailed instructions on how to set up Chronicle.
 
 ## Architecture
 
