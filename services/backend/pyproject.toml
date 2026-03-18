@@ -1,6 +1,8 @@
 [project]
 name = "backend"
+# x-release-please-start-version
 version = "0.1.0"
+# x-release-please-end
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
