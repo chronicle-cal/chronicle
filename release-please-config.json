@@ -8,8 +8,8 @@
     "packages": {
       ".": {
         "extra-files": [
-          "services/worker/pyproject.yaml",
-          "services/backend/pyproject.yaml"
+          "services/worker/pyproject.toml",
+          "services/backend/pyproject.toml"
         ]
       }
     }
