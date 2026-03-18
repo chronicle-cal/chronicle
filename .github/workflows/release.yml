@@ -27,10 +27,5 @@ jobs:
           installation-id: ${{ secrets.RELEASE_PLEASE_INSTALLATION_ID }}
       - uses: google-github-actions/release-please-action@v3
         with:
-          release-type: simple
-          package-name: chronicle
-          monorepo-tags: false
-          bump-minor-pre-major: true
-          bump-patch-for-minor-pre-major: true
           token: ${{ steps.app-token.outputs.token }}
-          extra-files: ["services/worker/pyproject.yaml", "services/backend/pyproject.yaml"]
+      
