@@ -23,6 +23,9 @@
     --glow: 0 0 0 0 rgba(210, 177, 124, 0);
 
     --radius: 18px;
+    --footer-height: 40px;
+    --footer-reveal: clamp(48px, 8vh, 96px);
+    --footer-gap: clamp(4px, 1.5vh, 12px);
 }
 
 *,
@@ -103,6 +106,48 @@ a:hover {
 
 .profile-menu {
     position: relative;
+}
+
+.footer {
+    margin-top: auto;
+    margin: var(--footer-gap) auto 0;
+    max-width: 90rem;
+    padding: 0 2rem;
+    min-height: var(--footer-height);
+    border-top: none;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+}
+
+.footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: var(--footer-height);
+    width: 100%;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1;
+    justify-content: center;
+}
+
+.footer a {
+    color: var(--muted);
+}
+
+.footer a:hover {
+    color: var(--text);
 }
 
 .avatar-btn {
@@ -329,6 +374,12 @@ input:focus {
     overflow-y: auto;
 }
 
+.modal-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .modal-close {
     position: absolute;
     top: 16px;
@@ -420,6 +471,18 @@ select:focus {
     .settings-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.spacer {
+  height: 20px;
 }
 
 @media (max-width: 720px) {

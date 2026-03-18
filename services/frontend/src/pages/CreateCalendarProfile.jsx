@@ -156,7 +156,7 @@ export default function CreateCalendarProfile() {
               ))}
               <option value="new">+ Create New Calendar</option>
             </select>
-              <p>The calendar you choose must be a CalDAV calendar.</p>
+            <p>The calendar you choose must be a CalDAV calendar.</p>
           </div>
 
           <div className="actions">
