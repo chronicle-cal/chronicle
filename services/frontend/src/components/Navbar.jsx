@@ -14,7 +14,7 @@ export default function Navbar() {
     try {
       await logout();
       addFlash("success", "Logged out.");
-      navigate("/login");
+      navigate("/home");
     } catch {
       addFlash("error", "Logout failed.");
     }
@@ -40,10 +40,10 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="brand">
+      <Link className="brand" to="/home">
         <img className="logo" src="/src/assets/logo.svg" alt="Logo" />
         <div>Chronicle</div>
-      </div>
+      </Link>
 
       <nav className="nav-links">
         {isAuthenticated ? (
