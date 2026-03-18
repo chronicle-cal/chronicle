@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.1.1](https://github.com/nilsfast/chronicle-test-release/compare/v0.1.1...v0.1.1) (2026-03-18)
+
+
+### Features
+
+* add sync functionality ([716ffb8](https://github.com/nilsfast/chronicle-test-release/commit/716ffb80c28659f909b396f93c5f73db2b037cd9))
+* **auth:** add token sessions, profile edit, and account delete ([cd84bc7](https://github.com/nilsfast/chronicle-test-release/commit/cd84bc77ef0a8a5394fa4c1c778684950b4a948d))
+* **auth:** persist users in db and switch to argon2 ([0ed845e](https://github.com/nilsfast/chronicle-test-release/commit/0ed845e4e2bf8b1273e32e77a4ba59c0dba2106d))
+* backend and worker overhaul with auth, DB schema updates, and calendar sync ([8f6cc49](https://github.com/nilsfast/chronicle-test-release/commit/8f6cc49f17a44e0a57f664e747aa71edf13f9894))
+* custom UIDs, performance improvements ([edf58ce](https://github.com/nilsfast/chronicle-test-release/commit/edf58ce939c566c40b294c6c436cd998a75ab307))
+* task scheduler ([fe6d32f](https://github.com/nilsfast/chronicle-test-release/commit/fe6d32f73206e1f1af949cb2bf9f0d6af2825bdb))
+* worker rabbit mq connection, restructure ([6273fd0](https://github.com/nilsfast/chronicle-test-release/commit/6273fd0b4d237b3b7cebdf3c52daa34d0292c772))
+
+
+### Bug Fixes
+
+* add requirements.txt and uv-lock optional ([3302278](https://github.com/nilsfast/chronicle-test-release/commit/33022784bd99546dc910635d072d4e81a549f4da))
+* add trufflehog version ([c9c3243](https://github.com/nilsfast/chronicle-test-release/commit/c9c3243ec8abbe7ddb55a4d75afcba7d3554a3ed))
+* **backend:** auto-create missing DB tables at startup ([0ead386](https://github.com/nilsfast/chronicle-test-release/commit/0ead3863d2c886a15121585259f0a45f7e1dac86))
+* **ci:** update workflow with app, add version file ([046f8c7](https://github.com/nilsfast/chronicle-test-release/commit/046f8c7c8af56e9a39adc4c47a4f45234d18e4fd))
+* correct files for extra files ([2541cfb](https://github.com/nilsfast/chronicle-test-release/commit/2541cfb3cb5807c5520af16d4614f49b100d6aee))
+* fix import issues in ruff ([cdbbfd8](https://github.com/nilsfast/chronicle-test-release/commit/cdbbfd8c101954793781f83d98a3984c73c51f82))
+* fix ruff issue with fastAPI ([b191e10](https://github.com/nilsfast/chronicle-test-release/commit/b191e103039e9730840c5ff3f8ef977e710f0a56))
+* fix smoketest ([d0f6256](https://github.com/nilsfast/chronicle-test-release/commit/d0f62560df9d1f012cdb5bd65419f868177aa4c8))
+* fix whitespaces, extra lines etc. ([56bc307](https://github.com/nilsfast/chronicle-test-release/commit/56bc307f90cde9f7be6a0e252f701264fd4a2672))
+* **release-ci:** wrong token ([903aa2b](https://github.com/nilsfast/chronicle-test-release/commit/903aa2bda63f18fe06fbae110e3453c6643e4068))
+* ruff auto fix ([6204acd](https://github.com/nilsfast/chronicle-test-release/commit/6204acd06ac6c894ed5a55d332565b3d3518e344))
+* trufflehog failure fix ([2295625](https://github.com/nilsfast/chronicle-test-release/commit/22956259883391049e1d2110a513683a314d2f94))
+* update token and permissions for release workflow ([0bd80b2](https://github.com/nilsfast/chronicle-test-release/commit/0bd80b2a86471f17875dedce73cdf7e2c317043b))
+
+
+### Miscellaneous Chores
+
+* release 0.1.1 ([c5acd4d](https://github.com/nilsfast/chronicle-test-release/commit/c5acd4dc7dd47a6f999c4c290a235e7460189846))
+
 ## 0.1.1 (2026-03-17)
 
 
