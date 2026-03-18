@@ -1,6 +1,8 @@
 [project]
 name = "worker"
+# x-release-please-start-version
 version = "0.1.0"
+# x-release-please-end
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "nilsfast", email = "mail@nilsfast.com" }]
