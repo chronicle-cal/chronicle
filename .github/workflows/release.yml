@@ -33,3 +33,4 @@ jobs:
           bump-minor-pre-major: true
           bump-patch-for-minor-pre-major: true
           token: ${{ steps.app-token.outputs.token }}
+          extra-files: ["services/worker/pyproject.yaml", "services/backend/pyproject.yaml"]
