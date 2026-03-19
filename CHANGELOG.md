@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/chronicle-cal/chronicle/compare/v0.1.1...v0.1.2) (2026-03-19)
+
+
+### Features
+
+* **frontend:** implement multi-stage production dockerfile with nginx ([f935ad9](https://github.com/chronicle-cal/chronicle/commit/f935ad9b54a414a97eb3ce08a28fab11a0048faf))
+
 ## 0.1.1 (2026-03-17)
 
 
