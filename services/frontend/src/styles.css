@@ -303,6 +303,8 @@ input {
     font-size: 1rem;
     color: var(--text);
 
+    box-shadow: none;
+
     transition:
         transform 150ms ease,
         box-shadow 150ms ease,
@@ -314,9 +316,7 @@ input:focus {
     transform: translateY(-1px);
 
     border-color: rgba(139, 111, 71, 0.45);
-    box-shadow:
-        0 0 0 6px rgba(210, 177, 124, 0.22),
-        var(--shadow-xs);
+    box-shadow: none;
 }
 
 .actions {
@@ -410,7 +410,7 @@ input:focus {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
 .form-row {
@@ -422,25 +422,36 @@ input:focus {
 select {
     width: 100%;
     padding: 14px;
+    padding-right: 40px; 
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.85);
     border: 1px solid var(--border);
     font-size: 1rem;
     color: var(--text);
     cursor: pointer;
-    transition:
-        transform 150ms ease,
-        box-shadow 150ms ease,
-        border-color 150ms ease;
+    
+    
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236a6a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+
+select:hover {
+    background-color: rgba(255, 255, 255, 0.95);
 }
 
 select:focus {
     outline: none;
-    transform: translateY(-1px);
-    border-color: rgba(139, 111, 71, 0.45);
-    box-shadow:
-        0 0 0 6px rgba(210, 177, 124, 0.22),
-        var(--shadow-xs);
+    border-color: var(--accent); 
+    box-shadow: none; 
 }
 
 /* AUTH */
