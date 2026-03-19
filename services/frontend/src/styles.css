@@ -13,6 +13,7 @@
 
   --accent: #7700ff;
   --accent-2: #7700ff;
+  --accent-3: #7700ff50;
 
   --danger: #c84b4b;
 
@@ -238,6 +239,12 @@ a:hover {
   border: 1px solid var(--border-light);
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .card::after {
@@ -518,4 +525,49 @@ select:focus {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.rule-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--card-strong);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+
+.rule-info {
+  display: grid;
+  gap: 4px;
+}
+
+.rule-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .rule-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+hr {
+  border: none;
+  height: 2px;
+  background-color: var(--accent-3);
 }

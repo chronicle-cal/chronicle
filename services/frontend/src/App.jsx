@@ -8,7 +8,6 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import CalendarProfiles from "./pages/CalendarProfiles.jsx";
-import CreateCalendarProfile from "./pages/CreateCalendarProfile.jsx";
 import Calendars from "./pages/Calendars.jsx";
 import Home from "./pages/Home.jsx";
 import Legal from "./pages/Legal.jsx";
@@ -45,34 +44,10 @@ export default function App() {
           }
         />
         <Route
-          path="/calendar-profiles/new"
-          element={
-            <ProtectedRoute>
-              <CreateCalendarProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/calendars"
           element={
             <ProtectedRoute>
               <Calendars />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/calendar-profiles"
-          element={
-            <ProtectedRoute>
-              <CalendarProfiles />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/calendar-profiles/new"
-          element={
-            <ProtectedRoute>
-              <CreateCalendarProfile />
             </ProtectedRoute>
           }
         />

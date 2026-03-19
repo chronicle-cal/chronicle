@@ -21,6 +21,8 @@ export default function CalendarModal({
   onClose,
   onSave,
   initialData = null,
+  allowedTypes = ["caldav", "ical"],
+  helperText = "",
 }) {
   const [formData, setFormData] = useState(emptyForm);
   const isEditing = !!initialData;
@@ -39,6 +41,15 @@ export default function CalendarModal({
       setFormData(emptyForm);
     }
   }, [isOpen, initialData]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (allowedTypes.includes(formData.type)) return;
+    setFormData((current) => ({
+      ...current,
+      type: allowedTypes[0] || "caldav",
+    }));
+  }, [allowedTypes, formData.type, isOpen]);
 
   // Close on Escape key
   useEffect(() => {
@@ -85,9 +96,14 @@ export default function CalendarModal({
           <div className="form-group">
             <label>Calendar Type</label>
             <select value={formData.type} onChange={handleChange("type")}>
-              <option value="caldav">CalDAV</option>
-              <option value="ical">iCal</option>
+              {allowedTypes.includes("caldav") && (
+                <option value="caldav">CalDAV</option>
+              )}
+              {allowedTypes.includes("ical") && (
+                <option value="ical">iCal</option>
+              )}
             </select>
+            {helperText ? <p className="subtle">{helperText}</p> : null}
           </div>
 
           <div className="form-group">
