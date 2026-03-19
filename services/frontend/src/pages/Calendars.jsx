@@ -160,35 +160,38 @@ export default function Calendars() {
           </div>
         </div>
       ) : (
-        calendars.map((calendar) => (
-          <div key={calendar.id} className="card">
-            <div className="card-header">
-              <div>
-                <h2>{calendar.type}</h2>
-                <p className="subtle">URL: {calendar.url}</p>
-                <p className="subtle">
-                  Calendar ID: {calendar.id.slice(0, 8)}...
-                </p>
-                <p className="subtle">
-                  Username: {calendar.username || "-"}
-                </p>
-              </div>
+        calendars.map((calendar, index) => (
+          <div key={calendar.id}>
+            <div className="card">
+              <div className="card-header">
+                <div>
+                  <h2>{calendar.type}</h2>
+                  <p className="subtle">URL: {calendar.url}</p>
+                  <p className="subtle">
+                    Calendar ID: {calendar.id.slice(0, 8)}...
+                  </p>
+                  <p className="subtle">
+                    Username: {calendar.username || "-"}
+                  </p>
+                </div>
 
-              <div className="actions">
-                <button
-                  className="btn btn-small"
-                  onClick={() => handleEdit(calendar.id)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-small btn-danger"
-                  onClick={() => handleDelete(calendar.id)}
-                >
-                  Delete
-                </button>
+                <div className="actions">
+                  <button
+                    className="btn btn-small"
+                    onClick={() => handleEdit(calendar.id)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-small btn-danger"
+                    onClick={() => handleDelete(calendar.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
+            {index < calendars.length - 1 && <div className="spacer" />}
           </div>
         ))
       )}
