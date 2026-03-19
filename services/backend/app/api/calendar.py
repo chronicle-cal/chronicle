@@ -13,7 +13,9 @@ calendar_router = APIRouter(
 )
 
 
-@calendar_router.get("", response_model=list[CalendarRead])
+@calendar_router.get(
+    "", response_model=list[CalendarRead], operation_id="list_calendars"
+)
 async def list_calendars(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -25,7 +27,9 @@ async def list_calendars(
     return calendars
 
 
-@calendar_router.post("", response_model=CalendarRead)
+@calendar_router.post(
+    "", response_model=CalendarRead, status_code=201, operation_id="create_calendar"
+)
 async def create_calendar(
     calendar_data: CalendarCreate,
     user: User = Depends(get_current_user),
@@ -48,7 +52,9 @@ async def create_calendar(
     return calendar
 
 
-@calendar_router.delete("/{calendar_id}", status_code=204)
+@calendar_router.delete(
+    "/{calendar_id}", status_code=204, operation_id="delete_calendar"
+)
 async def delete_calendar(
     calendar_id: str,
     user: User = Depends(get_current_user),
@@ -69,7 +75,9 @@ async def delete_calendar(
     db.commit()
 
 
-@calendar_router.get("/{calendar_id}", response_model=CalendarRead)
+@calendar_router.get(
+    "/{calendar_id}", response_model=CalendarRead, operation_id="get_calendar"
+)
 async def get_calendar(
     calendar_id: str,
     user: User = Depends(get_current_user),
@@ -89,7 +97,9 @@ async def get_calendar(
     return calendar
 
 
-@calendar_router.put("/{calendar_id}", response_model=CalendarRead)
+@calendar_router.put(
+    "/{calendar_id}", response_model=CalendarRead, operation_id="update_calendar"
+)
 async def update_calendar(
     calendar_id: str,
     calendar_data: CalendarCreate,

@@ -22,7 +22,10 @@ router = APIRouter()
 
 
 @router.post(
-    "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+    "/register",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    operation_id="register",
 )
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_async_db)):
     email = payload.email.lower()
@@ -37,7 +40,12 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_asyn
     return TokenResponse(access_token=create_token(email))
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    operation_id="login",
+    responses=auth_responses,
+)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_async_db)):
     email = payload.email.lower()
     result = await db.execute(select(UserModel).where(UserModel.email == email))
@@ -49,12 +57,12 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_async_db))
     return TokenResponse(access_token=create_token(email))
 
 
-@router.post("/logout")
+@router.post("/logout", operation_id="logout")
 def logout():
     return {"message": "logged out"}
 
 
-@router.get("/me")
+@router.get("/me", opersion_id="me", responses=auth_responses)
 async def me(
     user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db),
@@ -62,7 +70,7 @@ async def me(
     return {"authenticated": True, "email": user.email, "name": user.fullname}
 
 
-@router.get("/token", responses=auth_responses)
+@router.get("/token", operation_id="get_token", responses=auth_responses)
 async def get_token(
     token: str = Depends(get_current_token),
 ):
