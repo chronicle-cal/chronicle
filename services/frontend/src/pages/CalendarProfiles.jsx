@@ -297,189 +297,192 @@ export default function CalendarProfiles() {
           </div>
         </div>
       ) : (
-        profiles.map((profile) => {
+        profiles.map((profile, index) => {
           const sources = sourcesByProfile[profile.id] || [];
           const availableCalendars = availableCalendarsByProfile[profile.id] || [];
           const mainCal = calendarById[profile.main_calendar_id];
 
           return (
-            <div key={profile.id} className="card">
-              <div className="card-header">
-                <div>
-                  <h2>{profile.name}</h2>
-                  <p className="subtle">
-                    Profile ID: {profile.id.slice(0, 8)}...
-                  </p>
-                  <div className="main-calendar-row">
-                    <p className="subtle" style={{ margin: 0 }}>
-                      Main Calendar:{" "}
-                      <span>
-                        {mainCal
-                          ? `${mainCal.type} — ${mainCal.url}`
-                          : profile.main_calendar_id
-                          ? `${profile.main_calendar_id.slice(0, 8)}…`
-                          : "—"}
-                      </span>
+            <div key={profile.id}>
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <h2>{profile.name}</h2>
+                    <p className="subtle">
+                      Profile ID: {profile.id.slice(0, 8)}...
                     </p>
-                    {editingMainCalendarFor !== profile.id ? (
-                      <button
-                        className="btn btn-small"
-                        type="button"
-                        onClick={() => {
-                          setMainCalendarDraft((d) => ({
-                            ...d,
-                            [profile.id]: profile.main_calendar_id || "",
-                          }));
-                          setEditingMainCalendarFor(profile.id);
-                        }}
-                      >
-                        Change
-                      </button>
-                    ) : (
-                      <button
-                        className="btn btn-small"
-                        type="button"
-                        onClick={() => setEditingMainCalendarFor(null)}
-                      >
-                        Cancel
-                      </button>
+                    <div className="main-calendar-row">
+                      <p className="subtle" style={{ margin: 0 }}>
+                        Main Calendar:{" "}
+                        <span>
+                          {mainCal
+                            ? `${mainCal.type} — ${mainCal.url}`
+                            : profile.main_calendar_id
+                            ? `${profile.main_calendar_id.slice(0, 8)}…`
+                            : "—"}
+                        </span>
+                      </p>
+                      {editingMainCalendarFor !== profile.id ? (
+                        <button
+                          className="btn btn-small"
+                          type="button"
+                          onClick={() => {
+                            setMainCalendarDraft((d) => ({
+                              ...d,
+                              [profile.id]: profile.main_calendar_id || "",
+                            }));
+                            setEditingMainCalendarFor(profile.id);
+                          }}
+                        >
+                          Change
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-small"
+                          type="button"
+                          onClick={() => setEditingMainCalendarFor(null)}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+
+                    {editingMainCalendarFor === profile.id && (
+                      <div className="form-row" style={{ marginTop: "0.75rem" }}>
+                        <div className="form-group" style={{ flex: 1 }}>
+                          <label>Select calendar</label>
+                          <select
+                            value={mainCalendarDraft[profile.id] || ""}
+                            onChange={(e) =>
+                              setMainCalendarDraft((d) => ({
+                                ...d,
+                                [profile.id]: e.target.value,
+                              }))
+                            }
+                          >
+                            <option value="">— choose —</option>
+                            {calendars.map((calendar) => (
+                              <option key={calendar.id} value={calendar.id}>
+                                {calendar.type} — {calendar.url}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="actions" style={{ alignItems: "end" }}>
+                          <button
+                            className="btn btn-primary"
+                            type="button"
+                            onClick={() => handleUpdateMainCalendar(profile.id)}
+                            disabled={!mainCalendarDraft[profile.id]}
+                          >
+                            Apply
+                          </button>
+                          <button
+                            className="btn"
+                            type="button"
+                            onClick={() =>
+                              setCalendarModalContext({ purpose: "main", profileId: profile.id })
+                            }
+                          >
+                            + New Calendar
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
 
-                  {editingMainCalendarFor === profile.id && (
-                    <div className="form-row" style={{ marginTop: "0.75rem" }}>
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <label>Select calendar</label>
-                        <select
-                          value={mainCalendarDraft[profile.id] || ""}
-                          onChange={(e) =>
-                            setMainCalendarDraft((d) => ({
-                              ...d,
-                              [profile.id]: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="">— choose —</option>
-                          {calendars.map((calendar) => (
-                            <option key={calendar.id} value={calendar.id}>
-                              {calendar.type} — {calendar.url}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="actions" style={{ alignItems: "end" }}>
-                        <button
-                          className="btn btn-primary"
-                          type="button"
-                          onClick={() => handleUpdateMainCalendar(profile.id)}
-                          disabled={!mainCalendarDraft[profile.id]}
-                        >
-                          Apply
-                        </button>
-                        <button
-                          className="btn"
-                          type="button"
-                          onClick={() =>
-                            setCalendarModalContext({ purpose: "main", profileId: profile.id })
-                          }
-                        >
-                          + New Calendar
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="actions">
-                  <button
-                    className="btn btn-small"
-                    onClick={() => handleTriggerSync(profile.id)}
-                  >
-                    Sync Now
-                  </button>
-                  <button
-                    className="btn btn-small btn-danger"
-                    onClick={() => handleDeleteProfile(profile.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              <div className="card-section">
-                <h3>Sources</h3>
-
-                {sources.length === 0 ? (
-                  <p className="subtle">No sources added yet.</p>
-                ) : (
-                  <ul className="rule-list">
-                    {sources.map((source) => (
-                      <li key={source.id} className="rule-item">
-                        <div className="rule-info">
-                          <strong>
-                            {source.calendar?.url || source.calendar_id}
-                          </strong>
-                          <span className="subtle">
-                            Calendar ID: {source.calendar_id.slice(0, 8)}...
-                          </span>
-                          <span className="subtle">
-                            Type: {source.calendar?.type || "-"}
-                          </span>
-                        </div>
-                        <div className="rule-actions">
-                          <button
-                            className="btn btn-small btn-danger"
-                            onClick={() =>
-                              handleDeleteSource(profile.id, source.id)
-                            }
-                          >
-                            Delete Source
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="form-row" style={{ marginTop: "1rem" }}>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label>Add existing calendar as source</label>
-                    <select
-                      value={selectedCalendarByProfile[profile.id] || ""}
-                      onChange={(e) =>
-                        setSelectedCalendarByProfile((current) => ({
-                          ...current,
-                          [profile.id]: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="">Select a calendar</option>
-                      {availableCalendars.map((calendar) => (
-                        <option key={calendar.id} value={calendar.id}>
-                          {calendar.type} — {calendar.url}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="actions" style={{ alignItems: "end" }}>
+                  <div className="actions">
                     <button
-                      className="btn btn-primary"
-                      type="button"
-                      onClick={() => handleAddSource(profile.id)}
-                      disabled={availableCalendars.length === 0}
+                      className="btn btn-small"
+                      onClick={() => handleTriggerSync(profile.id)}
                     >
-                      Add Source
+                      Sync Now
+                    </button>
+                    <button
+                      className="btn btn-small btn-danger"
+                      onClick={() => handleDeleteProfile(profile.id)}
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>
 
-                {availableCalendars.length === 0 && (
-                  <p className="subtle">
-                    No additional calendars available to add as sources.
-                  </p>
-                )}
+                <div className="card-section">
+                  <h3>Sources</h3>
+
+                  {sources.length === 0 ? (
+                    <p className="subtle">No sources added yet.</p>
+                  ) : (
+                    <ul className="rule-list">
+                      {sources.map((source) => (
+                        <li key={source.id} className="rule-item">
+                          <div className="rule-info">
+                            <strong>
+                              {source.calendar?.url || source.calendar_id}
+                            </strong>
+                            <span className="subtle">
+                              Calendar ID: {source.calendar_id.slice(0, 8)}...
+                            </span>
+                            <span className="subtle">
+                              Type: {source.calendar?.type || "-"}
+                            </span>
+                          </div>
+                          <div className="rule-actions">
+                            <button
+                              className="btn btn-small btn-danger"
+                              onClick={() =>
+                                handleDeleteSource(profile.id, source.id)
+                              }
+                            >
+                              Delete Source
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="form-row" style={{ marginTop: "1rem" }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Add existing calendar as source</label>
+                      <select
+                        value={selectedCalendarByProfile[profile.id] || ""}
+                        onChange={(e) =>
+                          setSelectedCalendarByProfile((current) => ({
+                            ...current,
+                            [profile.id]: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select a calendar</option>
+                        {availableCalendars.map((calendar) => (
+                          <option key={calendar.id} value={calendar.id}>
+                            {calendar.type} — {calendar.url}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="actions" style={{ alignItems: "end" }}>
+                      <button
+                        className="btn btn-primary"
+                        type="button"
+                        onClick={() => handleAddSource(profile.id)}
+                        disabled={availableCalendars.length === 0}
+                      >
+                        Add Source
+                      </button>
+                    </div>
+                  </div>
+
+                  {availableCalendars.length === 0 && (
+                    <p className="subtle">
+                      No additional calendars available to add as sources.
+                    </p>
+                  )}
+                </div>
               </div>
+              {index < profiles.length - 1 && <div className="spacer" />}
             </div>
           );
         })
