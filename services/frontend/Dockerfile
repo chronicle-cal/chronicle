@@ -1,17 +1,19 @@
-# services/frontend/Dockerfile
-FROM node:20-alpine
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Install dependencies first (better caching)
-COPY services/frontend/package*.json ./
+COPY ./package*.json ./
+
 RUN npm ci
 
-# Copy source
-COPY services/frontend ./
+COPY . ./
 
-# Vite dev server
-EXPOSE 5173
+RUN npm run build
 
-# --host 0.0.0.0 is required to access the dev server from outside the container
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+FROM nginx:stable-alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
