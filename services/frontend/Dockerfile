@@ -1,19 +1,19 @@
 FROM node:20-alpine AS build
-
+USER node
 WORKDIR /app
-
-COPY services/frontend/package*.json ./
-
+COPY --chown=node:node services/frontend/package*.json ./
 RUN npm ci
-
-COPY services/frontend ./
-
+COPY --chown=node:node services/frontend ./
 RUN npm run build
 
 FROM nginx:stable-alpine
+RUN touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+    
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY services/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-
+COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html
+USER nginx
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
