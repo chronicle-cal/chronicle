@@ -53,6 +53,10 @@ body {
 
     /* background: radial-gradient(800px 520px at 85% 5%, rgba(139, 111, 71, 0.22), transparent 55%), linear-gradient(180deg, var(--bg), var(--bg-2)); */
     background: linear-gradient(180deg, var(--bg), var(--bg-2));
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
 }
 
 a {
