@@ -1,0 +1,43 @@
+name: Worker CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/worker/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/worker/**'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: services/worker
+        run: uv sync --no-dev
+      - name: Run Ruff linter
+        working-directory: services/worker
+        run: uv run ruff check .
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: services/worker
+        run: uv sync
+      - name: Run tests with pytest
+        working-directory: services/worker
+        run: uv run pytest --cov=worker --cov-report=term-missing

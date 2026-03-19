@@ -37,11 +37,15 @@ def run_action(action, body):
 
 
 def get_connection():
-    host = os.getenv("RABBITMQ_HOST", "localhost")
+    if not os.getenv("RABBITMQ_URL"):
+        logging.critical("RABBITMQ_URL environment variable not set.")
+        sys.exit(1)
+    else:
+        RABBITMQ_URL = os.getenv("RABBITMQ_URL", "")
     retries = 5
     for _ in range(retries):
         try:
-            return pika.BlockingConnection(pika.ConnectionParameters(host=host))
+            return pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL))
         except Exception as e:
             logging.error(f"Connection failed: {e}, retrying...")
             time.sleep(2)

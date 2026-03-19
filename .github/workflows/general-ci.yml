@@ -1,4 +1,4 @@
-name: Secret Scanning
+name: General CI
 on:
   push:
     branches:
@@ -6,6 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
+
   trufflehog-scan:
     name: Scan for Secrets
     runs-on: ubuntu-latest
@@ -20,6 +21,6 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.93.0
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
           extra_args: --debug --only-verified

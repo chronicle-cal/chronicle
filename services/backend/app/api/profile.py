@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from aio_pika.abc import AbstractRobustConnection
 import aio_pika
-
 from app.api.auth import get_current_user
 from app.db.session import get_async_db, get_message_queue
-from app.models.integration import CalendarProfile, CalendarSource
+from app.models.integration import (
+    CalendarProfile,
+    CalendarSource,
+)
 from app.models.user import User
 from app.schemas.integration import (
     ProfileCreate,
@@ -34,11 +36,10 @@ async def _get_profile_or_404(
             CalendarProfile.user_id == current_user.id,
         )
     )
-    profile = result.unique().scalar_one_or_none()
+    profile = result.scalar_one_or_none()
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
         )
     return profile
 
@@ -48,7 +49,6 @@ async def _get_source_or_404(
 ) -> CalendarSource:
     result = await db.execute(
         select(CalendarSource)
-        .options(selectinload(CalendarSource.calendar))
         .join(CalendarProfile)
         .where(
             CalendarSource.id == source_id,
@@ -56,11 +56,10 @@ async def _get_source_or_404(
             CalendarProfile.user_id == user.id,
         )
     )
-    source = result.unique().scalar_one_or_none()
+    source = result.scalar_one_or_none()
     if not source:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Source not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Source not found"
         )
     return source
 
@@ -91,26 +90,14 @@ async def get_profile(
     result = await db.execute(
         select(CalendarProfile)
         .options(selectinload(CalendarProfile.calendar_sources))
-        .where(
-            CalendarProfile.id == profile_id,
-            CalendarProfile.user_id == user.id,
-        )
+        .where(CalendarProfile.id == profile_id, CalendarProfile.user_id == user.id)
     )
-    profile = result.unique().scalar_one_or_none()
-
-    if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found",
-        )
-
+    profile = result.scalar_one_or_none()
     return profile
 
 
 @profile_router.post(
-    "",
-    response_model=ProfileReadShort,
-    status_code=status.HTTP_201_CREATED,
+    "", response_model=ProfileReadShort, status_code=status.HTTP_201_CREATED
 )
 async def create_profile(
     profile_data: ProfileCreate,
@@ -137,16 +124,13 @@ async def delete_profile(
 ):
     result = await db.execute(
         select(CalendarProfile).where(
-            CalendarProfile.id == profile_id,
-            CalendarProfile.user_id == current_user.id,
+            CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.unique().scalar_one_or_none()
-
+    profile = result.scalar_one_or_none()
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
         )
 
     await db.delete(profile)
@@ -163,18 +147,14 @@ async def update_profile(
 ):
     result = await db.execute(
         select(CalendarProfile).where(
-            CalendarProfile.id == profile_id,
-            CalendarProfile.user_id == current_user.id,
+            CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.unique().scalar_one_or_none()
-
+    profile = result.scalar_one_or_none()
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
         )
-
     profile.name = profile_data.name
     profile.main_calendar_id = profile_data.main_calendar_id
     await db.commit()
@@ -189,14 +169,11 @@ async def list_profile_sync(
     db: AsyncSession = Depends(get_async_db),
 ):
     profile = await _get_profile_or_404(profile_id, current_user, db)
+
     return profile.calendar_sources
 
 
-@profile_router.post(
-    "/{profile_id}/source",
-    response_model=SourceRead,
-    status_code=status.HTTP_201_CREATED,
-)
+@profile_router.post("/{profile_id}/source", status_code=status.HTTP_201_CREATED)
 async def add_profile_source(
     profile_id: str,
     source_data: SourceCreate,
@@ -205,29 +182,21 @@ async def add_profile_source(
 ):
     profile = await _get_profile_or_404(profile_id, current_user, db)
 
+    # TODO Validate source_data
+
     new_source = CalendarSource(
         profile_id=profile.id,
         calendar_id=source_data.calendar_id,
     )
     db.add(new_source)
     await db.commit()
+    await db.refresh(new_source)
 
-    result = await db.execute(
-        select(CalendarSource)
-        .options(selectinload(CalendarSource.calendar))
-        .where(
-            CalendarSource.id == new_source.id,
-            CalendarSource.profile_id == profile.id,
-        )
-    )
-    created_source = result.unique().scalar_one()
-
-    return created_source
+    return new_source
 
 
 @profile_router.delete(
-    "/{profile_id}/source/{source_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    "/{profile_id}/source/{source_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_profile_source(
     profile_id: str,
@@ -251,12 +220,20 @@ async def trigger_profile_sync(
 ):
     profile = await _get_profile_or_404(profile_id, current_user, db)
 
+    sources = profile.calendar_sources
+
+    print(f"Triggering sync for profile {profile.id} with {len(sources)} sources")
+    print(sources)
+
+    channel = await conn.channel()
+
     payload = {
         "type": "sync",
         "payload": profile_to_shared_profile(profile).model_dump(),
     }
 
-    channel = await conn.channel()
+    print(f"Publishing message to queue: {payload}")
+
     await channel.default_exchange.publish(
         aio_pika.Message(body=json.dumps(payload).encode()),
         routing_key="worker",

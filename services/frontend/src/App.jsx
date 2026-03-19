@@ -59,6 +59,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/calendar-profiles"
+          element={
+            <ProtectedRoute>
+              <CalendarProfiles />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar-profiles/new"
+          element={
+            <ProtectedRoute>
+              <CreateCalendarProfile />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
