@@ -40,7 +40,7 @@ export default function Navbar() {
 
   return (
     <>
-      <Link className="brand" to="/home">
+      <Link className="brand" to={isAuthenticated ? "/dashboard" : "/"}>
         <img className="logo" src="/src/assets/logo.svg" alt="Logo" />
         <div>Chronicle</div>
       </Link>
@@ -52,7 +52,7 @@ export default function Navbar() {
               Dashboard
             </Link>
             <Link className="pill" to="/calendar-profiles">
-              Profiles
+              Manage Profiles
             </Link>
             <Link className="pill" to="/calendars">
               Calendars
