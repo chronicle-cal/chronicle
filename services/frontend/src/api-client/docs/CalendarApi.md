@@ -29,7 +29,7 @@ let authorization: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.createCalendarApiCalendarPost(
   calendarCreate,
-  authorization,
+  authorization
 );
 ```
 
@@ -82,7 +82,7 @@ let authorization: string; // (optional) (default to undefined)
 const { status, data } =
   await apiInstance.deleteCalendarApiCalendarCalendarIdDelete(
     calendarId,
-    authorization,
+    authorization
   );
 ```
 
@@ -134,7 +134,7 @@ let authorization: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getCalendarApiCalendarCalendarIdGet(
   calendarId,
-  authorization,
+  authorization
 );
 ```
 
@@ -237,7 +237,7 @@ const { status, data } =
   await apiInstance.updateCalendarApiCalendarCalendarIdPut(
     calendarId,
     calendarCreate,
-    authorization,
+    authorization
   );
 ```
 

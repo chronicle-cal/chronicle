@@ -25,7 +25,7 @@ export function FlashProvider({ children }) {
 
   const value = useMemo(
     () => ({ messages, addFlash, clearAll }),
-    [messages, addFlash, clearAll],
+    [messages, addFlash, clearAll]
   );
 
   return (

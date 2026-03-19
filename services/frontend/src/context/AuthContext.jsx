@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
       await api.login({ email, password });
       await refreshUser();
     },
-    [refreshUser],
+    [refreshUser]
   );
 
   const register = useCallback(
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
       await api.registerAndLogin({ email, password });
       await refreshUser();
     },
-    [refreshUser],
+    [refreshUser]
   );
 
   const logout = useCallback(async () => {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshUser,
-    ],
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

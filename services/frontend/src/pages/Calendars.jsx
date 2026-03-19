@@ -60,13 +60,13 @@ export default function Calendars() {
         const response =
           await calendarApi.updateCalendarApiCalendarCalendarIdPut(
             editingCalendar.id,
-            payload,
+            payload
           );
 
         setCalendars((current) =>
           current.map((calendar) =>
-            calendar.id === editingCalendar.id ? response.data : calendar,
-          ),
+            calendar.id === editingCalendar.id ? response.data : calendar
+          )
         );
 
         addFlash("success", "Calendar updated");
@@ -93,7 +93,7 @@ export default function Calendars() {
   async function handleDelete(calendarId) {
     const calendar = calendars.find((item) => item.id === calendarId);
     const confirmed = window.confirm(
-      `Delete calendar "${calendar?.url || calendarId}"?`,
+      `Delete calendar "${calendar?.url || calendarId}"?`
     );
 
     if (!confirmed) return;
@@ -102,7 +102,7 @@ export default function Calendars() {
       await calendarApi.deleteCalendarApiCalendarCalendarIdDelete(calendarId);
 
       setCalendars((current) =>
-        current.filter((item) => item.id !== calendarId),
+        current.filter((item) => item.id !== calendarId)
       );
 
       if (editingCalendar?.id === calendarId) {
@@ -177,7 +177,8 @@ export default function Calendars() {
                   <h2>{calendar.type}</h2>
                   <p className="subtle">URL: {calendar.url}</p>
                   <p className="subtle">
-                    Calendar ID: {calendar.id.slice(0, 8)}...
+                    Calendar ID: {calendar.id.slice(0, 8)}
+                    ...
                   </p>
                   <p className="subtle">Username: {calendar.username || "-"}</p>
                 </div>

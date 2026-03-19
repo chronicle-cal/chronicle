@@ -124,7 +124,7 @@ export interface ValidationError {
  * AuthApi - axios parameter creator
  */
 export const AuthApiAxiosParamCreator = function (
-  configuration?: Configuration,
+  configuration?: Configuration
 ) {
   return {
     /**
@@ -136,7 +136,7 @@ export const AuthApiAxiosParamCreator = function (
      */
     loginApiAuthLoginPost: async (
       loginRequest: LoginRequest,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'loginRequest' is not null or undefined
       assertParamExists("loginApiAuthLoginPost", "loginRequest", loginRequest);
@@ -170,7 +170,7 @@ export const AuthApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         loginRequest,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -185,7 +185,7 @@ export const AuthApiAxiosParamCreator = function (
      * @throws {RequiredError}
      */
     logoutApiAuthLogoutPost: async (
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/auth/logout`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -228,7 +228,7 @@ export const AuthApiAxiosParamCreator = function (
      */
     meApiAuthMeGet: async (
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/auth/me`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -274,13 +274,13 @@ export const AuthApiAxiosParamCreator = function (
      */
     registerApiAuthRegisterPost: async (
       registerRequest: RegisterRequest,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'registerRequest' is not null or undefined
       assertParamExists(
         "registerApiAuthRegisterPost",
         "registerRequest",
-        registerRequest,
+        registerRequest
       );
       const localVarPath = `/api/auth/register`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -312,7 +312,7 @@ export const AuthApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         registerRequest,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -338,14 +338,14 @@ export const AuthApiFp = function (configuration?: Configuration) {
      */
     async loginApiAuthLoginPost(
       loginRequest: LoginRequest,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.loginApiAuthLoginPost(
           loginRequest,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -357,7 +357,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -367,7 +367,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
      * @throws {RequiredError}
      */
     async logoutApiAuthLogoutPost(
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
@@ -383,7 +383,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -395,13 +395,13 @@ export const AuthApiFp = function (configuration?: Configuration) {
      */
     async meApiAuthMeGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.meApiAuthMeGet(
         authorization,
-        options,
+        options
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -413,7 +413,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -425,14 +425,14 @@ export const AuthApiFp = function (configuration?: Configuration) {
      */
     async registerApiAuthRegisterPost(
       registerRequest: RegisterRequest,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.registerApiAuthRegisterPost(
           registerRequest,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -444,7 +444,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
   };
@@ -456,7 +456,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
 export const AuthApiFactory = function (
   configuration?: Configuration,
   basePath?: string,
-  axios?: AxiosInstance,
+  axios?: AxiosInstance
 ) {
   const localVarFp = AuthApiFp(configuration);
   return {
@@ -469,7 +469,7 @@ export const AuthApiFactory = function (
      */
     loginApiAuthLoginPost(
       loginRequest: LoginRequest,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<TokenResponse> {
       return localVarFp
         .loginApiAuthLoginPost(loginRequest, options)
@@ -482,7 +482,7 @@ export const AuthApiFactory = function (
      * @throws {RequiredError}
      */
     logoutApiAuthLogoutPost(
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
         .logoutApiAuthLogoutPost(options)
@@ -497,7 +497,7 @@ export const AuthApiFactory = function (
      */
     meApiAuthMeGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
         .meApiAuthMeGet(authorization, options)
@@ -512,7 +512,7 @@ export const AuthApiFactory = function (
      */
     registerApiAuthRegisterPost(
       registerRequest: RegisterRequest,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<TokenResponse> {
       return localVarFp
         .registerApiAuthRegisterPost(registerRequest, options)
@@ -534,7 +534,7 @@ export class AuthApi extends BaseAPI {
    */
   public loginApiAuthLoginPost(
     loginRequest: LoginRequest,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return AuthApiFp(this.configuration)
       .loginApiAuthLoginPost(loginRequest, options)
@@ -562,7 +562,7 @@ export class AuthApi extends BaseAPI {
    */
   public meApiAuthMeGet(
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return AuthApiFp(this.configuration)
       .meApiAuthMeGet(authorization, options)
@@ -578,7 +578,7 @@ export class AuthApi extends BaseAPI {
    */
   public registerApiAuthRegisterPost(
     registerRequest: RegisterRequest,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return AuthApiFp(this.configuration)
       .registerApiAuthRegisterPost(registerRequest, options)
@@ -590,7 +590,7 @@ export class AuthApi extends BaseAPI {
  * CalendarApi - axios parameter creator
  */
 export const CalendarApiAxiosParamCreator = function (
-  configuration?: Configuration,
+  configuration?: Configuration
 ) {
   return {
     /**
@@ -604,13 +604,13 @@ export const CalendarApiAxiosParamCreator = function (
     createCalendarApiCalendarPost: async (
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarCreate' is not null or undefined
       assertParamExists(
         "createCalendarApiCalendarPost",
         "calendarCreate",
-        calendarCreate,
+        calendarCreate
       );
       const localVarPath = `/api/calendar`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -645,7 +645,7 @@ export const CalendarApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         calendarCreate,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -664,17 +664,17 @@ export const CalendarApiAxiosParamCreator = function (
     deleteCalendarApiCalendarCalendarIdDelete: async (
       calendarId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
       assertParamExists(
         "deleteCalendarApiCalendarCalendarIdDelete",
         "calendarId",
-        calendarId,
+        calendarId
       );
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
-        encodeURIComponent(String(calendarId)),
+        encodeURIComponent(String(calendarId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -721,17 +721,17 @@ export const CalendarApiAxiosParamCreator = function (
     getCalendarApiCalendarCalendarIdGet: async (
       calendarId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
       assertParamExists(
         "getCalendarApiCalendarCalendarIdGet",
         "calendarId",
-        calendarId,
+        calendarId
       );
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
-        encodeURIComponent(String(calendarId)),
+        encodeURIComponent(String(calendarId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -776,7 +776,7 @@ export const CalendarApiAxiosParamCreator = function (
      */
     listCalendarsApiCalendarGet: async (
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/calendar`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -826,23 +826,23 @@ export const CalendarApiAxiosParamCreator = function (
       calendarId: string,
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
       assertParamExists(
         "updateCalendarApiCalendarCalendarIdPut",
         "calendarId",
-        calendarId,
+        calendarId
       );
       // verify required parameter 'calendarCreate' is not null or undefined
       assertParamExists(
         "updateCalendarApiCalendarCalendarIdPut",
         "calendarCreate",
-        calendarCreate,
+        calendarCreate
       );
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
-        encodeURIComponent(String(calendarId)),
+        encodeURIComponent(String(calendarId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -876,7 +876,7 @@ export const CalendarApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         calendarCreate,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -904,7 +904,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
     async createCalendarApiCalendarPost(
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
@@ -912,7 +912,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
         await localVarAxiosParamCreator.createCalendarApiCalendarPost(
           calendarCreate,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -924,7 +924,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -938,7 +938,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
     async deleteCalendarApiCalendarCalendarIdDelete(
       calendarId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
@@ -946,7 +946,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
         await localVarAxiosParamCreator.deleteCalendarApiCalendarCalendarIdDelete(
           calendarId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -958,7 +958,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -972,7 +972,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
     async getCalendarApiCalendarCalendarIdGet(
       calendarId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
@@ -980,7 +980,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
         await localVarAxiosParamCreator.getCalendarApiCalendarCalendarIdGet(
           calendarId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -992,7 +992,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1004,17 +1004,17 @@ export const CalendarApiFp = function (configuration?: Configuration) {
      */
     async listCalendarsApiCalendarGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<Array<CalendarRead>>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.listCalendarsApiCalendarGet(
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1026,7 +1026,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1042,7 +1042,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
       calendarId: string,
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
@@ -1051,7 +1051,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           calendarId,
           calendarCreate,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1063,7 +1063,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
   };
@@ -1075,7 +1075,7 @@ export const CalendarApiFp = function (configuration?: Configuration) {
 export const CalendarApiFactory = function (
   configuration?: Configuration,
   basePath?: string,
-  axios?: AxiosInstance,
+  axios?: AxiosInstance
 ) {
   const localVarFp = CalendarApiFp(configuration);
   return {
@@ -1090,7 +1090,7 @@ export const CalendarApiFactory = function (
     createCalendarApiCalendarPost(
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
         .createCalendarApiCalendarPost(calendarCreate, authorization, options)
@@ -1107,13 +1107,13 @@ export const CalendarApiFactory = function (
     deleteCalendarApiCalendarCalendarIdDelete(
       calendarId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
         .deleteCalendarApiCalendarCalendarIdDelete(
           calendarId,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -1128,7 +1128,7 @@ export const CalendarApiFactory = function (
     getCalendarApiCalendarCalendarIdGet(
       calendarId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
         .getCalendarApiCalendarCalendarIdGet(calendarId, authorization, options)
@@ -1143,7 +1143,7 @@ export const CalendarApiFactory = function (
      */
     listCalendarsApiCalendarGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<CalendarRead>> {
       return localVarFp
         .listCalendarsApiCalendarGet(authorization, options)
@@ -1162,14 +1162,14 @@ export const CalendarApiFactory = function (
       calendarId: string,
       calendarCreate: CalendarCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
         .updateCalendarApiCalendarCalendarIdPut(
           calendarId,
           calendarCreate,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -1191,7 +1191,7 @@ export class CalendarApi extends BaseAPI {
   public createCalendarApiCalendarPost(
     calendarCreate: CalendarCreate,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
       .createCalendarApiCalendarPost(calendarCreate, authorization, options)
@@ -1209,13 +1209,13 @@ export class CalendarApi extends BaseAPI {
   public deleteCalendarApiCalendarCalendarIdDelete(
     calendarId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
       .deleteCalendarApiCalendarCalendarIdDelete(
         calendarId,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -1231,7 +1231,7 @@ export class CalendarApi extends BaseAPI {
   public getCalendarApiCalendarCalendarIdGet(
     calendarId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
       .getCalendarApiCalendarCalendarIdGet(calendarId, authorization, options)
@@ -1247,7 +1247,7 @@ export class CalendarApi extends BaseAPI {
    */
   public listCalendarsApiCalendarGet(
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
       .listCalendarsApiCalendarGet(authorization, options)
@@ -1267,14 +1267,14 @@ export class CalendarApi extends BaseAPI {
     calendarId: string,
     calendarCreate: CalendarCreate,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
       .updateCalendarApiCalendarCalendarIdPut(
         calendarId,
         calendarCreate,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -1284,7 +1284,7 @@ export class CalendarApi extends BaseAPI {
  * CalendarProfileApi - axios parameter creator
  */
 export const CalendarProfileApiAxiosParamCreator = function (
-  configuration?: Configuration,
+  configuration?: Configuration
 ) {
   return {
     /**
@@ -1300,23 +1300,23 @@ export const CalendarProfileApiAxiosParamCreator = function (
       profileId: string,
       sourceCreate: SourceCreate,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "addProfileSourceApiProfileProfileIdSourcePost",
         "profileId",
-        profileId,
+        profileId
       );
       // verify required parameter 'sourceCreate' is not null or undefined
       assertParamExists(
         "addProfileSourceApiProfileProfileIdSourcePost",
         "sourceCreate",
-        sourceCreate,
+        sourceCreate
       );
       const localVarPath = `/api/profile/{profile_id}/source`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1350,7 +1350,7 @@ export const CalendarProfileApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         sourceCreate,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -1369,13 +1369,13 @@ export const CalendarProfileApiAxiosParamCreator = function (
     createProfileApiProfilePost: async (
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileCreate' is not null or undefined
       assertParamExists(
         "createProfileApiProfilePost",
         "profileCreate",
-        profileCreate,
+        profileCreate
       );
       const localVarPath = `/api/profile`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -1410,7 +1410,7 @@ export const CalendarProfileApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         profileCreate,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -1429,17 +1429,17 @@ export const CalendarProfileApiAxiosParamCreator = function (
     deleteProfileApiProfileProfileIdDelete: async (
       profileId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "deleteProfileApiProfileProfileIdDelete",
         "profileId",
-        profileId,
+        profileId
       );
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1488,19 +1488,19 @@ export const CalendarProfileApiAxiosParamCreator = function (
       profileId: string,
       sourceId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete",
         "profileId",
-        profileId,
+        profileId
       );
       // verify required parameter 'sourceId' is not null or undefined
       assertParamExists(
         "deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete",
         "sourceId",
-        sourceId,
+        sourceId
       );
       const localVarPath = `/api/profile/{profile_id}/source/{source_id}`
         .replace(`{${"profile_id"}}`, encodeURIComponent(String(profileId)))
@@ -1550,17 +1550,17 @@ export const CalendarProfileApiAxiosParamCreator = function (
     getProfileApiProfileProfileIdGet: async (
       profileId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "getProfileApiProfileProfileIdGet",
         "profileId",
-        profileId,
+        profileId
       );
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1607,17 +1607,17 @@ export const CalendarProfileApiAxiosParamCreator = function (
     listProfileSyncApiProfileProfileIdSourceGet: async (
       profileId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "listProfileSyncApiProfileProfileIdSourceGet",
         "profileId",
-        profileId,
+        profileId
       );
       const localVarPath = `/api/profile/{profile_id}/source`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1662,7 +1662,7 @@ export const CalendarProfileApiAxiosParamCreator = function (
      */
     listProfilesApiProfileGet: async (
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/profile`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -1710,17 +1710,17 @@ export const CalendarProfileApiAxiosParamCreator = function (
     triggerProfileSyncApiProfileProfileIdSyncPost: async (
       profileId: string,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "triggerProfileSyncApiProfileProfileIdSyncPost",
         "profileId",
-        profileId,
+        profileId
       );
       const localVarPath = `/api/profile/{profile_id}/sync`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1769,23 +1769,23 @@ export const CalendarProfileApiAxiosParamCreator = function (
       profileId: string,
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
       assertParamExists(
         "updateProfileApiProfileProfileIdPut",
         "profileId",
-        profileId,
+        profileId
       );
       // verify required parameter 'profileCreate' is not null or undefined
       assertParamExists(
         "updateProfileApiProfileProfileIdPut",
         "profileCreate",
-        profileCreate,
+        profileCreate
       );
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
-        encodeURIComponent(String(profileId)),
+        encodeURIComponent(String(profileId))
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1819,7 +1819,7 @@ export const CalendarProfileApiAxiosParamCreator = function (
       localVarRequestOptions.data = serializeDataIfNeeded(
         profileCreate,
         localVarRequestOptions,
-        configuration,
+        configuration
       );
 
       return {
@@ -1850,7 +1850,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
       profileId: string,
       sourceCreate: SourceCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
@@ -1859,7 +1859,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           profileId,
           sourceCreate,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1871,7 +1871,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1885,18 +1885,18 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     async createProfileApiProfilePost(
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<ProfileReadShort>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.createProfileApiProfilePost(
           profileCreate,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1908,7 +1908,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1922,7 +1922,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     async deleteProfileApiProfileProfileIdDelete(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
@@ -1930,7 +1930,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
         await localVarAxiosParamCreator.deleteProfileApiProfileProfileIdDelete(
           profileId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1942,7 +1942,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1958,7 +1958,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
       profileId: string,
       sourceId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
@@ -1967,7 +1967,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           profileId,
           sourceId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -1979,7 +1979,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -1993,18 +1993,18 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     async getProfileApiProfileProfileIdGet(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<ProfileReadFull>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.getProfileApiProfileProfileIdGet(
           profileId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -2016,7 +2016,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -2030,18 +2030,18 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     async listProfileSyncApiProfileProfileIdSourceGet(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<Array<SourceRead>>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.listProfileSyncApiProfileProfileIdSourceGet(
           profileId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -2053,7 +2053,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -2065,17 +2065,17 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      */
     async listProfilesApiProfileGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<Array<ProfileReadShort>>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.listProfilesApiProfileGet(
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -2087,7 +2087,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -2101,7 +2101,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     async triggerProfileSyncApiProfileProfileIdSyncPost(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
@@ -2109,7 +2109,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
         await localVarAxiosParamCreator.triggerProfileSyncApiProfileProfileIdSyncPost(
           profileId,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -2121,7 +2121,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
     /**
@@ -2137,11 +2137,11 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
       profileId: string,
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (
         axios?: AxiosInstance,
-        basePath?: string,
+        basePath?: string
       ) => AxiosPromise<ProfileReadShort>
     > {
       const localVarAxiosArgs =
@@ -2149,7 +2149,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           profileId,
           profileCreate,
           authorization,
-          options,
+          options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -2161,7 +2161,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
   };
@@ -2173,7 +2173,7 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
 export const CalendarProfileApiFactory = function (
   configuration?: Configuration,
   basePath?: string,
-  axios?: AxiosInstance,
+  axios?: AxiosInstance
 ) {
   const localVarFp = CalendarProfileApiFp(configuration);
   return {
@@ -2190,14 +2190,14 @@ export const CalendarProfileApiFactory = function (
       profileId: string,
       sourceCreate: SourceCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
         .addProfileSourceApiProfileProfileIdSourcePost(
           profileId,
           sourceCreate,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2212,7 +2212,7 @@ export const CalendarProfileApiFactory = function (
     createProfileApiProfilePost(
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadShort> {
       return localVarFp
         .createProfileApiProfilePost(profileCreate, authorization, options)
@@ -2229,13 +2229,13 @@ export const CalendarProfileApiFactory = function (
     deleteProfileApiProfileProfileIdDelete(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
         .deleteProfileApiProfileProfileIdDelete(
           profileId,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2252,14 +2252,14 @@ export const CalendarProfileApiFactory = function (
       profileId: string,
       sourceId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
         .deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
           profileId,
           sourceId,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2274,7 +2274,7 @@ export const CalendarProfileApiFactory = function (
     getProfileApiProfileProfileIdGet(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadFull> {
       return localVarFp
         .getProfileApiProfileProfileIdGet(profileId, authorization, options)
@@ -2291,13 +2291,13 @@ export const CalendarProfileApiFactory = function (
     listProfileSyncApiProfileProfileIdSourceGet(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<SourceRead>> {
       return localVarFp
         .listProfileSyncApiProfileProfileIdSourceGet(
           profileId,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2310,7 +2310,7 @@ export const CalendarProfileApiFactory = function (
      */
     listProfilesApiProfileGet(
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<ProfileReadShort>> {
       return localVarFp
         .listProfilesApiProfileGet(authorization, options)
@@ -2327,13 +2327,13 @@ export const CalendarProfileApiFactory = function (
     triggerProfileSyncApiProfileProfileIdSyncPost(
       profileId: string,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
         .triggerProfileSyncApiProfileProfileIdSyncPost(
           profileId,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2350,14 +2350,14 @@ export const CalendarProfileApiFactory = function (
       profileId: string,
       profileCreate: ProfileCreate,
       authorization?: string | null,
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadShort> {
       return localVarFp
         .updateProfileApiProfileProfileIdPut(
           profileId,
           profileCreate,
           authorization,
-          options,
+          options
         )
         .then((request) => request(axios, basePath));
     },
@@ -2381,14 +2381,14 @@ export class CalendarProfileApi extends BaseAPI {
     profileId: string,
     sourceCreate: SourceCreate,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .addProfileSourceApiProfileProfileIdSourcePost(
         profileId,
         sourceCreate,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -2404,7 +2404,7 @@ export class CalendarProfileApi extends BaseAPI {
   public createProfileApiProfilePost(
     profileCreate: ProfileCreate,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .createProfileApiProfilePost(profileCreate, authorization, options)
@@ -2422,7 +2422,7 @@ export class CalendarProfileApi extends BaseAPI {
   public deleteProfileApiProfileProfileIdDelete(
     profileId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .deleteProfileApiProfileProfileIdDelete(profileId, authorization, options)
@@ -2442,14 +2442,14 @@ export class CalendarProfileApi extends BaseAPI {
     profileId: string,
     sourceId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
         profileId,
         sourceId,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -2465,7 +2465,7 @@ export class CalendarProfileApi extends BaseAPI {
   public getProfileApiProfileProfileIdGet(
     profileId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .getProfileApiProfileProfileIdGet(profileId, authorization, options)
@@ -2483,13 +2483,13 @@ export class CalendarProfileApi extends BaseAPI {
   public listProfileSyncApiProfileProfileIdSourceGet(
     profileId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .listProfileSyncApiProfileProfileIdSourceGet(
         profileId,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -2503,7 +2503,7 @@ export class CalendarProfileApi extends BaseAPI {
    */
   public listProfilesApiProfileGet(
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .listProfilesApiProfileGet(authorization, options)
@@ -2521,13 +2521,13 @@ export class CalendarProfileApi extends BaseAPI {
   public triggerProfileSyncApiProfileProfileIdSyncPost(
     profileId: string,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .triggerProfileSyncApiProfileProfileIdSyncPost(
         profileId,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -2545,14 +2545,14 @@ export class CalendarProfileApi extends BaseAPI {
     profileId: string,
     profileCreate: ProfileCreate,
     authorization?: string | null,
-    options?: RawAxiosRequestConfig,
+    options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
       .updateProfileApiProfileProfileIdPut(
         profileId,
         profileCreate,
         authorization,
-        options,
+        options
       )
       .then((request) => request(this.axios, this.basePath));
   }
@@ -2562,7 +2562,7 @@ export class CalendarProfileApi extends BaseAPI {
  * HealthApi - axios parameter creator
  */
 export const HealthApiAxiosParamCreator = function (
-  configuration?: Configuration,
+  configuration?: Configuration
 ) {
   return {
     /**
@@ -2572,7 +2572,7 @@ export const HealthApiAxiosParamCreator = function (
      * @throws {RequiredError}
      */
     healthApiHealthGet: async (
-      options: RawAxiosRequestConfig = {},
+      options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/health`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -2622,7 +2622,7 @@ export const HealthApiFp = function (configuration?: Configuration) {
      * @throws {RequiredError}
      */
     async healthApiHealthGet(
-      options?: RawAxiosRequestConfig,
+      options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
@@ -2638,7 +2638,7 @@ export const HealthApiFp = function (configuration?: Configuration) {
           localVarAxiosArgs,
           globalAxios,
           BASE_PATH,
-          configuration,
+          configuration
         )(axios, localVarOperationServerBasePath || basePath);
     },
   };
@@ -2650,7 +2650,7 @@ export const HealthApiFp = function (configuration?: Configuration) {
 export const HealthApiFactory = function (
   configuration?: Configuration,
   basePath?: string,
-  axios?: AxiosInstance,
+  axios?: AxiosInstance
 ) {
   const localVarFp = HealthApiFp(configuration);
   return {

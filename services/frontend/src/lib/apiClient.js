@@ -28,10 +28,10 @@ export const authApi = new AuthApi(configuration, undefined, axiosInstance);
 export const calendarApi = new CalendarApi(
   configuration,
   undefined,
-  axiosInstance,
+  axiosInstance
 );
 export const profileApi = new CalendarProfileApi(
   configuration,
   undefined,
-  axiosInstance,
+  axiosInstance
 );

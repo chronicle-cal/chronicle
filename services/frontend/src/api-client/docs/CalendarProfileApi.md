@@ -34,7 +34,7 @@ const { status, data } =
   await apiInstance.addProfileSourceApiProfileProfileIdSourcePost(
     profileId,
     sourceCreate,
-    authorization,
+    authorization
   );
 ```
 
@@ -85,7 +85,7 @@ let authorization: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.createProfileApiProfilePost(
   profileCreate,
-  authorization,
+  authorization
 );
 ```
 
@@ -136,7 +136,7 @@ let authorization: string; // (optional) (default to undefined)
 const { status, data } =
   await apiInstance.deleteProfileApiProfileProfileIdDelete(
     profileId,
-    authorization,
+    authorization
   );
 ```
 
@@ -189,7 +189,7 @@ const { status, data } =
   await apiInstance.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
     profileId,
     sourceId,
-    authorization,
+    authorization
   );
 ```
 
@@ -240,7 +240,7 @@ let authorization: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getProfileApiProfileProfileIdGet(
   profileId,
-  authorization,
+  authorization
 );
 ```
 
@@ -291,7 +291,7 @@ let authorization: string; // (optional) (default to undefined)
 const { status, data } =
   await apiInstance.listProfileSyncApiProfileProfileIdSourceGet(
     profileId,
-    authorization,
+    authorization
   );
 ```
 
@@ -388,7 +388,7 @@ let authorization: string; // (optional) (default to undefined)
 const { status, data } =
   await apiInstance.triggerProfileSyncApiProfileProfileIdSyncPost(
     profileId,
-    authorization,
+    authorization
   );
 ```
 
@@ -440,7 +440,7 @@ let authorization: string; // (optional) (default to undefined)
 const { status, data } = await apiInstance.updateProfileApiProfileProfileIdPut(
   profileId,
   profileCreate,
-  authorization,
+  authorization
 );
 ```
 

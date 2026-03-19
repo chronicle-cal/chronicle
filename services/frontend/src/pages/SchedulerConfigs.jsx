@@ -83,7 +83,10 @@ function SchedulerConfigs() {
                 type="text"
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({
+                    ...formData,
+                    name: e.target.value,
+                  })
                 }
                 required
               />
@@ -93,7 +96,10 @@ function SchedulerConfigs() {
                 type="text"
                 value={formData.calendar_url}
                 onChange={(e) =>
-                  setFormData({ ...formData, calendar_url: e.target.value })
+                  setFormData({
+                    ...formData,
+                    calendar_url: e.target.value,
+                  })
                 }
                 required
               />

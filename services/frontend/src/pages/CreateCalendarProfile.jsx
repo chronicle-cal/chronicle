@@ -60,7 +60,7 @@ export default function CreateCalendarProfile() {
     if (payload.type != "caldav") {
       addFlash(
         "warning",
-        "Only CalDAV calendars are currently supported. Please choose a different calendar!",
+        "Only CalDAV calendars are currently supported. Please choose a different calendar!"
       );
       setCalendarModalContext(null);
       return;
@@ -124,7 +124,10 @@ export default function CreateCalendarProfile() {
             <input
               value={newProfile.name}
               onChange={(e) =>
-                setNewProfile({ ...newProfile, name: e.target.value })
+                setNewProfile({
+                  ...newProfile,
+                  name: e.target.value,
+                })
               }
               placeholder="Work"
               required
@@ -141,7 +144,7 @@ export default function CreateCalendarProfile() {
                   openCalendarModal();
                 } else {
                   const calendar = existingCalendars.find(
-                    (c) => c.id === e.target.value,
+                    (c) => c.id === e.target.value
                   );
                   if (calendar) {
                     setNewProfile({

@@ -14,7 +14,7 @@ export default function CalendarProfiles() {
   const [calendars, setCalendars] = useState([]);
   const [sourcesByProfile, setSourcesByProfile] = useState({});
   const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState(
-    {},
+    {}
   );
   const [loading, setLoading] = useState(true);
   const hasLoadedRef = useRef(false);
@@ -42,7 +42,7 @@ export default function CalendarProfiles() {
   // Fast calendar lookup by id for display purposes.
   const calendarById = useMemo(
     () => Object.fromEntries(calendars.map((c) => [c.id, c])),
-    [calendars],
+    [calendars]
   );
 
   useEffect(() => {
@@ -79,10 +79,10 @@ export default function CalendarProfiles() {
         loadedProfiles.map(async (profile) => {
           const response =
             await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-              profile.id,
+              profile.id
             );
           return [profile.id, response.data];
-        }),
+        })
       );
 
       setSourcesByProfile(Object.fromEntries(sourceEntries));
@@ -100,7 +100,7 @@ export default function CalendarProfiles() {
   async function handleDeleteProfile(id) {
     const profile = profiles.find((item) => item.id === id);
     const confirmed = window.confirm(
-      `Delete profile "${profile?.name || "this profile"}"?`,
+      `Delete profile "${profile?.name || "this profile"}"?`
     );
 
     if (!confirmed) return;
@@ -142,7 +142,7 @@ export default function CalendarProfiles() {
     try {
       await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
         profileId,
-        { calendar_id: calendarId },
+        { calendar_id: calendarId }
       );
 
       const response =
@@ -175,13 +175,13 @@ export default function CalendarProfiles() {
     try {
       await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
         profileId,
-        sourceId,
+        sourceId
       );
 
       setSourcesByProfile((current) => ({
         ...current,
         [profileId]: (current[profileId] || []).filter(
-          (source) => source.id !== sourceId,
+          (source) => source.id !== sourceId
         ),
       }));
 
@@ -207,13 +207,13 @@ export default function CalendarProfiles() {
     try {
       const response = await profileApi.updateProfileApiProfileProfileIdPut(
         profileId,
-        { name: profile.name, main_calendar_id: calendarId },
+        { name: profile.name, main_calendar_id: calendarId }
       );
 
       setProfiles((current) =>
         current.map((p) =>
-          p.id === profileId ? { ...p, ...response.data } : p,
-        ),
+          p.id === profileId ? { ...p, ...response.data } : p
+        )
       );
       setEditingMainCalendarFor(null);
       addFlash("success", "Main calendar updated");
@@ -245,8 +245,8 @@ export default function CalendarProfiles() {
 
         setProfiles((current) =>
           current.map((p) =>
-            p.id === profileId ? { ...p, ...updateResponse.data } : p,
-          ),
+            p.id === profileId ? { ...p, ...updateResponse.data } : p
+          )
         );
         setEditingMainCalendarFor(null);
         addFlash("success", "Calendar created and set as main calendar");
@@ -258,7 +258,7 @@ export default function CalendarProfiles() {
         }));
         addFlash(
           "success",
-          "Calendar created — select it and click Add Source",
+          "Calendar created — select it and click Add Source"
         );
       } else {
         addFlash("success", "Calendar created");
@@ -449,7 +449,8 @@ export default function CalendarProfiles() {
                             {source.calendar?.url || source.calendar_id}
                           </strong>
                           <span className="subtle">
-                            Calendar ID: {source.calendar_id.slice(0, 8)}...
+                            Calendar ID: {source.calendar_id.slice(0, 8)}
+                            ...
                           </span>
                           <span className="subtle">
                             Type: {source.calendar?.type || "-"}
