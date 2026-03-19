@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { calendarApi } from "../lib/apiClient.js";
@@ -45,7 +45,9 @@ export default function Calendars() {
       setCalendars(response.data);
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to load calendars.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to load calendars.";
       addFlash("error", message);
     } finally {
       setLoading(false);
@@ -55,20 +57,22 @@ export default function Calendars() {
   async function handleSave(payload) {
     try {
       if (editingCalendar) {
-        const response = await calendarApi.updateCalendarApiCalendarCalendarIdPut(
-          editingCalendar.id,
-          payload
-        );
+        const response =
+          await calendarApi.updateCalendarApiCalendarCalendarIdPut(
+            editingCalendar.id,
+            payload,
+          );
 
         setCalendars((current) =>
           current.map((calendar) =>
-            calendar.id === editingCalendar.id ? response.data : calendar
-          )
+            calendar.id === editingCalendar.id ? response.data : calendar,
+          ),
         );
 
         addFlash("success", "Calendar updated");
       } else {
-        const response = await calendarApi.createCalendarApiCalendarPost(payload);
+        const response =
+          await calendarApi.createCalendarApiCalendarPost(payload);
 
         setCalendars((current) => [...current, response.data]);
         addFlash("success", "Calendar created");
@@ -89,7 +93,7 @@ export default function Calendars() {
   async function handleDelete(calendarId) {
     const calendar = calendars.find((item) => item.id === calendarId);
     const confirmed = window.confirm(
-      `Delete calendar "${calendar?.url || calendarId}"?`
+      `Delete calendar "${calendar?.url || calendarId}"?`,
     );
 
     if (!confirmed) return;
@@ -98,7 +102,7 @@ export default function Calendars() {
       await calendarApi.deleteCalendarApiCalendarCalendarIdDelete(calendarId);
 
       setCalendars((current) =>
-        current.filter((item) => item.id !== calendarId)
+        current.filter((item) => item.id !== calendarId),
       );
 
       if (editingCalendar?.id === calendarId) {
@@ -108,20 +112,25 @@ export default function Calendars() {
       addFlash("success", "Calendar deleted");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to delete calendar.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to delete calendar.";
       addFlash("error", message);
     }
   }
 
   async function handleEdit(calendarId) {
     try {
-      const response = await calendarApi.getCalendarApiCalendarCalendarIdGet(calendarId);
+      const response =
+        await calendarApi.getCalendarApiCalendarCalendarIdGet(calendarId);
 
       setEditingCalendar(response.data);
       setShowModal(true);
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to load calendar.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to load calendar.";
       addFlash("error", message);
     }
   }
@@ -170,9 +179,7 @@ export default function Calendars() {
                   <p className="subtle">
                     Calendar ID: {calendar.id.slice(0, 8)}...
                   </p>
-                  <p className="subtle">
-                    Username: {calendar.username || "-"}
-                  </p>
+                  <p className="subtle">Username: {calendar.username || "-"}</p>
                 </div>
 
                 <div className="actions">

@@ -1,21 +1,20 @@
 # LoginRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**email** | **string** |  | [default to undefined]
-**password** | **string** |  | [default to undefined]
+| Name         | Type       | Description | Notes                  |
+| ------------ | ---------- | ----------- | ---------------------- |
+| **email**    | **string** |             | [default to undefined] |
+| **password** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { LoginRequest } from './api';
+import { LoginRequest } from "./api";
 
 const instance: LoginRequest = {
-    email,
-    password,
+  email,
+  password,
 };
 ```
 

@@ -1,27 +1,26 @@
 # Condition
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **number** |  | [default to undefined]
-**rule_id** | **number** |  | [default to undefined]
-**field** | **string** |  | [default to undefined]
-**operator** | **string** |  | [default to undefined]
-**value** | **string** |  | [default to undefined]
+| Name         | Type       | Description | Notes                  |
+| ------------ | ---------- | ----------- | ---------------------- |
+| **id**       | **number** |             | [default to undefined] |
+| **rule_id**  | **number** |             | [default to undefined] |
+| **field**    | **string** |             | [default to undefined] |
+| **operator** | **string** |             | [default to undefined] |
+| **value**    | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { Condition } from './api';
+import { Condition } from "./api";
 
 const instance: Condition = {
-    id,
-    rule_id,
-    field,
-    operator,
-    value,
+  id,
+  rule_id,
+  field,
+  operator,
+  value,
 };
 ```
 

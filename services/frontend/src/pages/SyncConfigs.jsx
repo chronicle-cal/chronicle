@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function SyncConfigs() {
   const [configs, setConfigs] = useState([]);
@@ -64,7 +64,11 @@ function SyncConfigs() {
         </div>
 
         {showForm && (
-          <form className="card" style={{"padding": "20px"}} onSubmit={handleSubmit}>
+          <form
+            className="card"
+            style={{ padding: "20px" }}
+            onSubmit={handleSubmit}
+          >
             <h2>Create Sync Configuration</h2>
             <div className="form">
               <label htmlFor="destination">Destination</label>
@@ -72,7 +76,9 @@ function SyncConfigs() {
                 id="destination"
                 type="text"
                 value={formData.destination}
-                onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, destination: e.target.value })
+                }
                 required
               />
               <label htmlFor="username">Username</label>
@@ -80,7 +86,9 @@ function SyncConfigs() {
                 id="username"
                 type="text"
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
                 required
               />
               <label htmlFor="password">Password</label>
@@ -88,7 +96,9 @@ function SyncConfigs() {
                 id="password"
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
               />
             </div>
@@ -101,7 +111,9 @@ function SyncConfigs() {
         )}
 
         {configs.length === 0 ? (
-          <p className="subtle">No sync configurations yet. Create one to get started.</p>
+          <p className="subtle">
+            No sync configurations yet. Create one to get started.
+          </p>
         ) : (
           <div className="settings-grid">
             {configs.map((config) => (
@@ -111,7 +123,10 @@ function SyncConfigs() {
                     <h3>{config.destination}</h3>
                     <p className="subtle">ID: {config.id.substring(0, 8)}...</p>
                   </div>
-                  <button onClick={() => handleDelete(config.id)} className="pill btn-danger">
+                  <button
+                    onClick={() => handleDelete(config.id)}
+                    className="pill btn-danger"
+                  >
                     Delete
                   </button>
                 </div>

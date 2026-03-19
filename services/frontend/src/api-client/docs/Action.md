@@ -1,25 +1,24 @@
 # Action
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **number** |  | [default to undefined]
-**rule_id** | **number** |  | [default to undefined]
-**name** | **string** |  | [default to undefined]
-**arguments** | **object** |  | [default to undefined]
+| Name          | Type       | Description | Notes                  |
+| ------------- | ---------- | ----------- | ---------------------- |
+| **id**        | **number** |             | [default to undefined] |
+| **rule_id**   | **number** |             | [default to undefined] |
+| **name**      | **string** |             | [default to undefined] |
+| **arguments** | **object** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { Action } from './api';
+import { Action } from "./api";
 
 const instance: Action = {
-    id,
-    rule_id,
-    name,
-    arguments,
+  id,
+  rule_id,
+  name,
+  arguments,
 };
 ```
 

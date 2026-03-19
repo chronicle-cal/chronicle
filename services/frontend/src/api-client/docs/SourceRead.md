@@ -1,23 +1,22 @@
 # SourceRead
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**calendar_id** | **string** |  | [default to undefined]
-**calendar** | [**CalendarRead**](CalendarRead.md) |  | [default to undefined]
+| Name            | Type                                | Description | Notes                  |
+| --------------- | ----------------------------------- | ----------- | ---------------------- |
+| **id**          | **string**                          |             | [default to undefined] |
+| **calendar_id** | **string**                          |             | [default to undefined] |
+| **calendar**    | [**CalendarRead**](CalendarRead.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { SourceRead } from './api';
+import { SourceRead } from "./api";
 
 const instance: SourceRead = {
-    id,
-    calendar_id,
-    calendar,
+  id,
+  calendar_id,
+  calendar,
 };
 ```
 

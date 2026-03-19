@@ -12,7 +12,8 @@ export default function Home() {
       <section className="card">
         <h1>Chronicle</h1>
         <p className="subtle">
-          Chronicle is a web-based calendar app focused on calendar syncing, managing and smart scheduling.
+          Chronicle is a web-based calendar app focused on calendar syncing,
+          managing and smart scheduling.
         </p>
         <div className="actions">
           {isAuthenticated ? (
@@ -21,7 +22,11 @@ export default function Home() {
             </Link>
           ) : (
             <>
-              <Link className="btn btn-primary" to="/register" state={from ? { from } : null}>
+              <Link
+                className="btn btn-primary"
+                to="/register"
+                state={from ? { from } : null}
+              >
                 Register
               </Link>
               <Link className="btn" to="/login" state={from ? { from } : null}>

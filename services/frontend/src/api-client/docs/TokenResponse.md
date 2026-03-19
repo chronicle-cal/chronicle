@@ -1,21 +1,20 @@
 # TokenResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**access_token** | **string** |  | [default to undefined]
-**token_type** | **string** |  | [optional] [default to 'bearer']
+| Name             | Type       | Description | Notes                            |
+| ---------------- | ---------- | ----------- | -------------------------------- |
+| **access_token** | **string** |             | [default to undefined]           |
+| **token_type**   | **string** |             | [optional] [default to 'bearer'] |
 
 ## Example
 
 ```typescript
-import { TokenResponse } from './api';
+import { TokenResponse } from "./api";
 
 const instance: TokenResponse = {
-    access_token,
-    token_type,
+  access_token,
+  token_type,
 };
 ```
 

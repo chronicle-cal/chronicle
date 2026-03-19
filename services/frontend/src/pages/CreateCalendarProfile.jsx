@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
@@ -58,7 +58,10 @@ export default function CreateCalendarProfile() {
   function handleCalendarModalSave(payload) {
     // Persist the modal payload back into the page form so submit still works.
     if (payload.type != "caldav") {
-      addFlash("warning", "Only CalDAV calendars are currently supported. Please choose a different calendar!");
+      addFlash(
+        "warning",
+        "Only CalDAV calendars are currently supported. Please choose a different calendar!",
+      );
       setCalendarModalContext(null);
       return;
     }
@@ -72,9 +75,6 @@ export default function CreateCalendarProfile() {
         password: payload.password || "",
       },
     }));
-
-
-
 
     addFlash("success", "Calendar details updated");
     setCalendarModalContext(null);
@@ -92,7 +92,8 @@ export default function CreateCalendarProfile() {
       try {
         setLoadingCalendars(true);
         const response = await calendarApi.listCalendarsApiCalendarGet();
-        const caldavCalendars = response.data.filter(cal => cal.type === "caldav") || [];
+        const caldavCalendars =
+          response.data.filter((cal) => cal.type === "caldav") || [];
         setExistingCalendars(caldavCalendars || []);
       } catch (error) {
         console.error("Failed to load calendars:", error);
@@ -110,7 +111,9 @@ export default function CreateCalendarProfile() {
       <div className="page-header">
         <div>
           <h1>Create Profile</h1>
-          <p className="subtle">Set up a new calendar synchronisation profile</p>
+          <p className="subtle">
+            Set up a new calendar synchronisation profile
+          </p>
         </div>
       </div>
 
@@ -137,7 +140,9 @@ export default function CreateCalendarProfile() {
                 if (e.target.value === "new") {
                   openCalendarModal();
                 } else {
-                  const calendar = existingCalendars.find(c => c.id === e.target.value);
+                  const calendar = existingCalendars.find(
+                    (c) => c.id === e.target.value,
+                  );
                   if (calendar) {
                     setNewProfile({
                       ...newProfile,

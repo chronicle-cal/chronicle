@@ -1,21 +1,20 @@
 # RegisterRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**email** | **string** |  | [default to undefined]
-**password** | **string** |  | [default to undefined]
+| Name         | Type       | Description | Notes                  |
+| ------------ | ---------- | ----------- | ---------------------- |
+| **email**    | **string** |             | [default to undefined] |
+| **password** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { RegisterRequest } from './api';
+import { RegisterRequest } from "./api";
 
 const instance: RegisterRequest = {
-    email,
-    password,
+  email,
+  password,
 };
 ```
 

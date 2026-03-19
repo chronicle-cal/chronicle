@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function SchedulerConfigs() {
   const [configs, setConfigs] = useState([]);
@@ -70,7 +70,11 @@ function SchedulerConfigs() {
         </div>
 
         {showForm && (
-          <form className="card" style={{"padding": "20px"}} onSubmit={handleSubmit}>
+          <form
+            className="card"
+            style={{ padding: "20px" }}
+            onSubmit={handleSubmit}
+          >
             <h2>Create Scheduler Configuration</h2>
             <div className="form">
               <label htmlFor="name">Name</label>
@@ -78,7 +82,9 @@ function SchedulerConfigs() {
                 id="name"
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
               <label htmlFor="calendar_url">Calendar URL</label>
@@ -86,7 +92,9 @@ function SchedulerConfigs() {
                 id="calendar_url"
                 type="text"
                 value={formData.calendar_url}
-                onChange={(e) => setFormData({ ...formData, calendar_url: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, calendar_url: e.target.value })
+                }
                 required
               />
               <label htmlFor="calendar_username">Calendar Username</label>
@@ -94,7 +102,12 @@ function SchedulerConfigs() {
                 id="calendar_username"
                 type="text"
                 value={formData.calendar_username}
-                onChange={(e) => setFormData({ ...formData, calendar_username: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    calendar_username: e.target.value,
+                  })
+                }
                 required
               />
               <label htmlFor="calendar_password">Calendar Password</label>
@@ -102,7 +115,12 @@ function SchedulerConfigs() {
                 id="calendar_password"
                 type="password"
                 value={formData.calendar_password}
-                onChange={(e) => setFormData({ ...formData, calendar_password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    calendar_password: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -115,7 +133,9 @@ function SchedulerConfigs() {
         )}
 
         {configs.length === 0 ? (
-          <p className="subtle">No scheduler configurations yet. Create one to get started.</p>
+          <p className="subtle">
+            No scheduler configurations yet. Create one to get started.
+          </p>
         ) : (
           <div className="settings-grid">
             {configs.map((config) => (
@@ -126,7 +146,10 @@ function SchedulerConfigs() {
                     <p className="subtle">ID: {config.id.substring(0, 8)}...</p>
                     <p className="subtle">URL: {config.calendar_url}</p>
                   </div>
-                  <button onClick={() => handleDelete(config.id)} className="pill btn-danger">
+                  <button
+                    onClick={() => handleDelete(config.id)}
+                    className="pill btn-danger"
+                  >
                     Delete
                   </button>
                 </div>

@@ -1,25 +1,24 @@
 # CalendarCreate
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**type** | **string** |  | [default to undefined]
-**url** | **string** |  | [default to undefined]
-**username** | **string** |  | [optional] [default to undefined]
-**password** | **string** |  | [optional] [default to undefined]
+| Name         | Type       | Description | Notes                             |
+| ------------ | ---------- | ----------- | --------------------------------- |
+| **type**     | **string** |             | [default to undefined]            |
+| **url**      | **string** |             | [default to undefined]            |
+| **username** | **string** |             | [optional] [default to undefined] |
+| **password** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { CalendarCreate } from './api';
+import { CalendarCreate } from "./api";
 
 const instance: CalendarCreate = {
-    type,
-    url,
-    username,
-    password,
+  type,
+  url,
+  username,
+  password,
 };
 ```
 

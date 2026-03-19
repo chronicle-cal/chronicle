@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "generate-openapi": "^1.0.1",
@@ -16,17 +18,19 @@
     "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^9.39.4",
     "@hey-api/openapi-ts": "0.94.0",
     "@openapitools/openapi-generator-cli": "^2.18.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "openapi-typescript": "^7.13.0",
+    "prettier": "3.8.1",
     "vite": "^7.2.4"
   }
 }

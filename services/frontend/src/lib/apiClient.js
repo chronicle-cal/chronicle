@@ -1,5 +1,10 @@
 import axios from "axios";
-import { Configuration, AuthApi, CalendarApi, CalendarProfileApi } from "../api-client";
+import {
+  Configuration,
+  AuthApi,
+  CalendarApi,
+  CalendarProfileApi,
+} from "../api-client";
 
 const axiosInstance = axios.create();
 
@@ -20,5 +25,13 @@ const configuration = new Configuration({
 });
 
 export const authApi = new AuthApi(configuration, undefined, axiosInstance);
-export const calendarApi = new CalendarApi(configuration, undefined, axiosInstance);
-export const profileApi = new CalendarProfileApi(configuration, undefined, axiosInstance);
+export const calendarApi = new CalendarApi(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+export const profileApi = new CalendarProfileApi(
+  configuration,
+  undefined,
+  axiosInstance,
+);

@@ -1,19 +1,18 @@
 # SourceCreate
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**calendar_id** | **string** |  | [default to undefined]
+| Name            | Type       | Description | Notes                  |
+| --------------- | ---------- | ----------- | ---------------------- |
+| **calendar_id** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { SourceCreate } from './api';
+import { SourceCreate } from "./api";
 
 const instance: SourceCreate = {
-    calendar_id,
+  calendar_id,
 };
 ```
 

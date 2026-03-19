@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const emptyForm = {
   type: "caldav",
@@ -16,7 +16,12 @@ const emptyForm = {
  *   onSave      – (payload) => void, called with the form payload on submit
  *   initialData – object | null, existing calendar data for edit mode (null = create mode)
  */
-export default function CalendarModal({ isOpen, onClose, onSave, initialData = null }) {
+export default function CalendarModal({
+  isOpen,
+  onClose,
+  onSave,
+  initialData = null,
+}) {
   const [formData, setFormData] = useState(emptyForm);
   const isEditing = !!initialData;
 
@@ -48,7 +53,8 @@ export default function CalendarModal({ isOpen, onClose, onSave, initialData = n
   if (!isOpen) return null;
 
   function handleChange(field) {
-    return (e) => setFormData((current) => ({ ...current, [field]: e.target.value }));
+    return (e) =>
+      setFormData((current) => ({ ...current, [field]: e.target.value }));
   }
 
   function handleSubmit(e) {
@@ -64,7 +70,12 @@ export default function CalendarModal({ isOpen, onClose, onSave, initialData = n
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card card" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
+        <button
+          className="modal-close"
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+        >
           ✕
         </button>
 

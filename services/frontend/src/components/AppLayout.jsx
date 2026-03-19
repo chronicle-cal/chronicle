@@ -26,6 +26,7 @@ export default function AppLayout() {
             <a
               href="https://github.com/chronicle-cal/chronicle"
               target="_blank"
+              rel="noopener noreferrer"
             >
               GitHub
             </a>

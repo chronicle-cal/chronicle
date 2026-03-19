@@ -58,18 +58,28 @@ export default function Navbar() {
               Calendars
             </Link>
             <div className="profile-menu" ref={profileRef}>
-              <button className="avatar-btn" type="button" onClick={toggleProfile}>
+              <button
+                className="avatar-btn"
+                type="button"
+                onClick={toggleProfile}
+              >
                 <span className="avatar-circle">
-                  {((user?.name || user?.email || "U").trim().charAt(0) || "U").toUpperCase()}
+                  {(
+                    (user?.name || user?.email || "U").trim().charAt(0) || "U"
+                  ).toUpperCase()}
                 </span>
               </button>
-            {isProfileOpen && (
-              <div className="profile-dropdown">
-                <button className="pill btn-danger" type="button" onClick={onLogout}>
-                  Logout
-                </button>
-              </div>
-            )}
+              {isProfileOpen && (
+                <div className="profile-dropdown">
+                  <button
+                    className="pill btn-danger"
+                    type="button"
+                    onClick={onLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </>
         ) : (

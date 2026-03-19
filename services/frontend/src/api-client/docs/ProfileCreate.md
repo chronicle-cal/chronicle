@@ -1,21 +1,20 @@
 # ProfileCreate
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
-**main_calendar_id** | **string** |  | [default to undefined]
+| Name                 | Type       | Description | Notes                  |
+| -------------------- | ---------- | ----------- | ---------------------- |
+| **name**             | **string** |             | [default to undefined] |
+| **main_calendar_id** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ProfileCreate } from './api';
+import { ProfileCreate } from "./api";
 
 const instance: ProfileCreate = {
-    name,
-    main_calendar_id,
+  name,
+  main_calendar_id,
 };
 ```
 

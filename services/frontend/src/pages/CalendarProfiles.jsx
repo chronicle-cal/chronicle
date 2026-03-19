@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
@@ -13,7 +13,9 @@ export default function CalendarProfiles() {
   const [profiles, setProfiles] = useState([]);
   const [calendars, setCalendars] = useState([]);
   const [sourcesByProfile, setSourcesByProfile] = useState({});
-  const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState({});
+  const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState(
+    {},
+  );
   const [loading, setLoading] = useState(true);
   const hasLoadedRef = useRef(false);
 
@@ -40,7 +42,7 @@ export default function CalendarProfiles() {
   // Fast calendar lookup by id for display purposes.
   const calendarById = useMemo(
     () => Object.fromEntries(calendars.map((c) => [c.id, c])),
-    [calendars]
+    [calendars],
   );
 
   useEffect(() => {
@@ -75,17 +77,20 @@ export default function CalendarProfiles() {
 
       const sourceEntries = await Promise.all(
         loadedProfiles.map(async (profile) => {
-          const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-            profile.id
-          );
+          const response =
+            await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
+              profile.id,
+            );
           return [profile.id, response.data];
-        })
+        }),
       );
 
       setSourcesByProfile(Object.fromEntries(sourceEntries));
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to load profiles.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to load profiles.";
       addFlash("error", message);
     } finally {
       setLoading(false);
@@ -95,7 +100,7 @@ export default function CalendarProfiles() {
   async function handleDeleteProfile(id) {
     const profile = profiles.find((item) => item.id === id);
     const confirmed = window.confirm(
-      `Delete profile "${profile?.name || "this profile"}"?`
+      `Delete profile "${profile?.name || "this profile"}"?`,
     );
 
     if (!confirmed) return;
@@ -120,7 +125,9 @@ export default function CalendarProfiles() {
       addFlash("success", "Profile deleted");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to delete profile.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to delete profile.";
       addFlash("error", message);
     }
   }
@@ -135,12 +142,11 @@ export default function CalendarProfiles() {
     try {
       await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
         profileId,
-        { calendar_id: calendarId }
+        { calendar_id: calendarId },
       );
 
-      const response = await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-        profileId
-      );
+      const response =
+        await profileApi.listProfileSyncApiProfileProfileIdSourceGet(profileId);
 
       setSourcesByProfile((current) => ({
         ...current,
@@ -155,7 +161,9 @@ export default function CalendarProfiles() {
       addFlash("success", "Source added");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to add source.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to add source.";
       addFlash("error", message);
     }
   }
@@ -167,20 +175,22 @@ export default function CalendarProfiles() {
     try {
       await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
         profileId,
-        sourceId
+        sourceId,
       );
 
       setSourcesByProfile((current) => ({
         ...current,
         [profileId]: (current[profileId] || []).filter(
-          (source) => source.id !== sourceId
+          (source) => source.id !== sourceId,
         ),
       }));
 
       addFlash("success", "Source deleted");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to delete source.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to delete source.";
       addFlash("error", message);
     }
   }
@@ -197,17 +207,21 @@ export default function CalendarProfiles() {
     try {
       const response = await profileApi.updateProfileApiProfileProfileIdPut(
         profileId,
-        { name: profile.name, main_calendar_id: calendarId }
+        { name: profile.name, main_calendar_id: calendarId },
       );
 
       setProfiles((current) =>
-        current.map((p) => (p.id === profileId ? { ...p, ...response.data } : p))
+        current.map((p) =>
+          p.id === profileId ? { ...p, ...response.data } : p,
+        ),
       );
       setEditingMainCalendarFor(null);
       addFlash("success", "Main calendar updated");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to update profile.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to update profile.";
       addFlash("error", message);
     }
   }
@@ -223,22 +237,29 @@ export default function CalendarProfiles() {
         const { profileId } = calendarModalContext;
         const profile = profiles.find((p) => p.id === profileId);
 
-        const updateResponse = await profileApi.updateProfileApiProfileProfileIdPut(
-          profileId,
-          { name: profile.name, main_calendar_id: newCalendar.id }
-        );
+        const updateResponse =
+          await profileApi.updateProfileApiProfileProfileIdPut(profileId, {
+            name: profile.name,
+            main_calendar_id: newCalendar.id,
+          });
 
         setProfiles((current) =>
           current.map((p) =>
-            p.id === profileId ? { ...p, ...updateResponse.data } : p
-          )
+            p.id === profileId ? { ...p, ...updateResponse.data } : p,
+          ),
         );
         setEditingMainCalendarFor(null);
         addFlash("success", "Calendar created and set as main calendar");
       } else if (calendarModalContext?.purpose === "source") {
         const { profileId } = calendarModalContext;
-        setMainCalendarDraft((current) => ({ ...current, [profileId]: newCalendar.id }));
-        addFlash("success", "Calendar created — select it and click Add Source");
+        setMainCalendarDraft((current) => ({
+          ...current,
+          [profileId]: newCalendar.id,
+        }));
+        addFlash(
+          "success",
+          "Calendar created — select it and click Add Source",
+        );
       } else {
         addFlash("success", "Calendar created");
       }
@@ -246,7 +267,9 @@ export default function CalendarProfiles() {
       setCalendarModalContext(null);
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to create calendar.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to create calendar.";
       addFlash("error", message);
     }
   }
@@ -257,7 +280,9 @@ export default function CalendarProfiles() {
       addFlash("success", "Profile sync triggered");
     } catch (error) {
       const message =
-        error.response?.data?.detail || error.message || "Failed to trigger sync.";
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to trigger sync.";
       addFlash("error", message);
     }
   }
@@ -271,7 +296,9 @@ export default function CalendarProfiles() {
       <div className="page-header">
         <div>
           <h1>Profiles</h1>
-          <p className="subtle">Manage your calendar synchronisation profiles</p>
+          <p className="subtle">
+            Manage your calendar synchronisation profiles
+          </p>
         </div>
         <button
           className="btn btn-primary"
@@ -280,9 +307,7 @@ export default function CalendarProfiles() {
           + Create Profile
         </button>
       </div>
-
       <div className="spacer" />
-
       {profiles.length === 0 ? (
         <div className="card empty-state">
           <div className="empty-state-content">
@@ -299,7 +324,8 @@ export default function CalendarProfiles() {
       ) : (
         profiles.map((profile) => {
           const sources = sourcesByProfile[profile.id] || [];
-          const availableCalendars = availableCalendarsByProfile[profile.id] || [];
+          const availableCalendars =
+            availableCalendarsByProfile[profile.id] || [];
           const mainCal = calendarById[profile.main_calendar_id];
 
           return (
@@ -317,8 +343,8 @@ export default function CalendarProfiles() {
                         {mainCal
                           ? `${mainCal.type} — ${mainCal.url}`
                           : profile.main_calendar_id
-                          ? `${profile.main_calendar_id.slice(0, 8)}…`
-                          : "—"}
+                            ? `${profile.main_calendar_id.slice(0, 8)}…`
+                            : "—"}
                       </span>
                     </p>
                     {editingMainCalendarFor !== profile.id ? (
@@ -380,7 +406,10 @@ export default function CalendarProfiles() {
                           className="btn"
                           type="button"
                           onClick={() =>
-                            setCalendarModalContext({ purpose: "main", profileId: profile.id })
+                            setCalendarModalContext({
+                              purpose: "main",
+                              profileId: profile.id,
+                            })
                           }
                         >
                           + New Calendar
@@ -489,6 +518,7 @@ export default function CalendarProfiles() {
         onClose={() => setCalendarModalContext(null)}
         onSave={handleCalendarModalSave}
         initialData={null}
-      />    </div>
+      />{" "}
+    </div>
   );
 }

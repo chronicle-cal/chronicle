@@ -61,7 +61,11 @@ export default function Login() {
           </div>
 
           <div className="actions">
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={isSubmitting}
+            >
               Login
             </button>
             <Link className="btn" to="/register">

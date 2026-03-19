@@ -59,7 +59,11 @@ export default function Register() {
           </div>
 
           <div className="actions">
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={isSubmitting}
+            >
               Register
             </button>
             <Link className="btn" to="/login">
