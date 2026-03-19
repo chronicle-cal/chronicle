@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/chronicle-cal/chronicle/compare/v0.1.2...v0.1.3) (2026-03-19)
+
+
+### Bug Fixes
+
+* **frontend:** adjust docker build context paths for ci/cd ([#43](https://github.com/chronicle-cal/chronicle/issues/43)) ([799bfbe](https://github.com/chronicle-cal/chronicle/commit/799bfbe73aa74fd85b8c9a49a21eee52336bdcc4))
+
 ## [0.1.2](https://github.com/chronicle-cal/chronicle/compare/v0.1.1...v0.1.2) (2026-03-19)
 
 
