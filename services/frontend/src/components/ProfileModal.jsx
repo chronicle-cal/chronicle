@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
 
-const emptyForm = {
-  name: "",
-  main_calendar_id: "",
-};
-
 /**
  * ProfileModal
  *
@@ -26,7 +21,14 @@ export default function ProfileModal({
   onRequestCalendarCreate,
   externalCalendarId = null,
 }) {
-  const [formData, setFormData] = useState(emptyForm);
+  function createEmptyForm() {
+    return {
+      name: "",
+      main_calendar_id: "",
+    };
+  }
+
+  const [formData, setFormData] = useState(createEmptyForm);
   const isEditing = !!initialData;
   const mainCalendarOptions = calendars.filter(
     (calendar) => calendar.type === "caldav"
@@ -41,7 +43,7 @@ export default function ProfileModal({
         main_calendar_id: initialData.main_calendar_id || "",
       });
     } else {
-      setFormData(emptyForm);
+      setFormData(createEmptyForm());
     }
   }, [isOpen, initialData]);
 
