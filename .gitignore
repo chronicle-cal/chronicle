@@ -18,6 +18,7 @@ radicale-data/
 radicale-config/
 
 .env
+.env.production
 
 .vscode/
 
