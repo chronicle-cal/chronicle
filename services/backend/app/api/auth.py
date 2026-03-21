@@ -62,7 +62,7 @@ def logout():
     return {"message": "logged out"}
 
 
-@router.get("/me", opersion_id="me", responses=auth_responses)
+@router.get("/me", operation_id="me", responses=auth_responses)
 async def me(
     user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db),
