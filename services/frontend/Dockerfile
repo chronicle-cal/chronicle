@@ -1,10 +1,13 @@
 FROM node:20-alpine AS build
 USER node
 WORKDIR /app
+
 COPY --chown=node:node services/frontend/package*.json ./
 RUN npm ci
+
 COPY --chown=node:node services/frontend ./
-RUN npm run build
+
+RUN NODE_ENV=production npm run build
 
 FROM nginx:stable-alpine
 RUN touch /var/run/nginx.pid && \
