@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import * as api from "../api.js";
 
 const AuthContext = createContext(null);
@@ -31,23 +38,31 @@ export function AuthProvider({ children }) {
     })();
   }, [refreshUser]);
 
-  const login = useCallback(async (email, password) => {
-    await api.login({ email, password });
-    await refreshUser();
-  }, [refreshUser]);
+  const login = useCallback(
+    async (email, password) => {
+      await api.login({ email, password });
+      await refreshUser();
+    },
+    [refreshUser]
+  );
 
-  const register = useCallback(async (email, password) => {
-    await api.registerAndLogin({ email, password });
-    await refreshUser();
-  }, [refreshUser]);
+  const register = useCallback(
+    async (email, password) => {
+      await api.registerAndLogin({ email, password });
+      await refreshUser();
+    },
+    [refreshUser]
+  );
 
   const logout = useCallback(async () => {
-    await api.logout();
-    setIsAuthenticated(false);
-    localStorage.removeItem("token");
-    setUser(null);
+    try {
+      await api.logout();
+    } finally {
+      setIsAuthenticated(false);
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   }, []);
-
   const value = useMemo(
     () => ({
       isAuthenticated,
@@ -58,7 +73,15 @@ export function AuthProvider({ children }) {
       logout,
       refreshUser,
     }),
-    [isAuthenticated, isBootstrapping, user, login, register, logout, refreshUser]
+    [
+      isAuthenticated,
+      isBootstrapping,
+      user,
+      login,
+      register,
+      logout,
+      refreshUser,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

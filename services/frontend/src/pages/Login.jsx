@@ -37,7 +37,7 @@ export default function Login() {
         <p className="subtle">Access your account</p>
 
         <form className="form" onSubmit={onSubmit}>
-          <div>
+          <div className="form-group">
             <label>Email</label>
             <input
               value={email}
@@ -48,7 +48,7 @@ export default function Login() {
             />
           </div>
 
-          <div>
+          <div className="form-group">
             <label>Password</label>
             <input
               value={password}
@@ -61,7 +61,11 @@ export default function Login() {
           </div>
 
           <div className="actions">
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={isSubmitting}
+            >
               Login
             </button>
             <Link className="btn" to="/register">

@@ -19,8 +19,6 @@ radicale-config/
 
 .env
 
-# VSCode
-.prettierrc
 .vscode/
 
 # dependencies

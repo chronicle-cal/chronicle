@@ -1,531 +1,517 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
-
-async function request(path, options = {}) {
-  const token = localStorage.getItem("token");
-
-  let res;
-  try {
-    res = await fetch(`/api${path}`, {
-      method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-  } catch (err) {
-    throw new Error("Network error");
-  }
-
-  const data = await res.json().catch(() => null);
-
-  if (!res.ok) {
-    throw new Error(data?.detail ? `${res.status}: ${data.detail}` : `Request failed (${res.status})`);
-  }
-
-  return data;
-}
+import { calendarApi, profileApi } from "../lib/apiClient.js";
+import CalendarModal from "../components/CalendarModal.jsx";
+import ProfileModal from "../components/ProfileModal.jsx";
 
 export default function CalendarProfiles() {
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const { addFlash } = useFlash();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [profiles, setProfiles] = useState([]);
+  const [calendars, setCalendars] = useState([]);
+  const [sourcesByProfile, setSourcesByProfile] = useState({});
+  const [selectedCalendarByProfile, setSelectedCalendarByProfile] = useState(
+    {}
+  );
   const [loading, setLoading] = useState(true);
-  const [editingRule, setEditingRule] = useState(null);
-  const [viewingRule, setViewingRule] = useState(null);
   const hasLoadedRef = useRef(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(null);
+  const [profileModalCalendarId, setProfileModalCalendarId] = useState("");
 
-  const emptyRule = {
-    enabled: true,
-    name: "",
-    conditions: [],
-    actions: [],
-  };
+  // CalendarModal for creating a new calendar ("profile")
+  const [calendarModalContext, setCalendarModalContext] = useState(null); // { purpose: "profile" }
 
-  const [ruleDraft, setRuleDraft] = useState(emptyRule);
+  function openCreateProfileModal() {
+    setEditingProfile(null);
+    setProfileModalCalendarId("");
+    setProfileModalOpen(true);
+  }
+
+  function closeProfileModal() {
+    setProfileModalOpen(false);
+    setEditingProfile(null);
+    setProfileModalCalendarId("");
+  }
+
+  function openEditProfileModal(profile) {
+    setEditingProfile(profile);
+    setProfileModalCalendarId(profile.main_calendar_id || "");
+    setProfileModalOpen(true);
+  }
+
+  // Precompute available (not-yet-used) calendars per profile to avoid O(n)
+  // work on every render pass.
+  const availableCalendarsByProfile = useMemo(() => {
+    const result = {};
+    for (const profile of profiles) {
+      const usedIds = new Set([
+        profile.main_calendar_id,
+        ...(sourcesByProfile[profile.id] || []).map((s) => s.calendar_id),
+      ]);
+      result[profile.id] = calendars.filter((c) => !usedIds.has(c.id));
+    }
+    return result;
+  }, [profiles, calendars, sourcesByProfile]);
+
+  // Fast calendar lookup by id for display purposes.
+  const calendarById = useMemo(
+    () => Object.fromEntries(calendars.map((c) => [c.id, c])),
+    [calendars]
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
       hasLoadedRef.current = false;
+      setProfiles([]);
+      setCalendars([]);
+      setSourcesByProfile({});
+      setLoading(false);
       return;
     }
+
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
-    loadProfiles();
+    loadAll();
   }, [isAuthenticated]);
 
-  async function loadProfiles() {
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (profileModalOpen) return;
+    if (searchParams.get("new") !== "1") return;
+
+    openCreateProfileModal();
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("new");
+    setSearchParams(nextParams, { replace: true });
+  }, [isAuthenticated, profileModalOpen, searchParams, setSearchParams]);
+
+  async function loadAll() {
     try {
-      const data = await request("/profile");
-      setProfiles(data);
-    } catch (err) {
-      addFlash("error", err.message);
+      setLoading(true);
+
+      const [profilesResponse, calendarsResponse] = await Promise.all([
+        profileApi.listProfilesApiProfileGet(),
+        calendarApi.listCalendarsApiCalendarGet(),
+      ]);
+
+      const loadedProfiles = profilesResponse.data;
+      const loadedCalendars = calendarsResponse.data;
+
+      setProfiles(loadedProfiles);
+      setCalendars(loadedCalendars);
+
+      const sourceEntries = await Promise.all(
+        loadedProfiles.map(async (profile) => {
+          const response =
+            await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
+              profile.id
+            );
+          return [profile.id, response.data];
+        })
+      );
+
+      setSourcesByProfile(Object.fromEntries(sourceEntries));
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to load profiles.";
+      addFlash("error", message);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDeleteProfile(id) {
-    const profile = profiles.find(p => p.id === id);
-    if (!confirm(`Delete calendar profile "${profile?.name || "this profile"}"?`)) return;
+    const profile = profiles.find((item) => item.id === id);
+    const confirmed = window.confirm(
+      `Delete profile "${profile?.name || "this profile"}"?`
+    );
+
+    if (!confirmed) return;
 
     try {
-      await request(`/profile/${id}`, { method: "DELETE" });
-      addFlash("success", "Calendar profile deleted");
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
-    }
-  }
+      await profileApi.deleteProfileApiProfileProfileIdDelete(id);
 
-  function normalizeConditions(conditions = []) {
-    return conditions.map((cond) => ({
-      field: cond.field || "title",
-      operator: cond.operator || "starts_with",
-      value: cond.value || "",
-    }));
-  }
+      setProfiles((current) => current.filter((item) => item.id !== id));
 
-  function normalizeActions(actions = []) {
-    return actions.map((action) => ({
-      name: action.name || "set_field",
-      arguments: {
-        name: action.arguments?.name || "",
-        value: action.arguments?.value || "",
-      },
-    }));
-  }
-
-  function startCreateRule(profileId) {
-    setEditingRule({ profileId, ruleId: null });
-    setRuleDraft({ ...emptyRule });
-  }
-
-  function startEditRule(profileId, rule) {
-    setEditingRule({ profileId, ruleId: rule.id });
-    setRuleDraft({
-      enabled: rule.enabled ?? true,
-      name: rule.name ?? "",
-      source_id: rule.source_id,
-      conditions: normalizeConditions(rule.conditions),
-      actions: normalizeActions(rule.actions),
-    });
-  }
-
-  async function handleCreateRule(profileId, e) {
-    e.preventDefault();
-    try {
-      await request(`/profile/${profileId}/rule`, {
-        method: "POST",
-        body: ruleDraft,
+      setSourcesByProfile((current) => {
+        const updated = { ...current };
+        delete updated[id];
+        return updated;
       });
-      addFlash("success", "Rule created");
-      setEditingRule(null);
-      setRuleDraft({ ...emptyRule });
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
-    }
-  }
 
-  async function handleUpdateRule(profileId, ruleId, e) {
-    e.preventDefault();
-    try {
-      await request(`/profile/${profileId}/rule/${ruleId}`, {
-        method: "POST",
-        body: ruleDraft,
+      setSelectedCalendarByProfile((current) => {
+        const updated = { ...current };
+        delete updated[id];
+        return updated;
       });
-      addFlash("success", "Rule updated");
-      setEditingRule(null);
-      setRuleDraft({ ...emptyRule });
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+
+      addFlash("success", "Profile deleted");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to delete profile.";
+      addFlash("error", message);
     }
   }
 
-  async function handleDeleteRule(profileId, ruleId) {
-    if (!confirm("Delete this rule?")) return;
+  async function handleSaveProfile(payload) {
+    if (!payload.name.trim() || !payload.main_calendar_id) {
+      addFlash("error", "Please enter a name and choose a main calendar.");
+      return;
+    }
+
+    const mainCalendar = calendars.find(
+      (calendar) => calendar.id === payload.main_calendar_id
+    );
+    if (!mainCalendar || mainCalendar.type !== "caldav") {
+      addFlash(
+        "error",
+        "Profiles can only use CalDAV calendars as the main calendar."
+      );
+      return;
+    }
+
     try {
-      await request(`/profile/${profileId}/rule/${ruleId}`, {
-        method: "DELETE",
-      });
-      addFlash("success", "Rule deleted");
-      setViewingRule(null);
-      loadProfiles();
-    } catch (err) {
-      addFlash("error", err.message);
+      if (editingProfile) {
+        const response = await profileApi.updateProfileApiProfileProfileIdPut(
+          editingProfile.id,
+          {
+            name: payload.name.trim(),
+            main_calendar_id: payload.main_calendar_id,
+          }
+        );
+
+        setProfiles((current) =>
+          current.map((p) =>
+            p.id === editingProfile.id ? { ...p, ...response.data } : p
+          )
+        );
+        addFlash("success", "Profile updated");
+      } else {
+        const response = await profileApi.createProfileApiProfilePost({
+          name: payload.name.trim(),
+          main_calendar_id: payload.main_calendar_id,
+        });
+
+        const created = response.data;
+        setProfiles((current) => [...current, created]);
+        setSourcesByProfile((current) => ({ ...current, [created.id]: [] }));
+        setSelectedCalendarByProfile((current) => ({
+          ...current,
+          [created.id]: "",
+        }));
+        addFlash("success", "Profile created");
+      }
+
+      closeProfileModal();
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to save profile.";
+      addFlash("error", message);
     }
   }
 
-  function addCondition() {
-    setRuleDraft({
-      ...ruleDraft,
-      conditions: [
-        ...ruleDraft.conditions,
-        { field: "title", operator: "starts_with", value: "" },
-      ],
-    });
-  }
-
-  function updateCondition(index, field, value) {
-    const updated = [...ruleDraft.conditions];
-    updated[index] = { ...updated[index], [field]: value };
-    setRuleDraft({ ...ruleDraft, conditions: updated });
-  }
-
-  function removeCondition(index) {
-    setRuleDraft({
-      ...ruleDraft,
-      conditions: ruleDraft.conditions.filter((_, i) => i !== index),
-    });
-  }
-
-  function addAction() {
-    setRuleDraft({
-      ...ruleDraft,
-      actions: [
-        ...ruleDraft.actions,
-        { name: "set_field", arguments: { name: "", value: "" } },
-      ],
-    });
-  }
-
-  function updateAction(index, field, value) {
-    const updated = [...ruleDraft.actions];
-    if (field === "name") {
-      updated[index] = { ...updated[index], name: value };
-    } else {
-      updated[index] = {
-        ...updated[index],
-        arguments: { ...updated[index].arguments, [field]: value },
-      };
+  async function handleAddSource(profileId) {
+    const calendarId = selectedCalendarByProfile[profileId];
+    if (!calendarId) {
+      addFlash("error", "Please select a calendar first.");
+      return;
     }
-    setRuleDraft({ ...ruleDraft, actions: updated });
+
+    try {
+      await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
+        profileId,
+        { calendar_id: calendarId }
+      );
+
+      const response =
+        await profileApi.listProfileSyncApiProfileProfileIdSourceGet(profileId);
+
+      setSourcesByProfile((current) => ({
+        ...current,
+        [profileId]: response.data,
+      }));
+
+      setSelectedCalendarByProfile((current) => ({
+        ...current,
+        [profileId]: "",
+      }));
+
+      addFlash("success", "Source added");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to add source.";
+      addFlash("error", message);
+    }
   }
 
-  function removeAction(index) {
-    setRuleDraft({
-      ...ruleDraft,
-      actions: ruleDraft.actions.filter((_, i) => i !== index),
-    });
+  async function handleDeleteSource(profileId, sourceId) {
+    const confirmed = window.confirm("Delete this source?");
+    if (!confirmed) return;
+
+    try {
+      await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+        profileId,
+        sourceId
+      );
+
+      setSourcesByProfile((current) => ({
+        ...current,
+        [profileId]: (current[profileId] || []).filter(
+          (source) => source.id !== sourceId
+        ),
+      }));
+
+      addFlash("success", "Source deleted");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to delete source.";
+      addFlash("error", message);
+    }
   }
 
-  if (loading) return <div className="loading">Loading calendar profiles...</div>;
+  async function handleCalendarModalSave(payload) {
+    try {
+      const response = await calendarApi.createCalendarApiCalendarPost(payload);
+      const newCalendar = response.data;
+
+      setCalendars((current) => [...current, newCalendar]);
+
+      if (calendarModalContext?.purpose === "profile") {
+        setProfileModalCalendarId(newCalendar.id);
+        addFlash("success", "Calendar created");
+      } else {
+        addFlash("success", "Calendar created");
+      }
+
+      setCalendarModalContext(null);
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to create calendar.";
+      addFlash("error", message);
+    }
+  }
+
+  async function handleTriggerSync(profileId) {
+    try {
+      await profileApi.triggerProfileSyncApiProfileProfileIdSyncPost(profileId);
+      addFlash("success", "Profile sync triggered");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to trigger sync.";
+      addFlash("error", message);
+    }
+  }
+
+  if (loading) {
+    return <div className="loading">Loading profiles...</div>;
+  }
 
   return (
     <div className="container">
       <div className="page-header">
         <div>
-          <h1>Calendar Profiles</h1>
-          <p className="subtle">Manage your calendar synchronisation profiles</p>
+          <h1>Profiles {profiles.length > 0 && "(" + profiles.length + ")"}</h1>
+          <p className="subtle">
+            Manage your calendar synchronisation profiles
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate("/calendar-profiles/new")}>
+        <button className="btn btn-primary" onClick={openCreateProfileModal}>
           + Create Profile
         </button>
       </div>
-
       <div className="spacer" />
-
-      {profiles.length === 0 && (
+      {profiles.length === 0 ? (
         <div className="card empty-state">
           <div className="empty-state-content">
-            <h3>No Calendar Profiles</h3>
-            <p>Create your first calendar profile to get started</p>
+            <h3>No Profiles</h3>
+            <p>Create your first profile to get started</p>
             <button
               className="btn btn-primary"
-              onClick={() => navigate("/calendar-profiles/new")}
+              onClick={openCreateProfileModal}
             >
               Create First Profile
             </button>
           </div>
         </div>
-      )}
+      ) : (
+        profiles.map((profile, index) => {
+          const sources = sourcesByProfile[profile.id] || [];
+          const availableCalendars =
+            availableCalendarsByProfile[profile.id] || [];
+          const mainCal = calendarById[profile.main_calendar_id];
 
-      {profiles.map((profile) => (
-        <div key={profile.id} className="card">
-          <div className="card-header">
-            <div>
-              <h2>{profile.name}</h2>
-              <p className="subtle">
-                Calendar ID: {profile.main_calendar_id?.slice(0, 8)}...
-              </p>
-            </div>
-            <button
-              className="btn btn-small btn-danger"
-              onClick={() => handleDeleteProfile(profile.id)}
-            >
-              Delete
-            </button>
-          </div>
+          return (
+            <div key={profile.id}>
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <h2>{profile.name}</h2>
+                    <p className="subtle">Profile ID: {profile.id}</p>
+                    <div className="main-calendar-row">
+                      <p className="subtle" style={{ margin: 0 }}>
+                        Main Calendar:{" "}
+                        <span>
+                          {mainCal
+                            ? `${mainCal.type} — ${mainCal.url}`
+                            : profile.main_calendar_id
+                              ? `${profile.main_calendar_id.slice(0, 8)}…`
+                              : "—"}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
 
-          <div className="card-section">
-            <h3>Rules & Filters</h3>
-            {editingRule?.profileId === profile.id ? (
-              <form
-                onSubmit={(e) =>
-                  editingRule.ruleId
-                    ? handleUpdateRule(profile.id, editingRule.ruleId, e)
-                    : handleCreateRule(profile.id, e)
-                }
-              >
-                <div className="form-group">
-                  <label>Rule Name</label>
-                  <input
-                    value={ruleDraft.name}
-                    onChange={(e) =>
-                      setRuleDraft({ ...ruleDraft, name: e.target.value })
-                    }
-                    placeholder="Remove unwanted events"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={ruleDraft.enabled}
-                      onChange={(e) =>
-                        setRuleDraft({ ...ruleDraft, enabled: e.target.checked })
-                      }
-                    />
-                    <span>Enabled</span>
-                  </label>
-                </div>
-
-                <h4>Conditions (AND - all must match)</h4>
-                {ruleDraft.conditions.map((cond, idx) => (
-                  <div key={idx} className="rule-item">
-                    <select
-                      value={cond.field}
-                      onChange={(e) =>
-                        updateCondition(idx, "field", e.target.value)
-                      }
-                    >
-                      <option value="title">Title</option>
-                      <option value="description">Description</option>
-                      <option value="location">Location</option>
-                    </select>
-                    <select
-                      value={cond.operator}
-                      onChange={(e) =>
-                        updateCondition(idx, "operator", e.target.value)
-                      }
-                    >
-                      <option value="starts_with">Starts with</option>
-                      <option value="contains">Contains</option>
-                      <option value="equals">Equals</option>
-                    </select>
-                    <input
-                      value={cond.value}
-                      onChange={(e) =>
-                        updateCondition(idx, "value", e.target.value)
-                      }
-                      placeholder="Value"
-                    />
+                  <div className="actions">
                     <button
-                      type="button"
-                      className="btn btn-small btn-danger"
-                      onClick={() => removeCondition(idx)}
+                      className="btn btn-small"
+                      onClick={() => openEditProfileModal(profile)}
                     >
-                      ✕
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-small"
+                      onClick={() => handleTriggerSync(profile.id)}
+                    >
+                      Sync Now
+                    </button>
+                    <button
+                      className="btn btn-small btn-danger"
+                      onClick={() => handleDeleteProfile(profile.id)}
+                    >
+                      Delete
                     </button>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-small"
-                  onClick={addCondition}
-                >
-                  + Add Condition
-                </button>
-
-                <h4>Actions</h4>
-                {ruleDraft.actions.map((action, idx) => (
-                  <div key={idx} className="rule-item">
-                    <select
-                      value={action.name}
-                      onChange={(e) => updateAction(idx, "name", e.target.value)}
-                    >
-                      <option value="set_field">Set Field</option>
-                      <option value="remove_field">Remove Field</option>
-                    </select>
-                    <input
-                      value={action.arguments.name || ""}
-                      onChange={(e) =>
-                        updateAction(idx, "name", e.target.value)
-                      }
-                      placeholder="Field name"
-                    />
-                    <input
-                      value={action.arguments.value || ""}
-                      onChange={(e) =>
-                        updateAction(idx, "value", e.target.value)
-                      }
-                      placeholder="Field value"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-small btn-danger"
-                      onClick={() => removeAction(idx)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-small"
-                  onClick={addAction}
-                >
-                  + Add Action
-                </button>
-
-                <div className="actions">
-                  <button type="submit" className="btn btn-primary">
-                    {editingRule.ruleId ? "Update Rule" : "Save Rule"}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => {
-                      setEditingRule(null);
-                      setRuleDraft({ ...emptyRule });
-                    }}
-                  >
-                    Cancel
-                  </button>
                 </div>
-              </form>
-            ) : (
-              <>
-                <button
-                  className="btn btn-small"
-                  onClick={() => startCreateRule(profile.id)}
-                >
-                  + Add Rule
-                </button>
-                {profile.rules && profile.rules.length > 0 ? (
-                  <ul className="rule-list">
-                    {profile.rules.map((rule) => (
-                      <li key={rule.id} className="rule-item">
-                        <div className="rule-info">
-                          <strong>{rule.name}</strong>
-                          <span className="rule-status">
-                            {rule.enabled ? "✓ Enabled" : "✗ Disabled"}
-                          </span>
-                          <span className="subtle">
-                            {rule.conditions?.length || 0} conditions, {rule.actions?.length || 0} actions
-                          </span>
-                        </div>
-                        <div className="rule-actions">
-                          <button
-                            className="btn btn-small"
-                            onClick={() => setViewingRule(rule)}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="btn btn-small"
-                            onClick={() => startEditRule(profile.id, rule)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-small btn-danger"
-                            onClick={() =>
-                              handleDeleteRule(profile.id, rule.id)
-                            }
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="subtle">No rules configured yet</p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      ))}
 
-      {/* View Rule Modal */}
-      {viewingRule && (
-        <div className="modal-overlay" onClick={() => setViewingRule(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Rule Details: {viewingRule.name}</h2>
-              <button
-                className="btn btn-small"
-                onClick={() => setViewingRule(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="rule-details">
-              <p className="rule-status">
-                {viewingRule.enabled ? "✓ Enabled" : "✗ Disabled"}
-              </p>
+                <div className="spacer" />
+                <hr></hr>
 
-              <h3>Conditions ({viewingRule.conditions?.length || 0})</h3>
-              {viewingRule.conditions && viewingRule.conditions.length > 0 ? (
-                <ul className="detail-list">
-                  {viewingRule.conditions.map((cond, idx) => (
-                    <li key={idx}>
-                      <strong>{cond.field}</strong> {cond.operator} "{cond.value}"
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="subtle">No conditions</p>
-              )}
+                <div className="card-section">
+                  <h3>Sources ({sources.length})</h3>
 
-              <h3>Actions ({viewingRule.actions?.length || 0})</h3>
-              {viewingRule.actions && viewingRule.actions.length > 0 ? (
-                <ul className="detail-list">
-                  {viewingRule.actions.map((action, idx) => (
-                    <li key={idx}>
-                      <strong>{action.name}</strong>:{" "}
-                      {JSON.stringify(action.arguments)}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="subtle">No actions</p>
-              )}
+                  {sources.length === 0 ? (
+                    <p className="subtle">No sources added yet.</p>
+                  ) : (
+                    <ul className="rule-list">
+                      {sources.map((source) => (
+                        <li key={source.id} className="rule-item">
+                          <div className="rule-info">
+                            <strong>
+                              {source.calendar?.url || source.calendar_id}
+                            </strong>
+                            <span className="subtle">
+                              Calendar ID: {source.calendar_id.slice(0, 8)}...
+                            </span>
+                            <span className="subtle">
+                              Type: {source.calendar?.type || "-"}
+                            </span>
+                          </div>
+                          <div className="rule-actions">
+                            <button
+                              className="btn btn-small btn-danger"
+                              onClick={() =>
+                                handleDeleteSource(profile.id, source.id)
+                              }
+                            >
+                              Delete Source
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="form-row" style={{ marginTop: "1rem" }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Add existing calendar as source</label>
+                      <select
+                        value={selectedCalendarByProfile[profile.id] || ""}
+                        onChange={(e) =>
+                          setSelectedCalendarByProfile((current) => ({
+                            ...current,
+                            [profile.id]: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select a calendar</option>
+                        {availableCalendars.map((calendar) => (
+                          <option key={calendar.id} value={calendar.id}>
+                            {calendar.type} — {calendar.url}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="actions" style={{ alignItems: "end" }}>
+                      <button
+                        className="btn btn-primary"
+                        type="button"
+                        onClick={() => handleAddSource(profile.id)}
+                        disabled={availableCalendars.length === 0}
+                      >
+                        Add Source
+                      </button>
+                    </div>
+                  </div>
+
+                  {availableCalendars.length === 0 && (
+                    <p className="subtle">
+                      No additional calendars available to add as sources.
+                    </p>
+                  )}
+                </div>
+              </div>
+              {index < profiles.length - 1 && <div className="spacer" />}
             </div>
-            <div className="actions">
-              <button
-                className="btn btn-danger"
-                onClick={() => {
-                  const profile = profiles.find(p =>
-                    p.rules && p.rules.some(r => r.id === viewingRule.id)
-                  );
-                  if (profile) {
-                    handleDeleteRule(profile.id, viewingRule.id);
-                  }
-                }}
-              >
-                Delete Rule
-              </button>
-              <button
-                className="btn"
-                onClick={() => setViewingRule(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+          );
+        })
       )}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={closeProfileModal}
+        onSave={handleSaveProfile}
+        initialData={editingProfile}
+        calendars={calendars}
+        onRequestCalendarCreate={() =>
+          setCalendarModalContext({ purpose: "profile" })
+        }
+        externalCalendarId={profileModalCalendarId}
+      />
+      <CalendarModal
+        isOpen={calendarModalContext !== null}
+        onClose={() => setCalendarModalContext(null)}
+        onSave={handleCalendarModalSave}
+        initialData={null}
+        allowedTypes={
+          calendarModalContext?.purpose === "profile"
+            ? ["caldav"]
+            : ["caldav", "ical"]
+        }
+        helperText={
+          calendarModalContext?.purpose === "profile"
+            ? "Profiles can only use CalDAV calendars as their main calendar."
+            : ""
+        }
+      />
     </div>
   );
 }
