@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    restart: unless-stopped
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  backend:
+    image: ghcr.io/chronicle-cal/chronicle-backend:latest
+    build:
+      context: .
+      dockerfile: services/backend/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    # The port mapping is only for development and testing purposes.
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: ghcr.io/chronicle-cal/chronicle-frontend:latest
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: services/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  worker:
+    image: ghcr.io/chronicle-cal/chronicle-worker:latest
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: services/worker/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+volumes:
+  postgres-data:

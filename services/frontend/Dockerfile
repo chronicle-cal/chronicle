@@ -12,11 +12,14 @@ RUN NODE_ENV=production npm run build
 FROM nginx:stable-alpine
 RUN touch /var/run/nginx.pid && \
     chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
-    
+
 
 COPY services/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html
+
 USER nginx
-EXPOSE 8080
+
+EXPOSE 3000
+
 CMD ["nginx", "-g", "daemon off;"]
