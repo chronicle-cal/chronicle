@@ -476,10 +476,127 @@ select:focus {
 }
 
 .hero {
-  margin: 28px 0;
+  margin: clamp(56px, 10vh, 112px) 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 3rem;
+}
+
+.home-landing {
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 2rem 2rem 2rem;
+}
+
+.home-eyebrow {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.home-claim {
+  margin: 14px 0 18px;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  max-width: 20ch;
+}
+
+.home-intro {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.home-actions {
+  margin-top: 36px;
+}
+
+.home-features {
+  list-style: none;
+  margin: 50px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 30px;
+}
+
+.home-feature-item {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.home-feature-item h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.home-feature-item p {
+  margin: 0;
+}
+
+.home-secondary {
+  border-top: 1px solid var(--border);
+  padding-top: clamp(32px, 5vw, 52px);
+}
+
+.home-section-title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.home-section-intro {
+  margin: 14px 0 0;
+  max-width: 62ch;
+  line-height: 1.65;
+}
+
+.home-steps {
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 26px;
+}
+
+.home-step-item h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.home-item-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.home-item-head h3 {
+  margin: 0;
+}
+
+.home-item-icon {
+  color: var(--accent);
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.home-step-item p {
+  margin: 0;
+}
+
+.home-action-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: start;
 }
 
 .settings-grid {
@@ -495,6 +612,14 @@ select:focus {
 @media (min-width: 860px) {
   .settings-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

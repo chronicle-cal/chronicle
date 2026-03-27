@@ -123,7 +123,7 @@ export default function Navbar() {
         ) : (
           <>
             <Link className="pill" to="/login">
-              Login
+              Log in
             </Link>
             <Link className="pill" to="/register">
               Register
