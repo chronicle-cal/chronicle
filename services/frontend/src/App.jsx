@@ -13,6 +13,7 @@ import Home from "./pages/Home.jsx";
 import Legal from "./pages/Legal.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
+import CalendarProfileView from "./pages/CalendarProfileView.jsx";
 
 export default function App() {
   return (
@@ -40,6 +41,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CalendarProfiles />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar-profiles/:profileId"
+          element={
+            <ProtectedRoute>
+              <CalendarProfileView />
             </ProtectedRoute>
           }
         />

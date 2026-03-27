@@ -4,6 +4,7 @@ import {
   AuthApi,
   CalendarApi,
   CalendarProfileApi,
+  TaskApi,
 } from "../api-client";
 
 const axiosInstance = axios.create();
@@ -35,3 +36,4 @@ export const profileApi = new CalendarProfileApi(
   undefined,
   axiosInstance
 );
+export const taskApi = new TaskApi(configuration, undefined, axiosInstance);
