@@ -37,7 +37,7 @@ async def _get_profile_or_404(
             CalendarProfile.user_id == current_user.id,
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
@@ -57,7 +57,7 @@ async def _get_source_or_404(
             CalendarProfile.user_id == user.id,
         )
     )
-    source = result.scalar_one_or_none()
+    source = result.unique().scalar_one_or_none()
     if not source:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Source not found"
@@ -97,7 +97,7 @@ async def get_profile(
         .options(selectinload(CalendarProfile.calendar_sources))
         .where(CalendarProfile.id == profile_id, CalendarProfile.user_id == user.id)
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     return profile
 
 
@@ -139,7 +139,7 @@ async def delete_profile(
             CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
