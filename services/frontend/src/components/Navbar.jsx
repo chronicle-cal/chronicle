@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import logo from "../assets/logo.svg";
+import { profileApi } from "../lib/apiClient.js";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -10,6 +11,27 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+
+  const [profileList, setProfileList] = useState([]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setProfileList([]);
+      return;
+    }
+
+    const fetchProfiles = async () => {
+      const { status, data } = await profileApi.listProfiles();
+      if (status !== 200) {
+        console.error("Failed to fetch profiles:", data);
+        addFlash("error", "Failed to load profiles.");
+        return;
+      }
+      console.log("Fetched profiles:", data);
+      setProfileList(data || []);
+    };
+    fetchProfiles();
+  }, [isAuthenticated, addFlash]);
 
   const onLogout = async () => {
     try {
@@ -47,11 +69,26 @@ export default function Navbar() {
       </Link>
 
       <nav className="nav-links">
+        {isAuthenticated && profileList.length > 0 ? (
+          <div className="profile-menu">
+            {profileList.map((profile) => (
+              <Link
+                key={profile.id}
+                className="pill"
+                to={`/calendar-profiles/${profile.id}`}
+              >
+                {profile.name}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          isAuthenticated && <span>No profiles to show here :(</span>
+        )}
+      </nav>
+
+      <nav className="nav-links">
         {isAuthenticated ? (
           <>
-            <Link className="pill" to="/dashboard">
-              Dashboard
-            </Link>
             <Link className="pill" to="/calendar-profiles">
               Manage Profiles
             </Link>
