@@ -80,7 +80,7 @@ async def list_profiles(
         .options(selectinload(CalendarProfile.calendar_sources))
         .where(CalendarProfile.user_id == current_user.id)
     )
-    profiles = result.scalars().all()
+    profiles = result.scalars().unique().all()
     return profiles
 
 
