@@ -82,7 +82,7 @@ export default function Home() {
     <div className="hero">
       <section className="home-landing">
         <p className="home-eyebrow">Calendar sync and planning</p>
-        <h1 className="home-claim">You're schedule without merge conflicts.</h1>
+        <h1 className="home-claim">Your schedule without merge conflicts.</h1>
         <p className="subtle home-intro">
           No AI crap – just clever scheduling algorithms for your calendar.
         </p>
@@ -160,7 +160,7 @@ export default function Home() {
       <section className="home-landing home-secondary" aria-label="Coming Soon">
         <h2 className="home-section-title">Coming Soon</h2>
         <p className="subtle home-section-intro">
-          Planned improvements we’re preparing next.
+          Planned improvements we&apos;re preparing next.
         </p>
         <ol className="home-steps">
           {futureFeatures.map((feature) => (

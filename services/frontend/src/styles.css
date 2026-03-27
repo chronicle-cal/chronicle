@@ -99,6 +99,54 @@ a:hover {
   align-items: center;
 }
 
+.nav-empty-state {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid var(--accent);
+  display: inline-block;
+}
+
+.profile-button-group {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border);
+}
+
+.profile-button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all 140ms ease;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.profile-button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.profile-button-active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+.profile-button-active:hover {
+  background: var(--accent);
+}
+
 .profile-menu {
   position: relative;
 }
@@ -354,6 +402,11 @@ button {
   background: #b74444;
   border-color: #b74444;
   box-shadow: none;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
 }
 
 /* MODAL */
