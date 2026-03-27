@@ -257,7 +257,7 @@ async def trigger_profile_sync(
 
     payload = {
         "type": "sync",
-        "payload": profile_to_shared_profile(profile).model_dump(),
+        "payload": profile_to_shared_profile(profile).model_dump(mode="json"),
     }
 
     print(f"Publishing message to queue: {payload}")

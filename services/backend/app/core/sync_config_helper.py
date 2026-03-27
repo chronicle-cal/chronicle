@@ -41,12 +41,24 @@ def _source_to_shared_source(source: models.CalendarSource) -> shared_models.Sou
     )
 
 
+def task_to_shared_task(task: models.Task) -> shared_models.Task:
+    return shared_models.Task(
+        id=task.id,
+        title=task.title,
+        description=task.description if task.description else "",
+        due_date=task.due_date,
+        duration=task.duration,
+        not_before=task.not_before,
+        priority=task.priority,
+    )
+
+
 def profile_to_shared_profile(profile: models.CalendarProfile) -> shared_models.Profile:
     return shared_models.Profile(
         id=profile.id,
         name=profile.name,
         main_calendar=_calendar_to_shared_calendar(profile.main_calendar),
-        tasks=[],
+        tasks=[task_to_shared_task(task) for task in profile.tasks],
         sources=[
             _source_to_shared_source(source) for source in profile.calendar_sources
         ],

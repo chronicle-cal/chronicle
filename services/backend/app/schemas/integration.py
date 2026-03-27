@@ -147,9 +147,9 @@ class CreateTask(BaseModel):
     title: str
     description: str | None = None
     due_date: datetime | None = None
-    duration: int = 30
+    duration: int | None = 30
     not_before: datetime | None = None
-    priority: int = 3
+    priority: int | None = 3
     profile_id: str | None = None
 
 
