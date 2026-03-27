@@ -2,6 +2,8 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./components/AppLayout.jsx";
+import DashboardLayout from "./components/DashboardLayout.jsx";
+
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -27,7 +29,8 @@ export default function App() {
         <Route path="/legal" element={<Legal />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
-
+      </Route>
+      <Route element={<DashboardLayout />}>
         <Route
           path="/dashboard"
           element={
@@ -61,7 +64,6 @@ export default function App() {
           }
         />
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
