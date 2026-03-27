@@ -143,7 +143,9 @@ export default function Calendars() {
     <div className="container">
       <div className="page-header">
         <div>
-          <h1>Calendars</h1>
+          <h1>
+            Calendars {calendars.length > 0 && "(" + calendars.length + ")"}
+          </h1>
           <p className="subtle">Manage your calendars</p>
         </div>
 
@@ -169,21 +171,28 @@ export default function Calendars() {
           </div>
         </div>
       ) : (
-        calendars.map((calendar, index) => (
-          <div key={calendar.id}>
-            <div className="card">
-              <div className="card-header">
-                <div>
-                  <h2>{calendar.type}</h2>
-                  <p className="subtle">URL: {calendar.url}</p>
-                  <p className="subtle">
-                    Calendar ID: {calendar.id.slice(0, 8)}
-                    ...
-                  </p>
-                  <p className="subtle">Username: {calendar.username || "-"}</p>
+        <ul className="rule-list calendar-list">
+          {calendars.map((calendar) => (
+            <li key={calendar.id} className="card calendar-item">
+              <div className="calendar-item-body">
+                <div className="calendar-item-content">
+                  <div className="calendar-item-head">
+                    <span className="calendar-badge">{calendar.type}</span>
+                  </div>
+
+                  <div className="rule-info calendar-item-info">
+                    <strong className="calendar-url">{calendar.url}</strong>
+                    <span className="subtle">
+                      Username: {calendar.username || "-"}
+                    </span>
+                    <span className="subtle">
+                      ID: {calendar.id.slice(0, 8)}
+                      ...
+                    </span>
+                  </div>
                 </div>
 
-                <div className="actions">
+                <div className="calendar-item-actions">
                   <button
                     className="btn btn-small"
                     onClick={() => handleEdit(calendar.id)}
@@ -198,10 +207,9 @@ export default function Calendars() {
                   </button>
                 </div>
               </div>
-            </div>
-            {index < calendars.length - 1 && <div className="spacer" />}
-          </div>
-        ))
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

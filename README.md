@@ -1,83 +1,43 @@
 # Chronicle
 
-Web based calendar tools featuring calendar syncs and smart scheduling.
+Chronicle is a web-based calendar app focused on calendar syncing, managing and smart scheduling.
 
-## Development
+## Quick start
 
-### Dev setup
-
-First start the development components with
+You can quickly start Chronicle using Docker or Podman. Just run the following command in the root directory of the project:
 
 ```bash
-podman-compose up --build
+docker compose -f compose.yaml up --build
 ```
 
-Force recreate:
-```
-podman-compose up --build --force-recreate -d
-```
+## Installation
 
-/ Stopping Services:
+Please refer to the [Admin Guide](docs/admin.md) for detailed instructions on how to set up Chronicle.
 
-```bash
-podman-compose -f compose.yaml down
-```
+## Architecture
 
-### Lookup in the DB
+Chronicle is composed of several services that work together to provide the functionality of the application. The main services are:
 
-Make sure the compose stack is running before opening the DB shell.
+- `frontend`: The user interface of chronicle. It is a React application that runs in the browser.
+- `backend`: The backend service that handles the business logic and API endpoints. It is built with FastAPI and runs on a Python server.
+- `worker`: The worker service that handles background tasks such as synchronization with external calendar sources. It is built with Python and runs on a separate server.
 
-```bash
-podman-compose exec postgres psql -U admin -d appdb
-```
+## Documentation
 
+The documentation is available in the [docs](docs) directory. It includes guides for installation, administration, and development.
 
-Show all tables:
+## Versioning
 
-```sql
-\dt
-```
+This project uses [Semantic Versioning](https://semver.org/).
 
-### API Gateway
+## Contributing
 
-Enter the directory `services/api-gateway` and run
-```
-source .venv/bin/activate
-uv run fastapi --app app
-```
+Contributions are currently not accepted.
 
-### Scheduling Service
+This projects documents architectural decisions via ADRs. You can find them in the [docs/architecture/decisions](docs/architecture/decisions) directory.
 
-Enter the directory `services/scheduling` and run
-```
-source .venv/bin/activate
-uv run main.py
-```
+This project uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
 
-## Services
+## License
 
-### API Gateway
-
--   Recieves HTTP (WS) API queries
--   Validates Data with DTOs (pydantic)
--   Dispatches actions to other services (RabbitMQ)
--   Returns results
-
-### Integrator Service
--   Reads external Calendars (ical, CalDAV, Google?) and writes events to database
--   Writes events to external Calendars (CalDAV, Google)
-
-### Scheduling Service
--     The Scheduling Service runs on the data in the database ()
-
-### Task Service
--
-
-### Notification Service
--   Sends user notifications (via E-Mail, SMS, Telegram, etc.)
-
-## Shared
-Shared is a python package that all services depend on. It includes the defintions for the DTOs
-
-## Configuration
-Each service gets a the same config file which includes the addresses of all other services as well as installation options
+This project is licensed under the GPL-3.0 License. See the [LICENSE](LICENSE) file for details.

@@ -329,7 +329,7 @@ export default function CalendarProfiles() {
     <div className="container">
       <div className="page-header">
         <div>
-          <h1>Profiles</h1>
+          <h1>Profiles {profiles.length > 0 && "(" + profiles.length + ")"}</h1>
           <p className="subtle">
             Manage your calendar synchronisation profiles
           </p>
