@@ -63,7 +63,7 @@ class SyncEngine:
         )
         self.sources: list[tuple[BaseSource, Source]] = []
         for source in config.sources:
-            if source.calendar.type == "ics":
+            if source.calendar.type == "ical":
                 self.sources.append((IcsSource(source.calendar.url), source))
                 logging.info(f"Added ICS source: {source.calendar.url}")
             else:
