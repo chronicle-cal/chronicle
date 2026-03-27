@@ -44,7 +44,7 @@ export interface Action {
   id: number;
   rule_id: number;
   name: string;
-  arguments: object;
+  arguments: { [key: string]: any };
 }
 export interface CalendarCreate {
   type: string;
@@ -118,6 +118,8 @@ export interface ValidationError {
   loc: Array<LocationInner>;
   msg: string;
   type: string;
+  input?: any;
+  ctx?: object;
 }
 
 /**
@@ -129,17 +131,62 @@ export const AuthApiAxiosParamCreator = function (
   return {
     /**
      *
+     * @summary Get Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getToken: async (
+      options: RawAxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      const localVarPath = `/api/auth/token`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
+      localVarHeaderParameter["Accept"] = "application/json";
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Login
      * @param {LoginRequest} loginRequest
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    loginApiAuthLoginPost: async (
+    login: async (
       loginRequest: LoginRequest,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'loginRequest' is not null or undefined
-      assertParamExists("loginApiAuthLoginPost", "loginRequest", loginRequest);
+      assertParamExists("login", "loginRequest", loginRequest);
       const localVarPath = `/api/auth/login`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -184,7 +231,7 @@ export const AuthApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    logoutApiAuthLogoutPost: async (
+    logout: async (
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/auth/logout`;
@@ -222,14 +269,10 @@ export const AuthApiAxiosParamCreator = function (
     /**
      *
      * @summary Me
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    meApiAuthMeGet: async (
-      authorization?: string | null,
-      options: RawAxiosRequestConfig = {}
-    ): Promise<RequestArgs> => {
+    me: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/auth/me`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -246,11 +289,12 @@ export const AuthApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -272,16 +316,12 @@ export const AuthApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    registerApiAuthRegisterPost: async (
+    register: async (
       registerRequest: RegisterRequest,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'registerRequest' is not null or undefined
-      assertParamExists(
-        "registerApiAuthRegisterPost",
-        "registerRequest",
-        registerRequest
-      );
+      assertParamExists("register", "registerRequest", registerRequest);
       const localVarPath = `/api/auth/register`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -331,27 +371,50 @@ export const AuthApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @summary Get Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getToken(
+      options?: RawAxiosRequestConfig
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getToken(options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["AuthApi.getToken"]?.[localVarOperationServerIndex]
+          ?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Login
      * @param {LoginRequest} loginRequest
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async loginApiAuthLoginPost(
+    async login(
       loginRequest: LoginRequest,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenResponse>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.loginApiAuthLoginPost(
-          loginRequest,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.login(
+        loginRequest,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.loginApiAuthLoginPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.login"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -366,18 +429,16 @@ export const AuthApiFp = function (configuration?: Configuration) {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async logoutApiAuthLogoutPost(
+    async logout(
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.logoutApiAuthLogoutPost(options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.logout(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.logoutApiAuthLogoutPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.logout"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -389,25 +450,18 @@ export const AuthApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Me
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async meApiAuthMeGet(
-      authorization?: string | null,
+    async me(
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.meApiAuthMeGet(
-        authorization,
-        options
-      );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.me(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.meApiAuthMeGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.me"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -423,22 +477,20 @@ export const AuthApiFp = function (configuration?: Configuration) {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async registerApiAuthRegisterPost(
+    async register(
       registerRequest: RegisterRequest,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenResponse>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.registerApiAuthRegisterPost(
-          registerRequest,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.register(
+        registerRequest,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.registerApiAuthRegisterPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.register"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -462,17 +514,28 @@ export const AuthApiFactory = function (
   return {
     /**
      *
+     * @summary Get Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getToken(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+      return localVarFp
+        .getToken(options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Login
      * @param {LoginRequest} loginRequest
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    loginApiAuthLoginPost(
+    login(
       loginRequest: LoginRequest,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<TokenResponse> {
       return localVarFp
-        .loginApiAuthLoginPost(loginRequest, options)
+        .login(loginRequest, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -481,27 +544,19 @@ export const AuthApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    logoutApiAuthLogoutPost(
-      options?: RawAxiosRequestConfig
-    ): AxiosPromise<any> {
+    logout(options?: RawAxiosRequestConfig): AxiosPromise<any> {
       return localVarFp
-        .logoutApiAuthLogoutPost(options)
+        .logout(options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Me
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    meApiAuthMeGet(
-      authorization?: string | null,
-      options?: RawAxiosRequestConfig
-    ): AxiosPromise<any> {
-      return localVarFp
-        .meApiAuthMeGet(authorization, options)
-        .then((request) => request(axios, basePath));
+    me(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+      return localVarFp.me(options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -510,12 +565,12 @@ export const AuthApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    registerApiAuthRegisterPost(
+    register(
       registerRequest: RegisterRequest,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<TokenResponse> {
       return localVarFp
-        .registerApiAuthRegisterPost(registerRequest, options)
+        .register(registerRequest, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -527,17 +582,26 @@ export const AuthApiFactory = function (
 export class AuthApi extends BaseAPI {
   /**
    *
+   * @summary Get Token
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  public getToken(options?: RawAxiosRequestConfig) {
+    return AuthApiFp(this.configuration)
+      .getToken(options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Login
    * @param {LoginRequest} loginRequest
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public loginApiAuthLoginPost(
-    loginRequest: LoginRequest,
-    options?: RawAxiosRequestConfig
-  ) {
+  public login(loginRequest: LoginRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
-      .loginApiAuthLoginPost(loginRequest, options)
+      .login(loginRequest, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -547,25 +611,21 @@ export class AuthApi extends BaseAPI {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public logoutApiAuthLogoutPost(options?: RawAxiosRequestConfig) {
+  public logout(options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
-      .logoutApiAuthLogoutPost(options)
+      .logout(options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @summary Me
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public meApiAuthMeGet(
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public me(options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
-      .meApiAuthMeGet(authorization, options)
+      .me(options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -576,12 +636,12 @@ export class AuthApi extends BaseAPI {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public registerApiAuthRegisterPost(
+  public register(
     registerRequest: RegisterRequest,
     options?: RawAxiosRequestConfig
   ) {
     return AuthApiFp(this.configuration)
-      .registerApiAuthRegisterPost(registerRequest, options)
+      .register(registerRequest, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -597,21 +657,15 @@ export const CalendarApiAxiosParamCreator = function (
      * Create a new calendar for the current user.
      * @summary Create Calendar
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createCalendarApiCalendarPost: async (
+    createCalendar: async (
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarCreate' is not null or undefined
-      assertParamExists(
-        "createCalendarApiCalendarPost",
-        "calendarCreate",
-        calendarCreate
-      );
+      assertParamExists("createCalendar", "calendarCreate", calendarCreate);
       const localVarPath = `/api/calendar`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -628,12 +682,13 @@ export const CalendarApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Content-Type"] = "application/json";
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -657,21 +712,15 @@ export const CalendarApiAxiosParamCreator = function (
      * Delete a calendar by ID.
      * @summary Delete Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteCalendarApiCalendarCalendarIdDelete: async (
+    deleteCalendar: async (
       calendarId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
-      assertParamExists(
-        "deleteCalendarApiCalendarCalendarIdDelete",
-        "calendarId",
-        calendarId
-      );
+      assertParamExists("deleteCalendar", "calendarId", calendarId);
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
         encodeURIComponent(String(calendarId))
@@ -691,11 +740,12 @@ export const CalendarApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -714,21 +764,15 @@ export const CalendarApiAxiosParamCreator = function (
      * Retrieve a calendar by ID.
      * @summary Get Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getCalendarApiCalendarCalendarIdGet: async (
+    getCalendar: async (
       calendarId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
-      assertParamExists(
-        "getCalendarApiCalendarCalendarIdGet",
-        "calendarId",
-        calendarId
-      );
+      assertParamExists("getCalendar", "calendarId", calendarId);
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
         encodeURIComponent(String(calendarId))
@@ -748,11 +792,12 @@ export const CalendarApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -770,12 +815,10 @@ export const CalendarApiAxiosParamCreator = function (
     /**
      * Retrieve all calendars for the current user.
      * @summary List Calendars
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listCalendarsApiCalendarGet: async (
-      authorization?: string | null,
+    listCalendars: async (
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/calendar`;
@@ -794,11 +837,12 @@ export const CalendarApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -818,28 +862,18 @@ export const CalendarApiAxiosParamCreator = function (
      * @summary Update Calendar
      * @param {string} calendarId
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateCalendarApiCalendarCalendarIdPut: async (
+    updateCalendar: async (
       calendarId: string,
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'calendarId' is not null or undefined
-      assertParamExists(
-        "updateCalendarApiCalendarCalendarIdPut",
-        "calendarId",
-        calendarId
-      );
+      assertParamExists("updateCalendar", "calendarId", calendarId);
       // verify required parameter 'calendarCreate' is not null or undefined
-      assertParamExists(
-        "updateCalendarApiCalendarCalendarIdPut",
-        "calendarCreate",
-        calendarCreate
-      );
+      assertParamExists("updateCalendar", "calendarCreate", calendarCreate);
       const localVarPath = `/api/calendar/{calendar_id}`.replace(
         `{${"calendar_id"}}`,
         encodeURIComponent(String(calendarId))
@@ -859,12 +893,13 @@ export const CalendarApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Content-Type"] = "application/json";
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -897,26 +932,22 @@ export const CalendarApiFp = function (configuration?: Configuration) {
      * Create a new calendar for the current user.
      * @summary Create Calendar
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async createCalendarApiCalendarPost(
+    async createCalendar(
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createCalendarApiCalendarPost(
-          calendarCreate,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createCalendar(
+        calendarCreate,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["CalendarApi.createCalendarApiCalendarPost"]?.[
+        operationServerMap["CalendarApi.createCalendar"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -931,28 +962,24 @@ export const CalendarApiFp = function (configuration?: Configuration) {
      * Delete a calendar by ID.
      * @summary Delete Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteCalendarApiCalendarCalendarIdDelete(
+    async deleteCalendar(
       calendarId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.deleteCalendarApiCalendarCalendarIdDelete(
-          calendarId,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCalendar(
+        calendarId,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarApi.deleteCalendarApiCalendarCalendarIdDelete"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarApi.deleteCalendar"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -965,26 +992,22 @@ export const CalendarApiFp = function (configuration?: Configuration) {
      * Retrieve a calendar by ID.
      * @summary Get Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async getCalendarApiCalendarCalendarIdGet(
+    async getCalendar(
       calendarId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getCalendarApiCalendarCalendarIdGet(
-          calendarId,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getCalendar(
+        calendarId,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["CalendarApi.getCalendarApiCalendarCalendarIdGet"]?.[
+        operationServerMap["CalendarApi.getCalendar"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -998,12 +1021,10 @@ export const CalendarApiFp = function (configuration?: Configuration) {
     /**
      * Retrieve all calendars for the current user.
      * @summary List Calendars
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async listCalendarsApiCalendarGet(
-      authorization?: string | null,
+    async listCalendars(
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -1012,13 +1033,10 @@ export const CalendarApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<Array<CalendarRead>>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.listCalendarsApiCalendarGet(
-          authorization,
-          options
-        );
+        await localVarAxiosParamCreator.listCalendars(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["CalendarApi.listCalendarsApiCalendarGet"]?.[
+        operationServerMap["CalendarApi.listCalendars"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -1034,30 +1052,26 @@ export const CalendarApiFp = function (configuration?: Configuration) {
      * @summary Update Calendar
      * @param {string} calendarId
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async updateCalendarApiCalendarCalendarIdPut(
+    async updateCalendar(
       calendarId: string,
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalendarRead>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.updateCalendarApiCalendarCalendarIdPut(
-          calendarId,
-          calendarCreate,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateCalendar(
+        calendarId,
+        calendarCreate,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarApi.updateCalendarApiCalendarCalendarIdPut"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarApi.updateCalendar"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1083,70 +1097,58 @@ export const CalendarApiFactory = function (
      * Create a new calendar for the current user.
      * @summary Create Calendar
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createCalendarApiCalendarPost(
+    createCalendar(
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
-        .createCalendarApiCalendarPost(calendarCreate, authorization, options)
+        .createCalendar(calendarCreate, options)
         .then((request) => request(axios, basePath));
     },
     /**
      * Delete a calendar by ID.
      * @summary Delete Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteCalendarApiCalendarCalendarIdDelete(
+    deleteCalendar(
       calendarId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteCalendarApiCalendarCalendarIdDelete(
-          calendarId,
-          authorization,
-          options
-        )
+        .deleteCalendar(calendarId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      * Retrieve a calendar by ID.
      * @summary Get Calendar
      * @param {string} calendarId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getCalendarApiCalendarCalendarIdGet(
+    getCalendar(
       calendarId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
-        .getCalendarApiCalendarCalendarIdGet(calendarId, authorization, options)
+        .getCalendar(calendarId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      * Retrieve all calendars for the current user.
      * @summary List Calendars
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listCalendarsApiCalendarGet(
-      authorization?: string | null,
+    listCalendars(
       options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<CalendarRead>> {
       return localVarFp
-        .listCalendarsApiCalendarGet(authorization, options)
+        .listCalendars(options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -1154,23 +1156,16 @@ export const CalendarApiFactory = function (
      * @summary Update Calendar
      * @param {string} calendarId
      * @param {CalendarCreate} calendarCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateCalendarApiCalendarCalendarIdPut(
+    updateCalendar(
       calendarId: string,
       calendarCreate: CalendarCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<CalendarRead> {
       return localVarFp
-        .updateCalendarApiCalendarCalendarIdPut(
-          calendarId,
-          calendarCreate,
-          authorization,
-          options
-        )
+        .updateCalendar(calendarId, calendarCreate, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -1184,17 +1179,15 @@ export class CalendarApi extends BaseAPI {
    * Create a new calendar for the current user.
    * @summary Create Calendar
    * @param {CalendarCreate} calendarCreate
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public createCalendarApiCalendarPost(
+  public createCalendar(
     calendarCreate: CalendarCreate,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
-      .createCalendarApiCalendarPost(calendarCreate, authorization, options)
+      .createCalendar(calendarCreate, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -1202,21 +1195,12 @@ export class CalendarApi extends BaseAPI {
    * Delete a calendar by ID.
    * @summary Delete Calendar
    * @param {string} calendarId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public deleteCalendarApiCalendarCalendarIdDelete(
-    calendarId: string,
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public deleteCalendar(calendarId: string, options?: RawAxiosRequestConfig) {
     return CalendarApiFp(this.configuration)
-      .deleteCalendarApiCalendarCalendarIdDelete(
-        calendarId,
-        authorization,
-        options
-      )
+      .deleteCalendar(calendarId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -1224,33 +1208,24 @@ export class CalendarApi extends BaseAPI {
    * Retrieve a calendar by ID.
    * @summary Get Calendar
    * @param {string} calendarId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public getCalendarApiCalendarCalendarIdGet(
-    calendarId: string,
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public getCalendar(calendarId: string, options?: RawAxiosRequestConfig) {
     return CalendarApiFp(this.configuration)
-      .getCalendarApiCalendarCalendarIdGet(calendarId, authorization, options)
+      .getCalendar(calendarId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    * Retrieve all calendars for the current user.
    * @summary List Calendars
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public listCalendarsApiCalendarGet(
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public listCalendars(options?: RawAxiosRequestConfig) {
     return CalendarApiFp(this.configuration)
-      .listCalendarsApiCalendarGet(authorization, options)
+      .listCalendars(options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -1259,23 +1234,16 @@ export class CalendarApi extends BaseAPI {
    * @summary Update Calendar
    * @param {string} calendarId
    * @param {CalendarCreate} calendarCreate
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public updateCalendarApiCalendarCalendarIdPut(
+  public updateCalendar(
     calendarId: string,
     calendarCreate: CalendarCreate,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarApiFp(this.configuration)
-      .updateCalendarApiCalendarCalendarIdPut(
-        calendarId,
-        calendarCreate,
-        authorization,
-        options
-      )
+      .updateCalendar(calendarId, calendarCreate, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -1292,28 +1260,18 @@ export const CalendarProfileApiAxiosParamCreator = function (
      * @summary Add Profile Source
      * @param {string} profileId
      * @param {SourceCreate} sourceCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    addProfileSourceApiProfileProfileIdSourcePost: async (
+    addProfileSource: async (
       profileId: string,
       sourceCreate: SourceCreate,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "addProfileSourceApiProfileProfileIdSourcePost",
-        "profileId",
-        profileId
-      );
+      assertParamExists("addProfileSource", "profileId", profileId);
       // verify required parameter 'sourceCreate' is not null or undefined
-      assertParamExists(
-        "addProfileSourceApiProfileProfileIdSourcePost",
-        "sourceCreate",
-        sourceCreate
-      );
+      assertParamExists("addProfileSource", "sourceCreate", sourceCreate);
       const localVarPath = `/api/profile/{profile_id}/source`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1333,12 +1291,13 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Content-Type"] = "application/json";
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1362,21 +1321,15 @@ export const CalendarProfileApiAxiosParamCreator = function (
      *
      * @summary Create Profile
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createProfileApiProfilePost: async (
+    createProfile: async (
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileCreate' is not null or undefined
-      assertParamExists(
-        "createProfileApiProfilePost",
-        "profileCreate",
-        profileCreate
-      );
+      assertParamExists("createProfile", "profileCreate", profileCreate);
       const localVarPath = `/api/profile`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1393,12 +1346,13 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Content-Type"] = "application/json";
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1422,21 +1376,15 @@ export const CalendarProfileApiAxiosParamCreator = function (
      *
      * @summary Delete Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteProfileApiProfileProfileIdDelete: async (
+    deleteProfile: async (
       profileId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "deleteProfileApiProfileProfileIdDelete",
-        "profileId",
-        profileId
-      );
+      assertParamExists("deleteProfile", "profileId", profileId);
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1456,11 +1404,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1480,28 +1429,18 @@ export const CalendarProfileApiAxiosParamCreator = function (
      * @summary Delete Profile Source
      * @param {string} profileId
      * @param {string} sourceId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete: async (
+    deleteProfileSource: async (
       profileId: string,
       sourceId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete",
-        "profileId",
-        profileId
-      );
+      assertParamExists("deleteProfileSource", "profileId", profileId);
       // verify required parameter 'sourceId' is not null or undefined
-      assertParamExists(
-        "deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete",
-        "sourceId",
-        sourceId
-      );
+      assertParamExists("deleteProfileSource", "sourceId", sourceId);
       const localVarPath = `/api/profile/{profile_id}/source/{source_id}`
         .replace(`{${"profile_id"}}`, encodeURIComponent(String(profileId)))
         .replace(`{${"source_id"}}`, encodeURIComponent(String(sourceId)));
@@ -1520,11 +1459,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1543,21 +1483,15 @@ export const CalendarProfileApiAxiosParamCreator = function (
      *
      * @summary Get Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getProfileApiProfileProfileIdGet: async (
+    getProfile: async (
       profileId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "getProfileApiProfileProfileIdGet",
-        "profileId",
-        profileId
-      );
+      assertParamExists("getProfile", "profileId", profileId);
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1577,11 +1511,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1600,21 +1535,15 @@ export const CalendarProfileApiAxiosParamCreator = function (
      *
      * @summary List Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listProfileSyncApiProfileProfileIdSourceGet: async (
+    listProfileSources: async (
       profileId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "listProfileSyncApiProfileProfileIdSourceGet",
-        "profileId",
-        profileId
-      );
+      assertParamExists("listProfileSources", "profileId", profileId);
       const localVarPath = `/api/profile/{profile_id}/source`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1634,11 +1563,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1656,12 +1586,10 @@ export const CalendarProfileApiAxiosParamCreator = function (
     /**
      *
      * @summary List Profiles
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listProfilesApiProfileGet: async (
-      authorization?: string | null,
+    listProfiles: async (
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/profile`;
@@ -1680,11 +1608,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1703,21 +1632,15 @@ export const CalendarProfileApiAxiosParamCreator = function (
      *
      * @summary Trigger Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    triggerProfileSyncApiProfileProfileIdSyncPost: async (
+    triggerProfileSync: async (
       profileId: string,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "triggerProfileSyncApiProfileProfileIdSyncPost",
-        "profileId",
-        profileId
-      );
+      assertParamExists("triggerProfileSync", "profileId", profileId);
       const localVarPath = `/api/profile/{profile_id}/sync`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1737,11 +1660,12 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1761,28 +1685,18 @@ export const CalendarProfileApiAxiosParamCreator = function (
      * @summary Update Profile
      * @param {string} profileId
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateProfileApiProfileProfileIdPut: async (
+    updateProfile: async (
       profileId: string,
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'profileId' is not null or undefined
-      assertParamExists(
-        "updateProfileApiProfileProfileIdPut",
-        "profileId",
-        profileId
-      );
+      assertParamExists("updateProfile", "profileId", profileId);
       // verify required parameter 'profileCreate' is not null or undefined
-      assertParamExists(
-        "updateProfileApiProfileProfileIdPut",
-        "profileCreate",
-        profileCreate
-      );
+      assertParamExists("updateProfile", "profileCreate", profileCreate);
       const localVarPath = `/api/profile/{profile_id}`.replace(
         `{${"profile_id"}}`,
         encodeURIComponent(String(profileId))
@@ -1802,12 +1716,13 @@ export const CalendarProfileApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication HTTPBearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter["Content-Type"] = "application/json";
       localVarHeaderParameter["Accept"] = "application/json";
 
-      if (authorization != null) {
-        localVarHeaderParameter["authorization"] = String(authorization);
-      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1842,30 +1757,27 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      * @summary Add Profile Source
      * @param {string} profileId
      * @param {SourceCreate} sourceCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async addProfileSourceApiProfileProfileIdSourcePost(
+    async addProfileSource(
       profileId: string,
       sourceCreate: SourceCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.addProfileSourceApiProfileProfileIdSourcePost(
+        await localVarAxiosParamCreator.addProfileSource(
           profileId,
           sourceCreate,
-          authorization,
           options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.addProfileSourceApiProfileProfileIdSourcePost"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.addProfileSource"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1878,13 +1790,11 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      *
      * @summary Create Profile
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async createProfileApiProfilePost(
+    async createProfile(
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -1892,15 +1802,13 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
         basePath?: string
       ) => AxiosPromise<ProfileReadShort>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createProfileApiProfilePost(
-          profileCreate,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createProfile(
+        profileCreate,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["CalendarProfileApi.createProfileApiProfilePost"]?.[
+        operationServerMap["CalendarProfileApi.createProfile"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -1915,28 +1823,24 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      *
      * @summary Delete Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteProfileApiProfileProfileIdDelete(
+    async deleteProfile(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.deleteProfileApiProfileProfileIdDelete(
-          profileId,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteProfile(
+        profileId,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.deleteProfileApiProfileProfileIdDelete"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.deleteProfile"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1950,30 +1854,27 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      * @summary Delete Profile Source
      * @param {string} profileId
      * @param {string} sourceId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+    async deleteProfileSource(
       profileId: string,
       sourceId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+        await localVarAxiosParamCreator.deleteProfileSource(
           profileId,
           sourceId,
-          authorization,
           options
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.deleteProfileSource"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1986,13 +1887,11 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      *
      * @summary Get Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async getProfileApiProfileProfileIdGet(
+    async getProfile(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -2000,17 +1899,15 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
         basePath?: string
       ) => AxiosPromise<ProfileReadFull>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getProfileApiProfileProfileIdGet(
-          profileId,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getProfile(
+        profileId,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.getProfileApiProfileProfileIdGet"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.getProfile"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2023,13 +1920,11 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      *
      * @summary List Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async listProfileSyncApiProfileProfileIdSourceGet(
+    async listProfileSources(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -2038,16 +1933,12 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<Array<SourceRead>>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.listProfileSyncApiProfileProfileIdSourceGet(
-          profileId,
-          authorization,
-          options
-        );
+        await localVarAxiosParamCreator.listProfileSources(profileId, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.listProfileSyncApiProfileProfileIdSourceGet"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.listProfileSources"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2059,12 +1950,10 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary List Profiles
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async listProfilesApiProfileGet(
-      authorization?: string | null,
+    async listProfiles(
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -2073,13 +1962,10 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<Array<ProfileReadShort>>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.listProfilesApiProfileGet(
-          authorization,
-          options
-        );
+        await localVarAxiosParamCreator.listProfiles(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["CalendarProfileApi.listProfilesApiProfileGet"]?.[
+        operationServerMap["CalendarProfileApi.listProfiles"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -2094,28 +1980,22 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      *
      * @summary Trigger Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async triggerProfileSyncApiProfileProfileIdSyncPost(
+    async triggerProfileSync(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.triggerProfileSyncApiProfileProfileIdSyncPost(
-          profileId,
-          authorization,
-          options
-        );
+        await localVarAxiosParamCreator.triggerProfileSync(profileId, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.triggerProfileSyncApiProfileProfileIdSyncPost"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.triggerProfileSync"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2129,14 +2009,12 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
      * @summary Update Profile
      * @param {string} profileId
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async updateProfileApiProfileProfileIdPut(
+    async updateProfile(
       profileId: string,
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): Promise<
       (
@@ -2144,18 +2022,16 @@ export const CalendarProfileApiFp = function (configuration?: Configuration) {
         basePath?: string
       ) => AxiosPromise<ProfileReadShort>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.updateProfileApiProfileProfileIdPut(
-          profileId,
-          profileCreate,
-          authorization,
-          options
-        );
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateProfile(
+        profileId,
+        profileCreate,
+        options
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap[
-          "CalendarProfileApi.updateProfileApiProfileProfileIdPut"
-        ]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["CalendarProfileApi.updateProfile"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2182,61 +2058,46 @@ export const CalendarProfileApiFactory = function (
      * @summary Add Profile Source
      * @param {string} profileId
      * @param {SourceCreate} sourceCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    addProfileSourceApiProfileProfileIdSourcePost(
+    addProfileSource(
       profileId: string,
       sourceCreate: SourceCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
-        .addProfileSourceApiProfileProfileIdSourcePost(
-          profileId,
-          sourceCreate,
-          authorization,
-          options
-        )
+        .addProfileSource(profileId, sourceCreate, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Create Profile
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createProfileApiProfilePost(
+    createProfile(
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadShort> {
       return localVarFp
-        .createProfileApiProfilePost(profileCreate, authorization, options)
+        .createProfile(profileCreate, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Delete Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteProfileApiProfileProfileIdDelete(
+    deleteProfile(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteProfileApiProfileProfileIdDelete(
-          profileId,
-          authorization,
-          options
-        )
+        .deleteProfile(profileId, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -2244,97 +2105,74 @@ export const CalendarProfileApiFactory = function (
      * @summary Delete Profile Source
      * @param {string} profileId
      * @param {string} sourceId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+    deleteProfileSource(
       profileId: string,
       sourceId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
-          profileId,
-          sourceId,
-          authorization,
-          options
-        )
+        .deleteProfileSource(profileId, sourceId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Get Profile
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getProfileApiProfileProfileIdGet(
+    getProfile(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadFull> {
       return localVarFp
-        .getProfileApiProfileProfileIdGet(profileId, authorization, options)
+        .getProfile(profileId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary List Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listProfileSyncApiProfileProfileIdSourceGet(
+    listProfileSources(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<SourceRead>> {
       return localVarFp
-        .listProfileSyncApiProfileProfileIdSourceGet(
-          profileId,
-          authorization,
-          options
-        )
+        .listProfileSources(profileId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary List Profiles
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    listProfilesApiProfileGet(
-      authorization?: string | null,
+    listProfiles(
       options?: RawAxiosRequestConfig
     ): AxiosPromise<Array<ProfileReadShort>> {
       return localVarFp
-        .listProfilesApiProfileGet(authorization, options)
+        .listProfiles(options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Trigger Profile Sync
      * @param {string} profileId
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    triggerProfileSyncApiProfileProfileIdSyncPost(
+    triggerProfileSync(
       profileId: string,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<any> {
       return localVarFp
-        .triggerProfileSyncApiProfileProfileIdSyncPost(
-          profileId,
-          authorization,
-          options
-        )
+        .triggerProfileSync(profileId, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -2342,23 +2180,16 @@ export const CalendarProfileApiFactory = function (
      * @summary Update Profile
      * @param {string} profileId
      * @param {ProfileCreate} profileCreate
-     * @param {string | null} [authorization]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateProfileApiProfileProfileIdPut(
+    updateProfile(
       profileId: string,
       profileCreate: ProfileCreate,
-      authorization?: string | null,
       options?: RawAxiosRequestConfig
     ): AxiosPromise<ProfileReadShort> {
       return localVarFp
-        .updateProfileApiProfileProfileIdPut(
-          profileId,
-          profileCreate,
-          authorization,
-          options
-        )
+        .updateProfile(profileId, profileCreate, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -2373,23 +2204,16 @@ export class CalendarProfileApi extends BaseAPI {
    * @summary Add Profile Source
    * @param {string} profileId
    * @param {SourceCreate} sourceCreate
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public addProfileSourceApiProfileProfileIdSourcePost(
+  public addProfileSource(
     profileId: string,
     sourceCreate: SourceCreate,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .addProfileSourceApiProfileProfileIdSourcePost(
-        profileId,
-        sourceCreate,
-        authorization,
-        options
-      )
+      .addProfileSource(profileId, sourceCreate, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2397,17 +2221,15 @@ export class CalendarProfileApi extends BaseAPI {
    *
    * @summary Create Profile
    * @param {ProfileCreate} profileCreate
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public createProfileApiProfilePost(
+  public createProfile(
     profileCreate: ProfileCreate,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .createProfileApiProfilePost(profileCreate, authorization, options)
+      .createProfile(profileCreate, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2415,17 +2237,12 @@ export class CalendarProfileApi extends BaseAPI {
    *
    * @summary Delete Profile
    * @param {string} profileId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public deleteProfileApiProfileProfileIdDelete(
-    profileId: string,
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public deleteProfile(profileId: string, options?: RawAxiosRequestConfig) {
     return CalendarProfileApiFp(this.configuration)
-      .deleteProfileApiProfileProfileIdDelete(profileId, authorization, options)
+      .deleteProfile(profileId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2434,23 +2251,16 @@ export class CalendarProfileApi extends BaseAPI {
    * @summary Delete Profile Source
    * @param {string} profileId
    * @param {string} sourceId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
+  public deleteProfileSource(
     profileId: string,
     sourceId: string,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
-        profileId,
-        sourceId,
-        authorization,
-        options
-      )
+      .deleteProfileSource(profileId, sourceId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2458,17 +2268,12 @@ export class CalendarProfileApi extends BaseAPI {
    *
    * @summary Get Profile
    * @param {string} profileId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public getProfileApiProfileProfileIdGet(
-    profileId: string,
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public getProfile(profileId: string, options?: RawAxiosRequestConfig) {
     return CalendarProfileApiFp(this.configuration)
-      .getProfileApiProfileProfileIdGet(profileId, authorization, options)
+      .getProfile(profileId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2476,37 +2281,27 @@ export class CalendarProfileApi extends BaseAPI {
    *
    * @summary List Profile Sync
    * @param {string} profileId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public listProfileSyncApiProfileProfileIdSourceGet(
+  public listProfileSources(
     profileId: string,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .listProfileSyncApiProfileProfileIdSourceGet(
-        profileId,
-        authorization,
-        options
-      )
+      .listProfileSources(profileId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @summary List Profiles
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public listProfilesApiProfileGet(
-    authorization?: string | null,
-    options?: RawAxiosRequestConfig
-  ) {
+  public listProfiles(options?: RawAxiosRequestConfig) {
     return CalendarProfileApiFp(this.configuration)
-      .listProfilesApiProfileGet(authorization, options)
+      .listProfiles(options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2514,21 +2309,15 @@ export class CalendarProfileApi extends BaseAPI {
    *
    * @summary Trigger Profile Sync
    * @param {string} profileId
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public triggerProfileSyncApiProfileProfileIdSyncPost(
+  public triggerProfileSync(
     profileId: string,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .triggerProfileSyncApiProfileProfileIdSyncPost(
-        profileId,
-        authorization,
-        options
-      )
+      .triggerProfileSync(profileId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2537,23 +2326,16 @@ export class CalendarProfileApi extends BaseAPI {
    * @summary Update Profile
    * @param {string} profileId
    * @param {ProfileCreate} profileCreate
-   * @param {string | null} [authorization]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public updateProfileApiProfileProfileIdPut(
+  public updateProfile(
     profileId: string,
     profileCreate: ProfileCreate,
-    authorization?: string | null,
     options?: RawAxiosRequestConfig
   ) {
     return CalendarProfileApiFp(this.configuration)
-      .updateProfileApiProfileProfileIdPut(
-        profileId,
-        profileCreate,
-        authorization,
-        options
-      )
+      .updateProfile(profileId, profileCreate, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -2571,7 +2353,7 @@ export const HealthApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    healthApiHealthGet: async (
+    health: async (
       options: RawAxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/health`;
@@ -2621,18 +2403,16 @@ export const HealthApiFp = function (configuration?: Configuration) {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async healthApiHealthGet(
+    async health(
       options?: RawAxiosRequestConfig
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.healthApiHealthGet(options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.health(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["HealthApi.healthApiHealthGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["HealthApi.health"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2660,9 +2440,9 @@ export const HealthApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    healthApiHealthGet(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+    health(options?: RawAxiosRequestConfig): AxiosPromise<any> {
       return localVarFp
-        .healthApiHealthGet(options)
+        .health(options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -2678,9 +2458,9 @@ export class HealthApi extends BaseAPI {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-  public healthApiHealthGet(options?: RawAxiosRequestConfig) {
+  public health(options?: RawAxiosRequestConfig) {
     return HealthApiFp(this.configuration)
-      .healthApiHealthGet(options)
+      .health(options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

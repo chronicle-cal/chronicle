@@ -2,21 +2,21 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                                                                                        | HTTP request                                            | Description           |
-| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------- |
-| [**addProfileSourceApiProfileProfileIdSourcePost**](#addprofilesourceapiprofileprofileidsourcepost)                           | **POST** /api/profile/{profile_id}/source               | Add Profile Source    |
-| [**createProfileApiProfilePost**](#createprofileapiprofilepost)                                                               | **POST** /api/profile                                   | Create Profile        |
-| [**deleteProfileApiProfileProfileIdDelete**](#deleteprofileapiprofileprofileiddelete)                                         | **DELETE** /api/profile/{profile_id}                    | Delete Profile        |
-| [**deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete**](#deleteprofilesourceapiprofileprofileidsourcesourceiddelete) | **DELETE** /api/profile/{profile_id}/source/{source_id} | Delete Profile Source |
-| [**getProfileApiProfileProfileIdGet**](#getprofileapiprofileprofileidget)                                                     | **GET** /api/profile/{profile_id}                       | Get Profile           |
-| [**listProfileSyncApiProfileProfileIdSourceGet**](#listprofilesyncapiprofileprofileidsourceget)                               | **GET** /api/profile/{profile_id}/source                | List Profile Sync     |
-| [**listProfilesApiProfileGet**](#listprofilesapiprofileget)                                                                   | **GET** /api/profile                                    | List Profiles         |
-| [**triggerProfileSyncApiProfileProfileIdSyncPost**](#triggerprofilesyncapiprofileprofileidsyncpost)                           | **POST** /api/profile/{profile_id}/sync                 | Trigger Profile Sync  |
-| [**updateProfileApiProfileProfileIdPut**](#updateprofileapiprofileprofileidput)                                               | **PUT** /api/profile/{profile_id}                       | Update Profile        |
+| Method                                          | HTTP request                                            | Description           |
+| ----------------------------------------------- | ------------------------------------------------------- | --------------------- |
+| [**addProfileSource**](#addprofilesource)       | **POST** /api/profile/{profile_id}/source               | Add Profile Source    |
+| [**createProfile**](#createprofile)             | **POST** /api/profile                                   | Create Profile        |
+| [**deleteProfile**](#deleteprofile)             | **DELETE** /api/profile/{profile_id}                    | Delete Profile        |
+| [**deleteProfileSource**](#deleteprofilesource) | **DELETE** /api/profile/{profile_id}/source/{source_id} | Delete Profile Source |
+| [**getProfile**](#getprofile)                   | **GET** /api/profile/{profile_id}                       | Get Profile           |
+| [**listProfileSources**](#listprofilesources)   | **GET** /api/profile/{profile_id}/source                | List Profile Sync     |
+| [**listProfiles**](#listprofiles)               | **GET** /api/profile                                    | List Profiles         |
+| [**triggerProfileSync**](#triggerprofilesync)   | **POST** /api/profile/{profile_id}/sync                 | Trigger Profile Sync  |
+| [**updateProfile**](#updateprofile)             | **PUT** /api/profile/{profile_id}                       | Update Profile        |
 
-# **addProfileSourceApiProfileProfileIdSourcePost**
+# **addProfileSource**
 
-> any addProfileSourceApiProfileProfileIdSourcePost(sourceCreate)
+> any addProfileSource(sourceCreate)
 
 ### Example
 
@@ -28,23 +28,19 @@ const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
 let sourceCreate: SourceCreate; //
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.addProfileSourceApiProfileProfileIdSourcePost(
-    profileId,
-    sourceCreate,
-    authorization
-  );
+const { status, data } = await apiInstance.addProfileSource(
+  profileId,
+  sourceCreate
+);
 ```
 
 ### Parameters
 
-| Name              | Type             | Description | Notes                            |
-| ----------------- | ---------------- | ----------- | -------------------------------- |
-| **sourceCreate**  | **SourceCreate** |             |                                  |
-| **profileId**     | [**string**]     |             | defaults to undefined            |
-| **authorization** | [**string**]     |             | (optional) defaults to undefined |
+| Name             | Type             | Description | Notes                 |
+| ---------------- | ---------------- | ----------- | --------------------- |
+| **sourceCreate** | **SourceCreate** |             |                       |
+| **profileId**    | [**string**]     |             | defaults to undefined |
 
 ### Return type
 
@@ -52,7 +48,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -64,13 +60,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **201**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createProfileApiProfilePost**
+# **createProfile**
 
-> ProfileReadShort createProfileApiProfilePost(profileCreate)
+> ProfileReadShort createProfile(profileCreate)
 
 ### Example
 
@@ -81,20 +79,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
 let profileCreate: ProfileCreate; //
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.createProfileApiProfilePost(
-  profileCreate,
-  authorization
-);
+const { status, data } = await apiInstance.createProfile(profileCreate);
 ```
 
 ### Parameters
 
-| Name              | Type              | Description | Notes                            |
-| ----------------- | ----------------- | ----------- | -------------------------------- |
-| **profileCreate** | **ProfileCreate** |             |                                  |
-| **authorization** | [**string**]      |             | (optional) defaults to undefined |
+| Name              | Type              | Description | Notes |
+| ----------------- | ----------------- | ----------- | ----- |
+| **profileCreate** | **ProfileCreate** |             |       |
 
 ### Return type
 
@@ -102,7 +95,7 @@ const { status, data } = await apiInstance.createProfileApiProfilePost(
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -114,13 +107,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **201**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteProfileApiProfileProfileIdDelete**
+# **deleteProfile**
 
-> deleteProfileApiProfileProfileIdDelete()
+> deleteProfile()
 
 ### Example
 
@@ -131,21 +126,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.deleteProfileApiProfileProfileIdDelete(
-    profileId,
-    authorization
-  );
+const { status, data } = await apiInstance.deleteProfile(profileId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **profileId**     | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name          | Type         | Description | Notes                 |
+| ------------- | ------------ | ----------- | --------------------- |
+| **profileId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -153,7 +142,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -165,13 +154,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **204**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete**
+# **deleteProfileSource**
 
-> deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete()
+> deleteProfileSource()
 
 ### Example
 
@@ -183,23 +174,19 @@ const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
 let sourceId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
-    profileId,
-    sourceId,
-    authorization
-  );
+const { status, data } = await apiInstance.deleteProfileSource(
+  profileId,
+  sourceId
+);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **profileId**     | [**string**] |             | defaults to undefined            |
-| **sourceId**      | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name          | Type         | Description | Notes                 |
+| ------------- | ------------ | ----------- | --------------------- |
+| **profileId** | [**string**] |             | defaults to undefined |
+| **sourceId**  | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -207,7 +194,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -219,13 +206,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **204**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getProfileApiProfileProfileIdGet**
+# **getProfile**
 
-> ProfileReadFull getProfileApiProfileProfileIdGet()
+> ProfileReadFull getProfile()
 
 ### Example
 
@@ -236,20 +225,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getProfileApiProfileProfileIdGet(
-  profileId,
-  authorization
-);
+const { status, data } = await apiInstance.getProfile(profileId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **profileId**     | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name          | Type         | Description | Notes                 |
+| ------------- | ------------ | ----------- | --------------------- |
+| **profileId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -257,7 +241,7 @@ const { status, data } = await apiInstance.getProfileApiProfileProfileIdGet(
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -269,13 +253,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listProfileSyncApiProfileProfileIdSourceGet**
+# **listProfileSources**
 
-> Array<SourceRead> listProfileSyncApiProfileProfileIdSourceGet()
+> Array<SourceRead> listProfileSources()
 
 ### Example
 
@@ -286,21 +272,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.listProfileSyncApiProfileProfileIdSourceGet(
-    profileId,
-    authorization
-  );
+const { status, data } = await apiInstance.listProfileSources(profileId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **profileId**     | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name          | Type         | Description | Notes                 |
+| ------------- | ------------ | ----------- | --------------------- |
+| **profileId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -308,7 +288,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -320,13 +300,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listProfilesApiProfileGet**
+# **listProfiles**
 
-> Array<ProfileReadShort> listProfilesApiProfileGet()
+> Array<ProfileReadShort> listProfiles()
 
 ### Example
 
@@ -336,17 +318,12 @@ import { CalendarProfileApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
-let authorization: string; // (optional) (default to undefined)
-
-const { status, data } =
-  await apiInstance.listProfilesApiProfileGet(authorization);
+const { status, data } = await apiInstance.listProfiles();
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -354,7 +331,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -366,13 +343,14 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
-| **422**     | Validation Error    | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **triggerProfileSyncApiProfileProfileIdSyncPost**
+# **triggerProfileSync**
 
-> any triggerProfileSyncApiProfileProfileIdSyncPost()
+> any triggerProfileSync()
 
 ### Example
 
@@ -383,21 +361,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.triggerProfileSyncApiProfileProfileIdSyncPost(
-    profileId,
-    authorization
-  );
+const { status, data } = await apiInstance.triggerProfileSync(profileId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **profileId**     | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name          | Type         | Description | Notes                 |
+| ------------- | ------------ | ----------- | --------------------- |
+| **profileId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -405,7 +377,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -417,13 +389,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **202**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateProfileApiProfileProfileIdPut**
+# **updateProfile**
 
-> ProfileReadShort updateProfileApiProfileProfileIdPut(profileCreate)
+> ProfileReadShort updateProfile(profileCreate)
 
 ### Example
 
@@ -435,22 +409,19 @@ const apiInstance = new CalendarProfileApi(configuration);
 
 let profileId: string; // (default to undefined)
 let profileCreate: ProfileCreate; //
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.updateProfileApiProfileProfileIdPut(
+const { status, data } = await apiInstance.updateProfile(
   profileId,
-  profileCreate,
-  authorization
+  profileCreate
 );
 ```
 
 ### Parameters
 
-| Name              | Type              | Description | Notes                            |
-| ----------------- | ----------------- | ----------- | -------------------------------- |
-| **profileCreate** | **ProfileCreate** |             |                                  |
-| **profileId**     | [**string**]      |             | defaults to undefined            |
-| **authorization** | [**string**]      |             | (optional) defaults to undefined |
+| Name              | Type              | Description | Notes                 |
+| ----------------- | ----------------- | ----------- | --------------------- |
+| **profileCreate** | **ProfileCreate** |             |                       |
+| **profileId**     | [**string**]      |             | defaults to undefined |
 
 ### Return type
 
@@ -458,7 +429,7 @@ const { status, data } = await apiInstance.updateProfileApiProfileProfileIdPut(
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -470,6 +441,8 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -2,13 +2,13 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                        | HTTP request        | Description |
-| --------------------------------------------- | ------------------- | ----------- |
-| [**healthApiHealthGet**](#healthapihealthget) | **GET** /api/health | Health      |
+| Method                | HTTP request        | Description |
+| --------------------- | ------------------- | ----------- |
+| [**health**](#health) | **GET** /api/health | Health      |
 
-# **healthApiHealthGet**
+# **health**
 
-> any healthApiHealthGet()
+> any health()
 
 ### Example
 
@@ -18,7 +18,7 @@ import { HealthApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new HealthApi(configuration);
 
-const { status, data } = await apiInstance.healthApiHealthGet();
+const { status, data } = await apiInstance.health();
 ```
 
 ### Parameters

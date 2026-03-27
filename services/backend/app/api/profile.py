@@ -21,6 +21,7 @@ from app.schemas.integration import (
     SourceCreate,
 )
 from app.core.sync_config_helper import profile_to_shared_profile
+from app.core.auth import auth_responses
 
 ROUTING_KEY = "sync_queue"
 
@@ -36,7 +37,7 @@ async def _get_profile_or_404(
             CalendarProfile.user_id == current_user.id,
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
@@ -56,7 +57,7 @@ async def _get_source_or_404(
             CalendarProfile.user_id == user.id,
         )
     )
-    source = result.scalar_one_or_none()
+    source = result.unique().scalar_one_or_none()
     if not source:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Source not found"
@@ -64,10 +65,12 @@ async def _get_source_or_404(
     return source
 
 
-profile_router = APIRouter()
+profile_router = APIRouter(responses=auth_responses)
 
 
-@profile_router.get("", response_model=list[ProfileReadShort])
+@profile_router.get(
+    "", response_model=list[ProfileReadShort], operation_id="list_profiles"
+)
 async def list_profiles(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db),
@@ -81,7 +84,9 @@ async def list_profiles(
     return profiles
 
 
-@profile_router.get("/{profile_id}", response_model=ProfileReadFull)
+@profile_router.get(
+    "/{profile_id}", response_model=ProfileReadFull, operation_id="get_profile"
+)
 async def get_profile(
     profile_id: str,
     user: User = Depends(get_current_user),
@@ -92,12 +97,15 @@ async def get_profile(
         .options(selectinload(CalendarProfile.calendar_sources))
         .where(CalendarProfile.id == profile_id, CalendarProfile.user_id == user.id)
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     return profile
 
 
 @profile_router.post(
-    "", response_model=ProfileReadShort, status_code=status.HTTP_201_CREATED
+    "",
+    response_model=ProfileReadShort,
+    status_code=status.HTTP_201_CREATED,
+    operation_id="create_profile",
 )
 async def create_profile(
     profile_data: ProfileCreate,
@@ -116,7 +124,11 @@ async def create_profile(
     return new_profile
 
 
-@profile_router.delete("/{profile_id}", status_code=status.HTTP_204_NO_CONTENT)
+@profile_router.delete(
+    "/{profile_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    operation_id="delete_profile",
+)
 async def delete_profile(
     profile_id: str,
     current_user: User = Depends(get_current_user),
@@ -127,7 +139,7 @@ async def delete_profile(
             CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
@@ -138,7 +150,9 @@ async def delete_profile(
     return
 
 
-@profile_router.put("/{profile_id}", response_model=ProfileReadShort)
+@profile_router.put(
+    "/{profile_id}", response_model=ProfileReadShort, operation_id="update_profile"
+)
 async def update_profile(
     profile_id: str,
     profile_data: ProfileCreate,
@@ -150,7 +164,7 @@ async def update_profile(
             CalendarProfile.id == profile_id, CalendarProfile.user_id == current_user.id
         )
     )
-    profile = result.scalar_one_or_none()
+    profile = result.unique().scalar_one_or_none()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found"
@@ -162,7 +176,11 @@ async def update_profile(
     return profile
 
 
-@profile_router.get("/{profile_id}/source", response_model=list[SourceRead])
+@profile_router.get(
+    "/{profile_id}/source",
+    response_model=list[SourceRead],
+    operation_id="list_profile_sources",
+)
 async def list_profile_sync(
     profile_id: str,
     current_user: User = Depends(get_current_user),
@@ -173,7 +191,11 @@ async def list_profile_sync(
     return profile.calendar_sources
 
 
-@profile_router.post("/{profile_id}/source", status_code=status.HTTP_201_CREATED)
+@profile_router.post(
+    "/{profile_id}/source",
+    status_code=status.HTTP_201_CREATED,
+    operation_id="add_profile_source",
+)
 async def add_profile_source(
     profile_id: str,
     source_data: SourceCreate,
@@ -196,7 +218,9 @@ async def add_profile_source(
 
 
 @profile_router.delete(
-    "/{profile_id}/source/{source_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/{profile_id}/source/{source_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    operation_id="delete_profile_source",
 )
 async def delete_profile_source(
     profile_id: str,
@@ -211,7 +235,11 @@ async def delete_profile_source(
     return
 
 
-@profile_router.post("/{profile_id}/sync", status_code=status.HTTP_202_ACCEPTED)
+@profile_router.post(
+    "/{profile_id}/sync",
+    status_code=status.HTTP_202_ACCEPTED,
+    operation_id="trigger_profile_sync",
+)
 async def trigger_profile_sync(
     profile_id: str,
     current_user: User = Depends(get_current_user),

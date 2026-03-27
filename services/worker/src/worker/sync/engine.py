@@ -63,7 +63,7 @@ class SyncEngine:
         )
         self.sources: list[tuple[BaseSource, Source]] = []
         for source in config.sources:
-            if source.calendar.type == "ics":
+            if source.calendar.type == "ical":
                 self.sources.append((IcsSource(source.calendar.url), source))
                 logging.info(f"Added ICS source: {source.calendar.url}")
             else:
@@ -144,3 +144,19 @@ class SyncEngine:
                             f"Deleting event UID={uid} not found in source {source_config.id}"
                         )
                         self.target.delete(dest["href"])
+        logging.info("Sync run complete.")
+
+        source_ids = [source_model.id for _, source_model in self.sources]
+
+        # Delete all the events with the source ID that are not in the source anymore
+        dest_index = self.target.build_index()
+        for uid, dest in dest_index.items():
+            logging.debug(f"Final check for destination event UID={uid} for deletion")
+            raw_event = self.target.calendar.event_by_url(dest["href"]).component
+            source_id = str(raw_event.get("X-CHRONICLE-SOURCE", ""))
+            # If the source ID is not in any of the current sources
+            if source_id and source_id not in source_ids:
+                logging.info(
+                    f"Deleting event UID={uid} with source ID {source_id} that is not in any current sources"
+                )
+                self.target.delete(dest["href"])

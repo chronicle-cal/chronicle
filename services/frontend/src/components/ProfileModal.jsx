@@ -134,7 +134,8 @@ export default function ProfileModal({
               <option value="new">+ Create New Calendar</option>
             </select>
             <p className="subtle">
-              Only CalDAV calendars can be used as a profile's main calendar.
+              Only CalDAV calendars can be used as a profile&apos;s main
+              calendar.
             </p>
             {mainCalendarOptions.length === 0 && (
               <p className="subtle">

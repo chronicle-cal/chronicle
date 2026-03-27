@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
@@ -95,8 +95,8 @@ export default function CalendarProfiles() {
       setLoading(true);
 
       const [profilesResponse, calendarsResponse] = await Promise.all([
-        profileApi.listProfilesApiProfileGet(),
-        calendarApi.listCalendarsApiCalendarGet(),
+        profileApi.listProfiles(),
+        calendarApi.listCalendars(),
       ]);
 
       const loadedProfiles = profilesResponse.data;
@@ -107,10 +107,7 @@ export default function CalendarProfiles() {
 
       const sourceEntries = await Promise.all(
         loadedProfiles.map(async (profile) => {
-          const response =
-            await profileApi.listProfileSyncApiProfileProfileIdSourceGet(
-              profile.id
-            );
+          const response = await profileApi.listProfileSources(profile.id);
           return [profile.id, response.data];
         })
       );
@@ -136,7 +133,7 @@ export default function CalendarProfiles() {
     if (!confirmed) return;
 
     try {
-      await profileApi.deleteProfileApiProfileProfileIdDelete(id);
+      await profileApi.deleteProfile(id);
 
       setProfiles((current) => current.filter((item) => item.id !== id));
 
@@ -181,13 +178,10 @@ export default function CalendarProfiles() {
 
     try {
       if (editingProfile) {
-        const response = await profileApi.updateProfileApiProfileProfileIdPut(
-          editingProfile.id,
-          {
-            name: payload.name.trim(),
-            main_calendar_id: payload.main_calendar_id,
-          }
-        );
+        const response = await profileApi.updateProfile(editingProfile.id, {
+          name: payload.name.trim(),
+          main_calendar_id: payload.main_calendar_id,
+        });
 
         setProfiles((current) =>
           current.map((p) =>
@@ -196,7 +190,7 @@ export default function CalendarProfiles() {
         );
         addFlash("success", "Profile updated");
       } else {
-        const response = await profileApi.createProfileApiProfilePost({
+        const response = await profileApi.createProfile({
           name: payload.name.trim(),
           main_calendar_id: payload.main_calendar_id,
         });
@@ -229,13 +223,9 @@ export default function CalendarProfiles() {
     }
 
     try {
-      await profileApi.addProfileSourceApiProfileProfileIdSourcePost(
-        profileId,
-        { calendar_id: calendarId }
-      );
+      await profileApi.addProfileSource(profileId, { calendar_id: calendarId });
 
-      const response =
-        await profileApi.listProfileSyncApiProfileProfileIdSourceGet(profileId);
+      const response = await profileApi.listProfileSources(profileId);
 
       setSourcesByProfile((current) => ({
         ...current,
@@ -262,10 +252,7 @@ export default function CalendarProfiles() {
     if (!confirmed) return;
 
     try {
-      await profileApi.deleteProfileSourceApiProfileProfileIdSourceSourceIdDelete(
-        profileId,
-        sourceId
-      );
+      await profileApi.deleteProfileSource(profileId, sourceId);
 
       setSourcesByProfile((current) => ({
         ...current,
@@ -286,7 +273,7 @@ export default function CalendarProfiles() {
 
   async function handleCalendarModalSave(payload) {
     try {
-      const response = await calendarApi.createCalendarApiCalendarPost(payload);
+      const response = await calendarApi.createCalendar(payload);
       const newCalendar = response.data;
 
       setCalendars((current) => [...current, newCalendar]);
@@ -310,7 +297,7 @@ export default function CalendarProfiles() {
 
   async function handleTriggerSync(profileId) {
     try {
-      await profileApi.triggerProfileSyncApiProfileProfileIdSyncPost(profileId);
+      await profileApi.triggerProfileSync(profileId);
       addFlash("success", "Profile sync triggered");
     } catch (error) {
       const message =

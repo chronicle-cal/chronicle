@@ -2,12 +2,12 @@
 
 ## Properties
 
-| Name          | Type       | Description | Notes                  |
-| ------------- | ---------- | ----------- | ---------------------- |
-| **id**        | **number** |             | [default to undefined] |
-| **rule_id**   | **number** |             | [default to undefined] |
-| **name**      | **string** |             | [default to undefined] |
-| **arguments** | **object** |             | [default to undefined] |
+| Name          | Type                        | Description | Notes                  |
+| ------------- | --------------------------- | ----------- | ---------------------- |
+| **id**        | **number**                  |             | [default to undefined] |
+| **rule_id**   | **number**                  |             | [default to undefined] |
+| **name**      | **string**                  |             | [default to undefined] |
+| **arguments** | **{ [key: string]: any; }** |             | [default to undefined] |
 
 ## Example
 

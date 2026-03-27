@@ -1,12 +1,12 @@
-#!/usr/bin/env python
 import pika
 import sys
 import os
-import json
 import logging
 import time
 import signal
+import pydantic
 from worker import actions
+from worker.models import Message
 
 # Configure logging
 logging.basicConfig(
@@ -60,14 +60,17 @@ def start():
 
     def callback(ch, method, properties, body):
         try:
-            msg = json.loads(body)
-            action_type = msg.get("type")
+            message = Message.model_validate_json(body)  # Validate message format
+            action_type = message.type
             action = ACTIONS.get(action_type)
             if action:
-                run_action(action, msg.get("payload"))
+                run_action(action, message.payload)
             else:
                 logging.warning(f"Unknown action type: {action_type}")
             ch.basic_ack(delivery_tag=method.delivery_tag)
+        except pydantic.ValidationError as ve:
+            logging.error(f"Message validation failed: {ve}")
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         except Exception as e:
             logging.error(f"Failed to process message: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
