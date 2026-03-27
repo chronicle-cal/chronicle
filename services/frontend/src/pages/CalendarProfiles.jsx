@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Plus } from "react-feather";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
@@ -322,7 +323,8 @@ export default function CalendarProfiles() {
           </p>
         </div>
         <button className="btn btn-primary" onClick={openCreateProfileModal}>
-          + Create Profile
+          <Plus className="btn-icon" aria-hidden="true" />
+          Create Profile
         </button>
       </div>
       <div className="spacer" />

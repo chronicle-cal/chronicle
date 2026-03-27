@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import {
-  CalendarDaysIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  FlagIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { Calendar, Clock, FileText, Flag, Plus } from "react-feather";
 
 function toIsoDateTime(value) {
   if (!value) return null;
@@ -56,7 +50,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
     <form className="tasks-create-form" onSubmit={handleSubmit}>
       <div className="tasks-create-row">
         <div className="input-with-icon">
-          <DocumentTextIcon className="field-icon" aria-hidden="true" />
+          <FileText className="field-icon" aria-hidden="true" />
           <input
             type="text"
             placeholder="Add a task"
@@ -71,14 +65,14 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
           className="btn btn-primary task-add-btn"
           disabled={isSubmitting || !title.trim()}
         >
-          <PlusIcon className="btn-icon" aria-hidden="true" />
+          <Plus className="btn-icon" aria-hidden="true" />
           {isSubmitting ? "Adding..." : "Add"}
         </button>
       </div>
 
       <div className="tasks-fields-grid">
         <div className="input-with-icon">
-          <DocumentTextIcon className="field-icon" aria-hidden="true" />
+          <FileText className="field-icon" aria-hidden="true" />
           <input
             type="text"
             placeholder="Description"
@@ -89,7 +83,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
           />
         </div>
         <div className="input-with-icon">
-          <ClockIcon className="field-icon" aria-hidden="true" />
+          <Clock className="field-icon" aria-hidden="true" />
           <input
             type="number"
             min="1"
@@ -102,7 +96,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
           />
         </div>
         <div className="input-with-icon">
-          <FlagIcon className="field-icon" aria-hidden="true" />
+          <Flag className="field-icon" aria-hidden="true" />
           <input
             type="number"
             min="1"
@@ -115,7 +109,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
           />
         </div>
         <div className="input-with-icon">
-          <CalendarDaysIcon className="field-icon" aria-hidden="true" />
+          <Calendar className="field-icon" aria-hidden="true" />
           <input
             type="datetime-local"
             value={dueDate}
