@@ -10,18 +10,10 @@ To run the worker service locally, you can use the following command:
 uv run worker
 ```
 
-Make sure to create a `.env` file in the `services/worker` directory with the following content:
-
-```env
-RABBITMQ_URL=amqp://localhost
-RABBITMQ_QUEUE=task_queue
-RABBITMQ_PREFETCH_COUNT=1
-```
-
-and of course a RabbitMQ instance running locally. You can use Docker to run RabbitMQ:
+Make sure to set the `RABBITMQ_URL` variable in the `.env` file in the root directory with the following content, and of course to have a RabbitMQ instance running locally. You can use Docker to run RabbitMQ:
 
 ```bash
-docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:4-management
 ```
 
 ## Testing
