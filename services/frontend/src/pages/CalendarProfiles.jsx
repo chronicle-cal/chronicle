@@ -252,7 +252,7 @@ export default function CalendarProfiles() {
     if (!confirmed) return;
 
     try {
-      await profileApi.deleteProfile(profileId, sourceId);
+      await profileApi.deleteProfileSource(profileId, sourceId);
 
       setSourcesByProfile((current) => ({
         ...current,
