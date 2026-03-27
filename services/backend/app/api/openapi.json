@@ -1,1 +1,927 @@
-{"openapi": "3.1.0", "info": {"title": "Chronicle API", "version": "0.1.0"}, "paths": {"/api/health": {"get": {"tags": ["health"], "summary": "Health", "operationId": "health_api_health_get", "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}}}}, "/api/auth/register": {"post": {"tags": ["auth"], "summary": "Register", "operationId": "register_api_auth_register_post", "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/RegisterRequest"}}}, "required": true}, "responses": {"201": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/TokenResponse"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/auth/login": {"post": {"tags": ["auth"], "summary": "Login", "operationId": "login_api_auth_login_post", "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/LoginRequest"}}}, "required": true}, "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/TokenResponse"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/auth/logout": {"post": {"tags": ["auth"], "summary": "Logout", "operationId": "logout_api_auth_logout_post", "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}}}}, "/api/auth/me": {"get": {"tags": ["auth"], "summary": "Me", "operationId": "me_api_auth_me_get", "parameters": [{"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/profile": {"get": {"tags": ["calendar-profile"], "summary": "List Profiles", "operationId": "list_profiles_api_profile_get", "parameters": [{"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/ProfileReadShort"}, "title": "Response List Profiles Api Profile Get"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "post": {"tags": ["calendar-profile"], "summary": "Create Profile", "operationId": "create_profile_api_profile_post", "parameters": [{"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProfileCreate"}}}}, "responses": {"201": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProfileReadShort"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/profile/{profile_id}": {"get": {"tags": ["calendar-profile"], "summary": "Get Profile", "operationId": "get_profile_api_profile__profile_id__get", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProfileReadFull"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "delete": {"tags": ["calendar-profile"], "summary": "Delete Profile", "operationId": "delete_profile_api_profile__profile_id__delete", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"204": {"description": "Successful Response"}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "put": {"tags": ["calendar-profile"], "summary": "Update Profile", "operationId": "update_profile_api_profile__profile_id__put", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProfileCreate"}}}}, "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProfileReadShort"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/profile/{profile_id}/source": {"get": {"tags": ["calendar-profile"], "summary": "List Profile Sync", "operationId": "list_profile_sync_api_profile__profile_id__source_get", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/SourceRead"}, "title": "Response List Profile Sync Api Profile  Profile Id  Source Get"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "post": {"tags": ["calendar-profile"], "summary": "Add Profile Source", "operationId": "add_profile_source_api_profile__profile_id__source_post", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SourceCreate"}}}}, "responses": {"201": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/profile/{profile_id}/source/{source_id}": {"delete": {"tags": ["calendar-profile"], "summary": "Delete Profile Source", "operationId": "delete_profile_source_api_profile__profile_id__source__source_id__delete", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "source_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Source Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"204": {"description": "Successful Response"}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/profile/{profile_id}/sync": {"post": {"tags": ["calendar-profile"], "summary": "Trigger Profile Sync", "operationId": "trigger_profile_sync_api_profile__profile_id__sync_post", "parameters": [{"name": "profile_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Profile Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"202": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/calendar": {"get": {"tags": ["calendar"], "summary": "List Calendars", "description": "Retrieve all calendars for the current user.", "operationId": "list_calendars_api_calendar_get", "parameters": [{"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/CalendarRead"}, "title": "Response List Calendars Api Calendar Get"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "post": {"tags": ["calendar"], "summary": "Create Calendar", "description": "Create a new calendar for the current user.", "operationId": "create_calendar_api_calendar_post", "parameters": [{"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CalendarCreate"}}}}, "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CalendarRead"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}, "/api/calendar/{calendar_id}": {"delete": {"tags": ["calendar"], "summary": "Delete Calendar", "description": "Delete a calendar by ID.", "operationId": "delete_calendar_api_calendar__calendar_id__delete", "parameters": [{"name": "calendar_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Calendar Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"204": {"description": "Successful Response"}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "get": {"tags": ["calendar"], "summary": "Get Calendar", "description": "Retrieve a calendar by ID.", "operationId": "get_calendar_api_calendar__calendar_id__get", "parameters": [{"name": "calendar_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Calendar Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CalendarRead"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}, "put": {"tags": ["calendar"], "summary": "Update Calendar", "description": "Update a calendar by ID.", "operationId": "update_calendar_api_calendar__calendar_id__put", "parameters": [{"name": "calendar_id", "in": "path", "required": true, "schema": {"type": "string", "title": "Calendar Id"}}, {"name": "authorization", "in": "header", "required": false, "schema": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Authorization"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CalendarCreate"}}}}, "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CalendarRead"}}}}, "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}}}}}, "components": {"schemas": {"Action": {"properties": {"id": {"type": "integer", "title": "Id"}, "rule_id": {"type": "integer", "title": "Rule Id"}, "name": {"type": "string", "title": "Name"}, "arguments": {"type": "object", "title": "Arguments"}}, "type": "object", "required": ["id", "rule_id", "name", "arguments"], "title": "Action"}, "CalendarCreate": {"properties": {"type": {"type": "string", "title": "Type"}, "url": {"type": "string", "title": "Url"}, "username": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Username"}, "password": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Password"}}, "type": "object", "required": ["type", "url"], "title": "CalendarCreate"}, "CalendarRead": {"properties": {"id": {"type": "string", "title": "Id"}, "type": {"type": "string", "title": "Type"}, "url": {"type": "string", "title": "Url"}, "username": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Username"}, "password": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Password"}}, "type": "object", "required": ["id", "type", "url", "username", "password"], "title": "CalendarRead"}, "Condition": {"properties": {"id": {"type": "integer", "title": "Id"}, "rule_id": {"type": "integer", "title": "Rule Id"}, "field": {"type": "string", "title": "Field"}, "operator": {"type": "string", "title": "Operator"}, "value": {"type": "string", "title": "Value"}}, "type": "object", "required": ["id", "rule_id", "field", "operator", "value"], "title": "Condition"}, "HTTPValidationError": {"properties": {"detail": {"items": {"$ref": "#/components/schemas/ValidationError"}, "type": "array", "title": "Detail"}}, "type": "object", "title": "HTTPValidationError"}, "LoginRequest": {"properties": {"email": {"type": "string", "format": "email", "title": "Email"}, "password": {"type": "string", "maxLength": 128, "minLength": 8, "title": "Password"}}, "type": "object", "required": ["email", "password"], "title": "LoginRequest"}, "ProfileCreate": {"properties": {"name": {"type": "string", "title": "Name"}, "main_calendar_id": {"type": "string", "title": "Main Calendar Id"}}, "type": "object", "required": ["name", "main_calendar_id"], "title": "ProfileCreate"}, "ProfileReadFull": {"properties": {"id": {"type": "string", "title": "Id"}, "name": {"type": "string", "title": "Name"}, "main_calendar_id": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Main Calendar Id"}, "main_calendar": {"anyOf": [{"$ref": "#/components/schemas/CalendarRead"}, {"type": "null"}]}, "rules": {"items": {"$ref": "#/components/schemas/Rule"}, "type": "array", "title": "Rules"}}, "type": "object", "required": ["id", "name", "main_calendar_id", "main_calendar"], "title": "ProfileReadFull"}, "ProfileReadShort": {"properties": {"id": {"type": "string", "title": "Id"}, "name": {"type": "string", "title": "Name"}, "main_calendar_id": {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Main Calendar Id"}}, "type": "object", "required": ["id", "name", "main_calendar_id"], "title": "ProfileReadShort"}, "RegisterRequest": {"properties": {"email": {"type": "string", "format": "email", "title": "Email"}, "password": {"type": "string", "maxLength": 128, "minLength": 8, "title": "Password"}}, "type": "object", "required": ["email", "password"], "title": "RegisterRequest"}, "Rule": {"properties": {"id": {"type": "integer", "title": "Id"}, "source_id": {"type": "string", "title": "Source Id"}, "enabled": {"type": "boolean", "title": "Enabled"}, "name": {"type": "string", "title": "Name"}, "conditions": {"items": {"$ref": "#/components/schemas/Condition"}, "type": "array", "title": "Conditions"}, "actions": {"items": {"$ref": "#/components/schemas/Action"}, "type": "array", "title": "Actions"}}, "type": "object", "required": ["id", "source_id", "enabled", "name"], "title": "Rule"}, "SourceCreate": {"properties": {"calendar_id": {"type": "string", "title": "Calendar Id"}}, "type": "object", "required": ["calendar_id"], "title": "SourceCreate"}, "SourceRead": {"properties": {"id": {"type": "string", "title": "Id"}, "calendar_id": {"type": "string", "title": "Calendar Id"}, "calendar": {"$ref": "#/components/schemas/CalendarRead"}}, "type": "object", "required": ["id", "calendar_id", "calendar"], "title": "SourceRead"}, "TokenResponse": {"properties": {"access_token": {"type": "string", "title": "Access Token"}, "token_type": {"type": "string", "title": "Token Type", "default": "bearer"}}, "type": "object", "required": ["access_token"], "title": "TokenResponse"}, "ValidationError": {"properties": {"loc": {"items": {"anyOf": [{"type": "string"}, {"type": "integer"}]}, "type": "array", "title": "Location"}, "msg": {"type": "string", "title": "Message"}, "type": {"type": "string", "title": "Error Type"}}, "type": "object", "required": ["loc", "msg", "type"], "title": "ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Chronicle API", "version": "0.1.0" },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register",
+        "operationId": "register_api_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TokenResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "operationId": "login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TokenResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Logout",
+        "operationId": "logout_api_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Me",
+        "operationId": "me_api_auth_me_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "tags": ["calendar-profile"],
+        "summary": "List Profiles",
+        "operationId": "list_profiles_api_profile_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProfileReadShort" },
+                  "title": "Response List Profiles Api Profile Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["calendar-profile"],
+        "summary": "Create Profile",
+        "operationId": "create_profile_api_profile_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProfileCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfileReadShort" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/{profile_id}": {
+      "get": {
+        "tags": ["calendar-profile"],
+        "summary": "Get Profile",
+        "operationId": "get_profile_api_profile__profile_id__get",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfileReadFull" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["calendar-profile"],
+        "summary": "Delete Profile",
+        "operationId": "delete_profile_api_profile__profile_id__delete",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Successful Response" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["calendar-profile"],
+        "summary": "Update Profile",
+        "operationId": "update_profile_api_profile__profile_id__put",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProfileCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfileReadShort" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/{profile_id}/source": {
+      "get": {
+        "tags": ["calendar-profile"],
+        "summary": "List Profile Sync",
+        "operationId": "list_profile_sync_api_profile__profile_id__source_get",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/SourceRead" },
+                  "title": "Response List Profile Sync Api Profile  Profile Id  Source Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["calendar-profile"],
+        "summary": "Add Profile Source",
+        "operationId": "add_profile_source_api_profile__profile_id__source_post",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SourceCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/{profile_id}/source/{source_id}": {
+      "delete": {
+        "tags": ["calendar-profile"],
+        "summary": "Delete Profile Source",
+        "operationId": "delete_profile_source_api_profile__profile_id__source__source_id__delete",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Source Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Successful Response" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/{profile_id}/sync": {
+      "post": {
+        "tags": ["calendar-profile"],
+        "summary": "Trigger Profile Sync",
+        "operationId": "trigger_profile_sync_api_profile__profile_id__sync_post",
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Profile Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar": {
+      "get": {
+        "tags": ["calendar"],
+        "summary": "List Calendars",
+        "description": "Retrieve all calendars for the current user.",
+        "operationId": "list_calendars_api_calendar_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CalendarRead" },
+                  "title": "Response List Calendars Api Calendar Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["calendar"],
+        "summary": "Create Calendar",
+        "description": "Create a new calendar for the current user.",
+        "operationId": "create_calendar_api_calendar_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CalendarCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarRead" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/{calendar_id}": {
+      "delete": {
+        "tags": ["calendar"],
+        "summary": "Delete Calendar",
+        "description": "Delete a calendar by ID.",
+        "operationId": "delete_calendar_api_calendar__calendar_id__delete",
+        "parameters": [
+          {
+            "name": "calendar_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Calendar Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Successful Response" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["calendar"],
+        "summary": "Get Calendar",
+        "description": "Retrieve a calendar by ID.",
+        "operationId": "get_calendar_api_calendar__calendar_id__get",
+        "parameters": [
+          {
+            "name": "calendar_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Calendar Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarRead" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["calendar"],
+        "summary": "Update Calendar",
+        "description": "Update a calendar by ID.",
+        "operationId": "update_calendar_api_calendar__calendar_id__put",
+        "parameters": [
+          {
+            "name": "calendar_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Calendar Id" }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CalendarCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarRead" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Action": {
+        "properties": {
+          "id": { "type": "integer", "title": "Id" },
+          "rule_id": { "type": "integer", "title": "Rule Id" },
+          "name": { "type": "string", "title": "Name" },
+          "arguments": { "type": "object", "title": "Arguments" }
+        },
+        "type": "object",
+        "required": ["id", "rule_id", "name", "arguments"],
+        "title": "Action"
+      },
+      "CalendarCreate": {
+        "properties": {
+          "type": { "type": "string", "title": "Type" },
+          "url": { "type": "string", "title": "Url" },
+          "username": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Username"
+          },
+          "password": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["type", "url"],
+        "title": "CalendarCreate"
+      },
+      "CalendarRead": {
+        "properties": {
+          "id": { "type": "string", "title": "Id" },
+          "type": { "type": "string", "title": "Type" },
+          "url": { "type": "string", "title": "Url" },
+          "username": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Username"
+          },
+          "password": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["id", "type", "url", "username", "password"],
+        "title": "CalendarRead"
+      },
+      "Condition": {
+        "properties": {
+          "id": { "type": "integer", "title": "Id" },
+          "rule_id": { "type": "integer", "title": "Rule Id" },
+          "field": { "type": "string", "title": "Field" },
+          "operator": { "type": "string", "title": "Operator" },
+          "value": { "type": "string", "title": "Value" }
+        },
+        "type": "object",
+        "required": ["id", "rule_id", "field", "operator", "value"],
+        "title": "Condition"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["email", "password"],
+        "title": "LoginRequest"
+      },
+      "ProfileCreate": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "main_calendar_id": { "type": "string", "title": "Main Calendar Id" }
+        },
+        "type": "object",
+        "required": ["name", "main_calendar_id"],
+        "title": "ProfileCreate"
+      },
+      "ProfileReadFull": {
+        "properties": {
+          "id": { "type": "string", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "main_calendar_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Main Calendar Id"
+          },
+          "main_calendar": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/CalendarRead" },
+              { "type": "null" }
+            ]
+          },
+          "rules": {
+            "items": { "$ref": "#/components/schemas/Rule" },
+            "type": "array",
+            "title": "Rules"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name", "main_calendar_id", "main_calendar"],
+        "title": "ProfileReadFull"
+      },
+      "ProfileReadShort": {
+        "properties": {
+          "id": { "type": "string", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "main_calendar_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Main Calendar Id"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name", "main_calendar_id"],
+        "title": "ProfileReadShort"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["email", "password"],
+        "title": "RegisterRequest"
+      },
+      "Rule": {
+        "properties": {
+          "id": { "type": "integer", "title": "Id" },
+          "source_id": { "type": "string", "title": "Source Id" },
+          "enabled": { "type": "boolean", "title": "Enabled" },
+          "name": { "type": "string", "title": "Name" },
+          "conditions": {
+            "items": { "$ref": "#/components/schemas/Condition" },
+            "type": "array",
+            "title": "Conditions"
+          },
+          "actions": {
+            "items": { "$ref": "#/components/schemas/Action" },
+            "type": "array",
+            "title": "Actions"
+          }
+        },
+        "type": "object",
+        "required": ["id", "source_id", "enabled", "name"],
+        "title": "Rule"
+      },
+      "SourceCreate": {
+        "properties": {
+          "calendar_id": { "type": "string", "title": "Calendar Id" }
+        },
+        "type": "object",
+        "required": ["calendar_id"],
+        "title": "SourceCreate"
+      },
+      "SourceRead": {
+        "properties": {
+          "id": { "type": "string", "title": "Id" },
+          "calendar_id": { "type": "string", "title": "Calendar Id" },
+          "calendar": { "$ref": "#/components/schemas/CalendarRead" }
+        },
+        "type": "object",
+        "required": ["id", "calendar_id", "calendar"],
+        "title": "SourceRead"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": { "type": "string", "title": "Access Token" },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": ["access_token"],
+        "title": "TokenResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

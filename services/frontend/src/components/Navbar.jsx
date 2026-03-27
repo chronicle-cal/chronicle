@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import logo from "../assets/logo.svg";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -41,7 +42,7 @@ export default function Navbar() {
   return (
     <>
       <Link className="brand" to={isAuthenticated ? "/dashboard" : "/"}>
-        <img className="logo" src="/src/assets/logo.svg" alt="Logo" />
+        <img className="logo" src={logo} alt="Logo" />
         <div>Chronicle</div>
       </Link>
 
