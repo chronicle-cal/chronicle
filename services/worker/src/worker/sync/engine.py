@@ -77,10 +77,11 @@ class SyncEngine:
 
     def run(self):
         logging.info("Starting sync run...")
+        # TODO think about if its a good idea to build the index for every source, or if we should build it once and then update it as we go
+        dest_index = self.target.build_index()
         for source, source_config in self.sources:
             logging.info(f"Processing source: {source_config.calendar.url}")
             source_events = source.fetch()
-            dest_index = self.target.build_index()
 
             source_uids = set()
 
@@ -149,7 +150,6 @@ class SyncEngine:
         source_ids = [source_model.id for _, source_model in self.sources]
 
         # Delete all the events with the source ID that are not in the source anymore
-        dest_index = self.target.build_index()
         for uid, dest in dest_index.items():
             logging.debug(f"Final check for destination event UID={uid} for deletion")
             raw_event = self.target.calendar.event_by_url(dest["href"]).component
@@ -160,3 +160,4 @@ class SyncEngine:
                     f"Deleting event UID={uid} with source ID {source_id} that is not in any current sources"
                 )
                 self.target.delete(dest["href"])
+        logging.info("Final cleanup complete.")

@@ -1,3 +1,5 @@
+import datetime
+
 import caldav
 import icalendar
 from worker.models import NormalizedEvent
@@ -69,3 +71,21 @@ class CaldavTarget:
         component["DTSTART"] = event.dtstart
         component["DTEND"] = event.dtend
         return component
+
+    def get_events_between(
+        self,
+        start: datetime.datetime,
+        end: datetime.datetime,
+    ):
+        events = self.calendar.date_search(start, end)
+        print(events)
+        return events
+
+    def clear_task_events(self):
+        events = self.calendar.events()
+        for event in events:
+            if event.component.get("X-CHRONICLE-TASK"):
+                logging.info(
+                    f"Deleting existing scheduled event: {event.component.get('summary')}"
+                )
+                event.delete()

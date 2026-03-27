@@ -14,6 +14,11 @@ def datetime_to_schedule_time(
     Returns:
         int: The number of minutes between the schedule start time and the given timestamp.
     """
+    # Ensure both datetimes have the same timezone awareness
+    if timestamp.tzinfo is None and schedule_start_time.tzinfo is not None:
+        timestamp = timestamp.replace(tzinfo=schedule_start_time.tzinfo)
+    elif timestamp.tzinfo is not None and schedule_start_time.tzinfo is None:
+        schedule_start_time = schedule_start_time.replace(tzinfo=timestamp.tzinfo)
     return int((timestamp - schedule_start_time).total_seconds() // 60)
 
 
