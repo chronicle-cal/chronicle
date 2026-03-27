@@ -67,8 +67,5 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      backend:
-        condition: service_started
-
 volumes:
   postgres-data:
