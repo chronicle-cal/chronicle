@@ -8,9 +8,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://host.containers.internal:8000",
+        target: "http://localhost:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
