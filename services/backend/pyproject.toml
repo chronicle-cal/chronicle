@@ -12,7 +12,7 @@ dependencies = [
     "argon2-cffi>=25.1.0",
     "asyncpg>=0.31.0",
     "chronicle-shared",
-    "fastapi[standard]==0.135.1",
+    "fastapi[standard]==0.135.2",
     "passlib>=1.7.4",
     "psycopg2>=2.9.11",
     "pyjwt>=2.12.0",
