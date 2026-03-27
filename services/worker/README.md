@@ -7,7 +7,7 @@ This is the worker service for Chronicle. It is responsible for processing tasks
 To run the worker service locally, you can use the following command:
 
 ```bash
-uv run --env-file .env worker
+uv run worker
 ```
 
 Make sure to create a `.env` file in the `services/worker` directory with the following content:
