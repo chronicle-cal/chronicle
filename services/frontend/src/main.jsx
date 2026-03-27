@@ -8,13 +8,13 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { FlashProvider } from "./context/FlashContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <FlashProvider>
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
-            </FlashProvider>
-        </BrowserRouter>
-    </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <FlashProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </FlashProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

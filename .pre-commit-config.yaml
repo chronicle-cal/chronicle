@@ -1,32 +1,37 @@
 repos:
-    # Basic hygiene + accidental secrets (keys)
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v5.0.0
-      hooks:
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-toml
-          - id: check-added-large-files
-          - id: detect-private-key
+  # Basic hygiene + accidental secrets (keys)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+      - id: detect-private-key
 
-    # Ruff: lint + auto-fix
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.9.6
-      hooks:
-          - id: ruff
-            args: [--fix]
-          - id: ruff-format
+  # Ruff: lint + auto-fix
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
 
+  - repo: local
+    hooks:
+      # TruffleHog: secret scanning (recommended to run on commit-msg or pre-push)
+      - id: trufflehog
+        name: trufflehog (staged files)
+        entry: >
+          bash -lc 'trufflehog git file://. --since-commit HEAD
+          --only-verified --fail --no-update'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      # Prettier: code formatting for frontend (JSX, CSS, HTML)
 
-    # TruffleHog: secret scanning (recommended to run on commit-msg or pre-push)
-    - repo: local
-      hooks:
-          - id: trufflehog
-            name: trufflehog (staged files)
-            entry: >
-              bash -lc 'trufflehog git file://. --since-commit HEAD
-              --only-verified --fail --no-update'
-            language: system
-            pass_filenames: false
-            stages: [pre-commit]
+  - repo: https://github.com/34j/mirrors-prettier
+    rev: "" # Use the sha / tag you want to point at
+    hooks:
+      - id: prettier

@@ -78,7 +78,6 @@ async def list_profiles(
         .where(CalendarProfile.user_id == current_user.id)
     )
     profiles = result.scalars().all()
-
     return profiles
 
 
