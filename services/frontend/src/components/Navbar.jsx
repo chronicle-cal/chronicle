@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import logo from "../assets/logo.svg";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -14,7 +15,7 @@ export default function Navbar() {
     try {
       await logout();
       addFlash("success", "Logged out.");
-      navigate("/login");
+      navigate("/home");
     } catch {
       addFlash("error", "Logout failed.");
     }
@@ -40,10 +41,10 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="brand">
-        <div className="brand-badge" />
+      <Link className="brand" to={isAuthenticated ? "/dashboard" : "/"}>
+        <img className="logo" src={logo} alt="Logo" />
         <div>Chronicle</div>
-      </div>
+      </Link>
 
       <nav className="nav-links">
         {isAuthenticated ? (
@@ -52,20 +53,30 @@ export default function Navbar() {
               Dashboard
             </Link>
             <Link className="pill" to="/calendar-profiles">
-              Calendar Profiles
+              Manage Profiles
+            </Link>
+            <Link className="pill" to="/calendars">
+              Calendars
             </Link>
             <div className="profile-menu" ref={profileRef}>
-              <button className="avatar-btn" type="button" onClick={toggleProfile}>
+              <button
+                className="avatar-btn"
+                type="button"
+                onClick={toggleProfile}
+              >
                 <span className="avatar-circle">
-                  {((user?.name || user?.email || "U").trim().charAt(0) || "U").toUpperCase()}
+                  {(
+                    (user?.name || user?.email || "U").trim().charAt(0) || "U"
+                  ).toUpperCase()}
                 </span>
               </button>
               {isProfileOpen && (
                 <div className="profile-dropdown">
-                  <Link className="pill" to="/profile" onClick={toggleProfile}>
-                    Edit Profile
-                  </Link>
-                  <button className="pill btn-danger" type="button" onClick={onLogout}>
+                  <button
+                    className="pill btn-danger"
+                    type="button"
+                    onClick={onLogout}
+                  >
                     Logout
                   </button>
                 </div>

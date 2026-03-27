@@ -3,11 +3,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'services/worker/**'
+      - "services/worker/**"
   pull_request:
     branches: [main]
     paths:
-      - 'services/worker/**'
+      - "services/worker/**"
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - name: Install dependencies
         working-directory: services/worker
         run: uv sync --no-dev
@@ -34,7 +34,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - name: Install dependencies
         working-directory: services/worker
         run: uv sync

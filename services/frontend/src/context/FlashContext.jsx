@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 const FlashContext = createContext(null);
 
@@ -17,9 +23,14 @@ export function FlashProvider({ children }) {
 
   const clearAll = useCallback(() => setMessages([]), []);
 
-  const value = useMemo(() => ({ messages, addFlash, clearAll }), [messages, addFlash, clearAll]);
+  const value = useMemo(
+    () => ({ messages, addFlash, clearAll }),
+    [messages, addFlash, clearAll]
+  );
 
-  return <FlashContext.Provider value={value}>{children}</FlashContext.Provider>;
+  return (
+    <FlashContext.Provider value={value}>{children}</FlashContext.Provider>
+  );
 }
 
 export function useFlash() {

@@ -1,67 +1,67 @@
 name: Build and publish images
 on:
-    release:
-        types: [published]
-    workflow_dispatch:
-    push:
-        tags: ["v*"]
+  release:
+    types: [published]
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
 
 env:
-    REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-    build-and-push-image:
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    - dockerfile: ./services/backend/Dockerfile
-                      image: ghcr.io/chronicle-cal/chronicle-backend
-                    - dockerfile: ./services/frontend/Dockerfile
-                      image: ghcr.io/chronicle-cal/chronicle-frontend
-                    - dockerfile: ./services/worker/Dockerfile
-                      image: ghcr.io/chronicle-cal/chronicle-worker
-        permissions:
-            contents: read
-            packages: write
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./services/backend/Dockerfile
+            image: ghcr.io/chronicle-cal/chronicle-backend
+          - dockerfile: ./services/frontend/Dockerfile
+            image: ghcr.io/chronicle-cal/chronicle-frontend
+          - dockerfile: ./services/worker/Dockerfile
+            image: ghcr.io/chronicle-cal/chronicle-worker
+    permissions:
+      contents: read
+      packages: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-            - name: Get version from tag
-              run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
-            - name: Set all package versions
-              run: ./scripts/update_version.sh ${{ github.ref_name }}
-            - name: Log in to the Container registry
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Get version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Set all package versions
+        run: ./scripts/update_version.sh ${{ github.ref_name }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Extract metadata (tags, labels) for Docker
-              id: meta
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ matrix.image }}
-                  tags: |
-                      type=semver,pattern={{version}}
-                      type=semver,pattern={{major}}.{{minor}}
-                      type=semver,pattern={{major}}
-                      type=raw,value=latest
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
 
-            - name: Setup Buildx
-              uses: docker/setup-buildx-action@v2
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v2
 
-            - name: Build and push Docker images
-              uses: docker/build-push-action@v6
-              with:
-                  context: .
-                  file: ${{ matrix.dockerfile }}
-                  push: true
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
