@@ -147,6 +147,19 @@ export default function CalendarProfileView() {
     }
   }
 
+  async function handleTriggerSync(profileId) {
+    try {
+      await profileApi.triggerProfileSync(profileId);
+      addFlash("success", "Profile sync triggered");
+    } catch (error) {
+      const message =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to trigger sync.";
+      addFlash("error", message);
+    }
+  }
+
   return (
     <div className="container calendar-profile-view">
       <div className="page-header">
@@ -161,9 +174,17 @@ export default function CalendarProfileView() {
           </p>
         </div>
 
-        <Link to="/calendar-profiles" className="btn">
-          Back to Profiles
-        </Link>
+        <div className="btn-group">
+          <Link to="/calendar-profiles" className="btn">
+            Manage
+          </Link>
+          <button
+            className="btn btn-small"
+            onClick={() => handleTriggerSync(profileId)}
+          >
+            Synchroize Now
+          </button>
+        </div>
       </div>
 
       <section className="card tasks-card">

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import logo from "../assets/logo.svg";
@@ -9,6 +9,7 @@ export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { addFlash } = useFlash();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
@@ -70,19 +71,23 @@ export default function Navbar() {
 
       <nav className="nav-links">
         {isAuthenticated && profileList.length > 0 ? (
-          <div className="profile-menu">
-            {profileList.map((profile) => (
-              <Link
-                key={profile.id}
-                className="pill"
-                to={`/calendar-profiles/${profile.id}`}
-              >
-                {profile.name}
-              </Link>
-            ))}
+          <div className="profile-button-group">
+            {profileList.map((profile) => {
+              const isActive =
+                location.pathname === `/calendar-profiles/${profile.id}`;
+              return (
+                <Link
+                  key={profile.id}
+                  className={`profile-button ${isActive ? "profile-button-active" : ""}`}
+                  to={`/calendar-profiles/${profile.id}`}
+                >
+                  {profile.name}
+                </Link>
+              );
+            })}
           </div>
         ) : (
-          isAuthenticated && <span>No profiles to show here :(</span>
+          isAuthenticated && <></>
         )}
       </nav>
 
