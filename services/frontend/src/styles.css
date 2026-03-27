@@ -209,11 +209,9 @@ a:hover {
 
 .card {
   position: relative;
-
   border-radius: var(--radius);
   padding: 28px;
-
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--bg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
@@ -390,15 +388,26 @@ button {
   right: 16px;
   background: transparent;
   border: none;
-  font-size: 1.1rem;
   cursor: pointer;
   color: var(--muted);
   padding: 4px 8px;
   border-radius: 6px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition:
     background 150ms ease,
     color 150ms ease;
+}
+
+.modal-close-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .modal-close:hover {
@@ -694,6 +703,15 @@ select:focus {
   border-color: rgba(119, 0, 255, 0.3);
 }
 
+.task-check-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
 .task-content {
   min-width: 0;
   display: grid;
@@ -782,17 +800,38 @@ select:focus {
   width: 16px;
   height: 16px;
   color: var(--muted);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
   pointer-events: none;
 }
 
 .btn-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  vertical-align: bottom;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-width: 2;
+  margin-right: 0.3rem;
+  margin-left: -0.3rem;
+}
+
+.btn-small .btn-icon {
+  width: 15px;
+  height: 15px;
 }
 
 .pill-icon {
   width: 14px;
   height: 14px;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .task-actions .btn,

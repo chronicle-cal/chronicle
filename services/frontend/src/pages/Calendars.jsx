@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Plus } from "react-feather";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { calendarApi } from "../lib/apiClient.js";
@@ -147,7 +148,8 @@ export default function Calendars() {
         </div>
 
         <button className="btn btn-primary" onClick={openCreateModal}>
-          + Create Calendar
+          <Plus className="btn-icon" aria-hidden="true" />
+          Create Calendar
         </button>
       </div>
 

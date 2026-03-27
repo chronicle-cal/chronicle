@@ -1,14 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import {
-  CalendarDaysIcon,
-  CheckIcon,
-  ClockIcon,
-  FlagIcon,
-  PencilSquareIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { Calendar, Check, Clock, Edit2, Flag, Trash2, X } from "react-feather";
 
 function toDateTimeLocal(value) {
   if (!value) return "";
@@ -104,7 +96,9 @@ export default function TaskList({
               }
               aria-pressed={task.completed}
             >
-              {task.completed ? "✓" : ""}
+              {task.completed ? (
+                <Check className="task-check-icon" aria-hidden="true" />
+              ) : null}
             </button>
 
             <div className="task-content">
@@ -116,15 +110,15 @@ export default function TaskList({
 
               <div className="task-meta">
                 <span className="pill task-pill">
-                  <FlagIcon className="pill-icon" aria-hidden="true" />
+                  <Flag className="pill-icon" aria-hidden="true" />
                   {task.priority ?? "-"}
                 </span>
                 <span className="pill task-pill">
-                  <ClockIcon className="pill-icon" aria-hidden="true" />
+                  <Clock className="pill-icon" aria-hidden="true" />
                   {task.duration ?? "-"} min
                 </span>
                 <span className="pill task-pill">
-                  <CalendarDaysIcon className="pill-icon" aria-hidden="true" />
+                  <Calendar className="pill-icon" aria-hidden="true" />
                   {task.due_date
                     ? new Date(task.due_date).toLocaleString()
                     : "-"}
@@ -198,7 +192,7 @@ export default function TaskList({
                   onClick={() => handleSave(task.id)}
                   disabled={updatingTaskId === task.id}
                 >
-                  <CheckIcon className="btn-icon" aria-hidden="true" />
+                  <Check className="btn-icon" aria-hidden="true" />
                   {updatingTaskId === task.id ? "Saving..." : "Save"}
                 </button>
                 <button
@@ -206,7 +200,7 @@ export default function TaskList({
                   className="btn btn-small"
                   onClick={closeEditor}
                 >
-                  <XMarkIcon className="btn-icon" aria-hidden="true" />
+                  <X className="btn-icon" aria-hidden="true" />
                   Cancel
                 </button>
               </>
@@ -216,7 +210,7 @@ export default function TaskList({
                 className="btn btn-small"
                 onClick={() => openEditor(task)}
               >
-                <PencilSquareIcon className="btn-icon" aria-hidden="true" />
+                <Edit2 className="btn-icon" aria-hidden="true" />
                 Edit
               </button>
             )}
@@ -227,7 +221,7 @@ export default function TaskList({
               onClick={() => onDelete(task.id)}
               disabled={deletingTaskId === task.id}
             >
-              <TrashIcon className="btn-icon" aria-hidden="true" />
+              <Trash2 className="btn-icon" aria-hidden="true" />
               {deletingTaskId === task.id ? "Deleting..." : "Delete"}
             </button>
           </div>

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { X } from "react-feather";
 
 /**
  * ProfileModal
@@ -102,7 +104,7 @@ export default function ProfileModal({
           onClick={onClose}
           aria-label="Close"
         >
-          x
+          <X className="modal-close-icon" aria-hidden="true" />
         </button>
 
         <form onSubmit={handleSubmit}>
@@ -131,7 +133,7 @@ export default function ProfileModal({
                   {calendar.type} — {calendar.url}
                 </option>
               ))}
-              <option value="new">+ Create New Calendar</option>
+              <option value="new">Create New Calendar</option>
             </select>
             <p className="subtle">
               Only CalDAV calendars can be used as a profile&apos;s main
@@ -161,3 +163,22 @@ export default function ProfileModal({
     </div>
   );
 }
+
+ProfileModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  initialData: PropTypes.shape({
+    name: PropTypes.string,
+    main_calendar_id: PropTypes.string,
+  }),
+  calendars: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      url: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  onRequestCalendarCreate: PropTypes.func.isRequired,
+  externalCalendarId: PropTypes.string,
+};
