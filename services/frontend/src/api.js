@@ -1,7 +1,7 @@
 import { authApi } from "./lib/apiClient.js";
 
 export async function login({ email, password }) {
-  const response = await authApi.loginApiAuthLoginPost({
+  const response = await authApi.login({
     email,
     password,
   });
@@ -13,7 +13,7 @@ export async function login({ email, password }) {
 }
 
 export async function registerAndLogin({ email, password }) {
-  await authApi.registerApiAuthRegisterPost({
+  await authApi.register({
     email,
     password,
   });
@@ -22,7 +22,7 @@ export async function registerAndLogin({ email, password }) {
 }
 
 export async function logout() {
-  await authApi.logoutApiAuthLogoutPost();
+  await authApi.logout();
 }
 
 export async function me() {
@@ -31,7 +31,7 @@ export async function me() {
   }
 
   try {
-    const response = await authApi.meApiAuthMeGet();
+    const response = await authApi.me();
     return { authenticated: true, ...response.data };
   } catch {
     localStorage.removeItem("token");

@@ -2,16 +2,59 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                          | HTTP request                | Description |
-| --------------------------------------------------------------- | --------------------------- | ----------- |
-| [**loginApiAuthLoginPost**](#loginapiauthloginpost)             | **POST** /api/auth/login    | Login       |
-| [**logoutApiAuthLogoutPost**](#logoutapiauthlogoutpost)         | **POST** /api/auth/logout   | Logout      |
-| [**meApiAuthMeGet**](#meapiauthmeget)                           | **GET** /api/auth/me        | Me          |
-| [**registerApiAuthRegisterPost**](#registerapiauthregisterpost) | **POST** /api/auth/register | Register    |
+| Method                    | HTTP request                | Description |
+| ------------------------- | --------------------------- | ----------- |
+| [**getToken**](#gettoken) | **GET** /api/auth/token     | Get Token   |
+| [**login**](#login)       | **POST** /api/auth/login    | Login       |
+| [**logout**](#logout)     | **POST** /api/auth/logout   | Logout      |
+| [**me**](#me)             | **GET** /api/auth/me        | Me          |
+| [**register**](#register) | **POST** /api/auth/register | Register    |
 
-# **loginApiAuthLoginPost**
+# **getToken**
 
-> TokenResponse loginApiAuthLoginPost(loginRequest)
+> any getToken()
+
+### Example
+
+```typescript
+import { AuthApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new AuthApi(configuration);
+
+const { status, data } = await apiInstance.getToken();
+```
+
+### Parameters
+
+This endpoint does not have any parameters.
+
+### Return type
+
+**any**
+
+### Authorization
+
+[HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **login**
+
+> TokenResponse login(loginRequest)
 
 ### Example
 
@@ -23,7 +66,7 @@ const apiInstance = new AuthApi(configuration);
 
 let loginRequest: LoginRequest; //
 
-const { status, data } = await apiInstance.loginApiAuthLoginPost(loginRequest);
+const { status, data } = await apiInstance.login(loginRequest);
 ```
 
 ### Parameters
@@ -50,13 +93,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **logoutApiAuthLogoutPost**
+# **logout**
 
-> any logoutApiAuthLogoutPost()
+> any logout()
 
 ### Example
 
@@ -66,7 +111,7 @@ import { AuthApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
 
-const { status, data } = await apiInstance.logoutApiAuthLogoutPost();
+const { status, data } = await apiInstance.logout();
 ```
 
 ### Parameters
@@ -94,9 +139,9 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **meApiAuthMeGet**
+# **me**
 
-> any meApiAuthMeGet()
+> any me()
 
 ### Example
 
@@ -106,16 +151,12 @@ import { AuthApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
 
-let authorization: string; // (optional) (default to undefined)
-
-const { status, data } = await apiInstance.meApiAuthMeGet(authorization);
+const { status, data } = await apiInstance.me();
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -123,7 +164,7 @@ const { status, data } = await apiInstance.meApiAuthMeGet(authorization);
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -135,13 +176,14 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
-| **422**     | Validation Error    | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **registerApiAuthRegisterPost**
+# **register**
 
-> TokenResponse registerApiAuthRegisterPost(registerRequest)
+> TokenResponse register(registerRequest)
 
 ### Example
 
@@ -153,8 +195,7 @@ const apiInstance = new AuthApi(configuration);
 
 let registerRequest: RegisterRequest; //
 
-const { status, data } =
-  await apiInstance.registerApiAuthRegisterPost(registerRequest);
+const { status, data } = await apiInstance.register(registerRequest);
 ```
 
 ### Parameters

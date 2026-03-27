@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { profileApi } from "../lib/apiClient.js";
 
@@ -9,7 +9,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchProfiles() {
       try {
-        const response = await profileApi.listProfilesApiProfileGet();
+        const response = await profileApi.listProfiles();
         setProfiles(response.data);
       } catch (error) {
         console.error("Failed to fetch profiles:", error);

@@ -41,7 +41,7 @@ export default function Calendars() {
   async function loadCalendars() {
     try {
       setLoading(true);
-      const response = await calendarApi.listCalendarsApiCalendarGet();
+      const response = await calendarApi.listCalendars();
       setCalendars(response.data);
     } catch (error) {
       const message =
@@ -57,11 +57,10 @@ export default function Calendars() {
   async function handleSave(payload) {
     try {
       if (editingCalendar) {
-        const response =
-          await calendarApi.updateCalendarApiCalendarCalendarIdPut(
-            editingCalendar.id,
-            payload
-          );
+        const response = await calendarApi.updateCalendar(
+          editingCalendar.id,
+          payload
+        );
 
         setCalendars((current) =>
           current.map((calendar) =>
@@ -71,8 +70,7 @@ export default function Calendars() {
 
         addFlash("success", "Calendar updated");
       } else {
-        const response =
-          await calendarApi.createCalendarApiCalendarPost(payload);
+        const response = await calendarApi.createCalendar(payload);
 
         setCalendars((current) => [...current, response.data]);
         addFlash("success", "Calendar created");
@@ -99,7 +97,7 @@ export default function Calendars() {
     if (!confirmed) return;
 
     try {
-      await calendarApi.deleteCalendarApiCalendarCalendarIdDelete(calendarId);
+      await calendarApi.deleteCalendar(calendarId);
 
       setCalendars((current) =>
         current.filter((item) => item.id !== calendarId)
@@ -121,8 +119,7 @@ export default function Calendars() {
 
   async function handleEdit(calendarId) {
     try {
-      const response =
-        await calendarApi.getCalendarApiCalendarCalendarIdGet(calendarId);
+      const response = await calendarApi.getCalendar(calendarId);
 
       setEditingCalendar(response.data);
       setShowModal(true);

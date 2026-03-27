@@ -2,17 +2,17 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                                                      | HTTP request                           | Description     |
-| ------------------------------------------------------------------------------------------- | -------------------------------------- | --------------- |
-| [**createCalendarApiCalendarPost**](#createcalendarapicalendarpost)                         | **POST** /api/calendar                 | Create Calendar |
-| [**deleteCalendarApiCalendarCalendarIdDelete**](#deletecalendarapicalendarcalendariddelete) | **DELETE** /api/calendar/{calendar_id} | Delete Calendar |
-| [**getCalendarApiCalendarCalendarIdGet**](#getcalendarapicalendarcalendaridget)             | **GET** /api/calendar/{calendar_id}    | Get Calendar    |
-| [**listCalendarsApiCalendarGet**](#listcalendarsapicalendarget)                             | **GET** /api/calendar                  | List Calendars  |
-| [**updateCalendarApiCalendarCalendarIdPut**](#updatecalendarapicalendarcalendaridput)       | **PUT** /api/calendar/{calendar_id}    | Update Calendar |
+| Method                                | HTTP request                           | Description     |
+| ------------------------------------- | -------------------------------------- | --------------- |
+| [**createCalendar**](#createcalendar) | **POST** /api/calendar                 | Create Calendar |
+| [**deleteCalendar**](#deletecalendar) | **DELETE** /api/calendar/{calendar_id} | Delete Calendar |
+| [**getCalendar**](#getcalendar)       | **GET** /api/calendar/{calendar_id}    | Get Calendar    |
+| [**listCalendars**](#listcalendars)   | **GET** /api/calendar                  | List Calendars  |
+| [**updateCalendar**](#updatecalendar) | **PUT** /api/calendar/{calendar_id}    | Update Calendar |
 
-# **createCalendarApiCalendarPost**
+# **createCalendar**
 
-> CalendarRead createCalendarApiCalendarPost(calendarCreate)
+> CalendarRead createCalendar(calendarCreate)
 
 Create a new calendar for the current user.
 
@@ -25,20 +25,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarApi(configuration);
 
 let calendarCreate: CalendarCreate; //
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.createCalendarApiCalendarPost(
-  calendarCreate,
-  authorization
-);
+const { status, data } = await apiInstance.createCalendar(calendarCreate);
 ```
 
 ### Parameters
 
-| Name               | Type               | Description | Notes                            |
-| ------------------ | ------------------ | ----------- | -------------------------------- |
-| **calendarCreate** | **CalendarCreate** |             |                                  |
-| **authorization**  | [**string**]       |             | (optional) defaults to undefined |
+| Name               | Type               | Description | Notes |
+| ------------------ | ------------------ | ----------- | ----- |
+| **calendarCreate** | **CalendarCreate** |             |       |
 
 ### Return type
 
@@ -46,7 +41,7 @@ const { status, data } = await apiInstance.createCalendarApiCalendarPost(
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -57,14 +52,16 @@ No authorization required
 
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
+| **201**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteCalendarApiCalendarCalendarIdDelete**
+# **deleteCalendar**
 
-> deleteCalendarApiCalendarCalendarIdDelete()
+> deleteCalendar()
 
 Delete a calendar by ID.
 
@@ -77,21 +74,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarApi(configuration);
 
 let calendarId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.deleteCalendarApiCalendarCalendarIdDelete(
-    calendarId,
-    authorization
-  );
+const { status, data } = await apiInstance.deleteCalendar(calendarId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **calendarId**    | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name           | Type         | Description | Notes                 |
+| -------------- | ------------ | ----------- | --------------------- |
+| **calendarId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -99,7 +90,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -111,13 +102,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **204**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getCalendarApiCalendarCalendarIdGet**
+# **getCalendar**
 
-> CalendarRead getCalendarApiCalendarCalendarIdGet()
+> CalendarRead getCalendar()
 
 Retrieve a calendar by ID.
 
@@ -130,20 +123,15 @@ const configuration = new Configuration();
 const apiInstance = new CalendarApi(configuration);
 
 let calendarId: string; // (default to undefined)
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getCalendarApiCalendarCalendarIdGet(
-  calendarId,
-  authorization
-);
+const { status, data } = await apiInstance.getCalendar(calendarId);
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **calendarId**    | [**string**] |             | defaults to undefined            |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+| Name           | Type         | Description | Notes                 |
+| -------------- | ------------ | ----------- | --------------------- |
+| **calendarId** | [**string**] |             | defaults to undefined |
 
 ### Return type
 
@@ -151,7 +139,7 @@ const { status, data } = await apiInstance.getCalendarApiCalendarCalendarIdGet(
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -163,13 +151,15 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **listCalendarsApiCalendarGet**
+# **listCalendars**
 
-> Array<CalendarRead> listCalendarsApiCalendarGet()
+> Array<CalendarRead> listCalendars()
 
 Retrieve all calendars for the current user.
 
@@ -181,17 +171,12 @@ import { CalendarApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new CalendarApi(configuration);
 
-let authorization: string; // (optional) (default to undefined)
-
-const { status, data } =
-  await apiInstance.listCalendarsApiCalendarGet(authorization);
+const { status, data } = await apiInstance.listCalendars();
 ```
 
 ### Parameters
 
-| Name              | Type         | Description | Notes                            |
-| ----------------- | ------------ | ----------- | -------------------------------- |
-| **authorization** | [**string**] |             | (optional) defaults to undefined |
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -199,7 +184,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -211,13 +196,14 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
-| **422**     | Validation Error    | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateCalendarApiCalendarCalendarIdPut**
+# **updateCalendar**
 
-> CalendarRead updateCalendarApiCalendarCalendarIdPut(calendarCreate)
+> CalendarRead updateCalendar(calendarCreate)
 
 Update a calendar by ID.
 
@@ -231,23 +217,19 @@ const apiInstance = new CalendarApi(configuration);
 
 let calendarId: string; // (default to undefined)
 let calendarCreate: CalendarCreate; //
-let authorization: string; // (optional) (default to undefined)
 
-const { status, data } =
-  await apiInstance.updateCalendarApiCalendarCalendarIdPut(
-    calendarId,
-    calendarCreate,
-    authorization
-  );
+const { status, data } = await apiInstance.updateCalendar(
+  calendarId,
+  calendarCreate
+);
 ```
 
 ### Parameters
 
-| Name               | Type               | Description | Notes                            |
-| ------------------ | ------------------ | ----------- | -------------------------------- |
-| **calendarCreate** | **CalendarCreate** |             |                                  |
-| **calendarId**     | [**string**]       |             | defaults to undefined            |
-| **authorization**  | [**string**]       |             | (optional) defaults to undefined |
+| Name               | Type               | Description | Notes                 |
+| ------------------ | ------------------ | ----------- | --------------------- |
+| **calendarCreate** | **CalendarCreate** |             |                       |
+| **calendarId**     | [**string**]       |             | defaults to undefined |
 
 ### Return type
 
@@ -255,7 +237,7 @@ const { status, data } =
 
 ### Authorization
 
-No authorization required
+[HTTPBearer](../README.md#HTTPBearer)
 
 ### HTTP request headers
 
@@ -267,6 +249,8 @@ No authorization required
 | Status code | Description         | Response headers |
 | ----------- | ------------------- | ---------------- |
 | **200**     | Successful Response | -                |
+| **401**     | Unauthorized        | -                |
+| **403**     | Forbidden           | -                |
 | **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
