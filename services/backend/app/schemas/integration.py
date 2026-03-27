@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices
 
+from datetime import datetime
+
 
 class Condition(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -83,7 +85,6 @@ class CalendarProfile(BaseModel):
     user_id: int
     name: str
     main_calendar_id: str | None
-    rules: list[Rule] = Field(default_factory=list)
 
 
 class CalendarProfileCreate(BaseModel):
@@ -126,3 +127,38 @@ class SourceCreate(BaseModel):
     calendar_id: str = Field(
         ..., validation_alias=AliasChoices("calendar_id", "calendar")
     )
+
+
+class Task(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    completed: bool
+    title: str
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int = 30
+    not_before: datetime | None = None
+    priority: int = 3
+    profile: ProfileReadShort | None = None
+    profile_id: str | None = None
+
+
+class CreateTask(BaseModel):
+    title: str
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int = 30
+    not_before: datetime | None = None
+    priority: int = 3
+    profile_id: str | None = None
+
+
+class UpdateTask(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int | None = None
+    not_before: datetime | None = None
+    priority: int | None = None
+    profile_id: str | None = None
+    completed: bool | None = None
