@@ -330,6 +330,8 @@ input {
   font-size: 1rem;
   color: var(--text);
 
+  font-family: "Cal Sans UI", sans-serif;
+
   box-shadow: none;
 
   transition:
@@ -351,7 +353,7 @@ input:focus {
 }
 
 button {
-  font: inherit;
+  font-family: "Cal Sans UI", sans-serif;
 }
 
 .btn {
@@ -816,23 +818,169 @@ select:focus {
 
 .tasks-create-form {
   display: grid;
+  gap: 10px;
+}
+
+.task-compose-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-style: dashed;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.task-compose-expand-btn:hover {
+  background: #f8f9fb;
+  color: var(--text);
+}
+
+.task-composer-shell {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text);
+}
+
+.task-title-input,
+.task-description-input {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  box-shadow: none;
+  padding: 2px 0;
+}
+
+.task-title-input {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.task-description-input {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.task-title-input::placeholder {
+  color: var(--muted);
+}
+
+.task-description-input::placeholder {
+  color: color-mix(in srgb, var(--muted) 84%, var(--text));
+}
+
+.task-title-input:focus,
+.task-description-input:focus {
+  outline: none;
+  border-color: transparent;
+  background: transparent;
+}
+
+.task-options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
-.tasks-create-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
+.task-chip-field {
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+}
+
+.task-chip-field input,
+.task-chip-field select {
+  width: auto;
+  min-width: 110px;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: transparent;
+}
+
+.task-chip-field input::placeholder {
+  color: var(--muted);
+}
+
+.task-chip-field input:focus,
+.task-chip-field select:focus {
+  outline: none;
+  border-color: transparent;
+  background: transparent;
+}
+
+.task-chip-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  flex-shrink: 0;
+}
+
+.task-chip-select select {
+  width: auto;
+  padding-right: 16px;
+  background-color: transparent;
+  background-position: right 0 center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+.task-chip-select select:focus {
+  outline: none;
+}
+
+.task-footer-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.task-create-actions {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
 }
 
-.tasks-fields-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.task-create-cancel-btn {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.task-create-cancel-btn:hover {
+  background: #f8f9fb;
+  border-color: rgba(31, 31, 31, 0.2);
+  color: var(--text);
 }
 
 .task-add-btn {
-  min-width: 92px;
+  min-width: 94px;
+  padding: 0.58rem 0.92rem;
 }
 
 .task-list {
@@ -1062,12 +1210,13 @@ select:focus {
 }
 
 @media (max-width: 720px) {
-  .tasks-create-row {
-    grid-template-columns: 1fr;
+  .task-footer-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .tasks-fields-grid {
-    grid-template-columns: 1fr;
+  .task-actions {
+    justify-content: flex-end;
   }
 
   .task-item {
