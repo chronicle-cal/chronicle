@@ -90,14 +90,14 @@ def update_schedule(target: CaldavTarget, tasks: list[Task]):
 
     for task in tasks:
         logging.info(
-            f"Task: {task.title}, duration: {task.duration}, due_date: {task.due_date}"
+            f"Task: {task.title}, duration: {task.duration}, due_date: {task.due_date}, not_before: {task.not_before}"
         )
         if task.due_date:
             task.due_date = datetime_to_schedule_time(task.due_date, schedule_start)
         if task.not_before:
             task.not_before = datetime_to_schedule_time(task.not_before, schedule_start)
 
-    horizon_duration_in_minutes = 14 * 24 * 60
+    horizon_duration_in_minutes = 28 * 24 * 60
 
     logging.info(horizon_duration_in_minutes)
     logging.info(schedule_start.hour * 60 + schedule_start.minute)

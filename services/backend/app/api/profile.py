@@ -195,6 +195,7 @@ async def list_profile_sync(
     "/{profile_id}/source",
     status_code=status.HTTP_201_CREATED,
     operation_id="add_profile_source",
+    response_model=SourceRead,
 )
 async def add_profile_source(
     profile_id: str,

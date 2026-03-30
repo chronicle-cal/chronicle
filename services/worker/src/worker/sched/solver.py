@@ -83,6 +83,12 @@ class SchedulingSolver:
 
                 # self.model.add(end <= task.due_date)
 
+            if task.not_before:
+                assert isinstance(task.not_before, int), (
+                    "Not before must be an integer representing minutes from schedule start"
+                )
+                self.model.add(start >= task.not_before)
+
         self.model.add_no_overlap(self.all_intervals)
         self.model.minimize(sum(self.penalties))
 

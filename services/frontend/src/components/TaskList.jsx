@@ -22,6 +22,15 @@ function toIsoDateTime(value) {
   return date.toISOString();
 }
 
+const localeStringOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+};
+
 export default function TaskList({
   tasks,
   onToggleComplete,
@@ -36,6 +45,7 @@ export default function TaskList({
     duration: "",
     priority: "",
     dueDate: "",
+    notBeforeDate: "",
   });
 
   function openEditor(task) {
@@ -45,6 +55,7 @@ export default function TaskList({
       duration: task.duration ?? "",
       priority: task.priority ?? "",
       dueDate: toDateTimeLocal(task.due_date),
+      notBeforeDate: toDateTimeLocal(task.not_before),
     });
   }
 
@@ -68,6 +79,7 @@ export default function TaskList({
           ? parsedPriority
           : null,
       due_date: toIsoDateTime(form.dueDate),
+      not_before: toIsoDateTime(form.notBeforeDate),
     });
 
     closeEditor();
@@ -119,10 +131,24 @@ export default function TaskList({
                 </span>
                 <span className="pill task-pill">
                   <Calendar className="pill-icon" aria-hidden="true" />
+                  Due&nbsp;
                   {task.due_date
-                    ? new Date(task.due_date).toLocaleString()
+                    ? new Date(task.due_date).toLocaleString(
+                        "en-US",
+                        localeStringOptions
+                      )
                     : "-"}
                 </span>
+                {task.not_before ? (
+                  <span className="pill task-pill">
+                    <Calendar className="pill-icon" aria-hidden="true" />
+                    Not before&nbsp;
+                    {new Date(task.not_before).toLocaleString(
+                      "en-US",
+                      localeStringOptions
+                    )}
+                  </span>
+                ) : null}
               </div>
 
               {task.description ? (
@@ -175,6 +201,16 @@ export default function TaskList({
                       setForm((current) => ({
                         ...current,
                         dueDate: event.target.value,
+                      }))
+                    }
+                  />
+                  <input
+                    type="datetime-local"
+                    value={form.notBeforeDate}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        notBeforeDate: event.target.value,
                       }))
                     }
                   />

@@ -17,6 +17,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
   const [duration, setDuration] = useState("");
   const [priority, setPriority] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [notBeforeDate, setNotBeforeDate] = useState("");
 
   useEffect(() => {
     if (!isExpanded) return;
@@ -60,6 +61,7 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
           ? parsedPriority
           : null,
       due_date: toIsoDateTime(dueDate),
+      not_before: toIsoDateTime(notBeforeDate),
     };
 
     await onCreate(payload);
@@ -135,12 +137,24 @@ export default function TaskComposer({ onCreate, isSubmitting }) {
 
             <label className="task-chip-field task-chip-date">
               <Calendar className="task-chip-icon" aria-hidden="true" />
+              Due
               <input
                 type="datetime-local"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
                 disabled={isSubmitting}
                 aria-label="Task due date"
+              />
+            </label>
+            <label className="task-chip-field task-chip-date">
+              <Calendar className="task-chip-icon" aria-hidden="true" />
+              Not Before
+              <input
+                type="datetime-local"
+                value={notBeforeDate}
+                onChange={(event) => setNotBeforeDate(event.target.value)}
+                disabled={isSubmitting}
+                aria-label="Not before date"
               />
             </label>
           </div>
