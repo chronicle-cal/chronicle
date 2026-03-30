@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { calendarApi, profileApi } from "../lib/apiClient.js";
+import { notifyProfileListChanged } from "../lib/profileEvents.js";
 import CalendarModal from "../components/CalendarModal.jsx";
 import ProfileModal from "../components/ProfileModal.jsx";
 
@@ -150,6 +151,7 @@ export default function CalendarProfiles() {
         return updated;
       });
 
+      notifyProfileListChanged();
       addFlash("success", "Profile deleted");
     } catch (error) {
       const message =
@@ -189,6 +191,7 @@ export default function CalendarProfiles() {
             p.id === editingProfile.id ? { ...p, ...response.data } : p
           )
         );
+        notifyProfileListChanged();
         addFlash("success", "Profile updated");
       } else {
         const response = await profileApi.createProfile({
@@ -203,6 +206,7 @@ export default function CalendarProfiles() {
           ...current,
           [created.id]: "",
         }));
+        notifyProfileListChanged();
         addFlash("success", "Profile created");
       }
 
