@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import logo from "../assets/logo.svg";
 import { profileApi } from "../lib/apiClient.js";
+import { PROFILE_LIST_CHANGED_EVENT } from "../lib/profileEvents.js";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -21,17 +22,34 @@ export default function Navbar() {
       return;
     }
 
+    let isCancelled = false;
+
     const fetchProfiles = async () => {
       const { status, data } = await profileApi.listProfiles();
+      if (isCancelled) return;
       if (status !== 200) {
         console.error("Failed to fetch profiles:", data);
         addFlash("error", "Failed to load profiles.");
         return;
       }
-      console.log("Fetched profiles:", data);
       setProfileList(data || []);
     };
-    fetchProfiles();
+
+    const refreshProfiles = () => {
+      fetchProfiles().catch((error) => {
+        if (isCancelled) return;
+        console.error("Failed to fetch profiles:", error);
+        addFlash("error", "Failed to load profiles.");
+      });
+    };
+
+    refreshProfiles();
+    window.addEventListener(PROFILE_LIST_CHANGED_EVENT, refreshProfiles);
+
+    return () => {
+      isCancelled = true;
+      window.removeEventListener(PROFILE_LIST_CHANGED_EVENT, refreshProfiles);
+    };
   }, [isAuthenticated, addFlash]);
 
   const onLogout = async () => {
