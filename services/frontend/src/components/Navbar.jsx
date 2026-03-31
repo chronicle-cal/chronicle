@@ -1,15 +1,56 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import logo from "../assets/logo.svg";
+import { profileApi } from "../lib/apiClient.js";
+import { PROFILE_LIST_CHANGED_EVENT } from "../lib/profileEvents.js";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { addFlash } = useFlash();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+
+  const [profileList, setProfileList] = useState([]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setProfileList([]);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchProfiles = async () => {
+      const { status, data } = await profileApi.listProfiles();
+      if (isCancelled) return;
+      if (status !== 200) {
+        console.error("Failed to fetch profiles:", data);
+        addFlash("error", "Failed to load profiles.");
+        return;
+      }
+      setProfileList(data || []);
+    };
+
+    const refreshProfiles = () => {
+      fetchProfiles().catch((error) => {
+        if (isCancelled) return;
+        console.error("Failed to fetch profiles:", error);
+        addFlash("error", "Failed to load profiles.");
+      });
+    };
+
+    refreshProfiles();
+    window.addEventListener(PROFILE_LIST_CHANGED_EVENT, refreshProfiles);
+
+    return () => {
+      isCancelled = true;
+      window.removeEventListener(PROFILE_LIST_CHANGED_EVENT, refreshProfiles);
+    };
+  }, [isAuthenticated, addFlash]);
 
   const onLogout = async () => {
     try {
@@ -47,11 +88,30 @@ export default function Navbar() {
       </Link>
 
       <nav className="nav-links">
+        {isAuthenticated && profileList.length > 0 ? (
+          <div className="profile-button-group">
+            {profileList.map((profile) => {
+              const isActive =
+                location.pathname === `/calendar-profiles/${profile.id}`;
+              return (
+                <Link
+                  key={profile.id}
+                  className={`profile-button ${isActive ? "profile-button-active" : ""}`}
+                  to={`/calendar-profiles/${profile.id}`}
+                >
+                  {profile.name}
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          isAuthenticated && <></>
+        )}
+      </nav>
+
+      <nav className="nav-links">
         {isAuthenticated ? (
           <>
-            <Link className="pill" to="/dashboard">
-              Dashboard
-            </Link>
             <Link className="pill" to="/calendar-profiles">
               Manage Profiles
             </Link>
@@ -86,7 +146,7 @@ export default function Navbar() {
         ) : (
           <>
             <Link className="pill" to="/login">
-              Login
+              Log in
             </Link>
             <Link className="pill" to="/register">
               Register

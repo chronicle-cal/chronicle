@@ -1,5 +1,6 @@
+from datetime import datetime
 import uuid
-from sqlalchemy import ForeignKey, Integer, String, Boolean, JSON
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Boolean, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -111,6 +112,8 @@ class CalendarProfile(Base):
     main_calendar_id: Mapped[str | None] = mapped_column(
         ForeignKey("calendars.id", ondelete="SET NULL"), nullable=True
     )
+    workday_start_hour: Mapped[int] = mapped_column(Integer, default=9, nullable=False)
+    workday_end_hour: Mapped[int] = mapped_column(Integer, default=17, nullable=False)
 
     calendar_sources = relationship(
         "CalendarSource",
@@ -122,3 +125,26 @@ class CalendarProfile(Base):
     main_calendar = relationship(
         "Calendar", foreign_keys=[main_calendar_id], lazy="joined"
     )
+
+    tasks = relationship(
+        "Task", back_populates="profile", cascade="all, delete-orphan", lazy="joined"
+    )
+
+
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    due_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    duration: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    priority: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    not_before: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    profile_id: Mapped[str | None] = mapped_column(
+        ForeignKey("calendar_profiles.id", ondelete="SET NULL"), nullable=True
+    )
+    completed = mapped_column(Boolean, default=False, nullable=False)
+    profile = relationship("CalendarProfile", lazy="joined")

@@ -6,6 +6,7 @@ from .integration import (
     Rule,
     Condition,
     Action,
+    Task,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "Rule",
     "Condition",
     "Action",
+    "Task",
 ]

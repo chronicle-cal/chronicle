@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { X } from "react-feather";
 
 const emptyForm = {
   type: "caldav",
@@ -87,7 +89,7 @@ export default function CalendarModal({
           onClick={onClose}
           aria-label="Close"
         >
-          ✕
+          <X className="modal-close-icon" aria-hidden="true" />
         </button>
 
         <form onSubmit={handleSubmit}>
@@ -152,3 +154,17 @@ export default function CalendarModal({
     </div>
   );
 }
+
+CalendarModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  initialData: PropTypes.shape({
+    type: PropTypes.string,
+    url: PropTypes.string,
+    username: PropTypes.string,
+    password: PropTypes.string,
+  }),
+  allowedTypes: PropTypes.arrayOf(PropTypes.string),
+  helperText: PropTypes.string,
+};

@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
+import "@calcom/cal-sans-ui/ui.css";
+import "@calcom/cal-sans-ui/text.css";
+import "@calcom/cal-sans-ui/geo.css";
 import "./styles.css";
 
 import { AuthProvider } from "./context/AuthContext.jsx";

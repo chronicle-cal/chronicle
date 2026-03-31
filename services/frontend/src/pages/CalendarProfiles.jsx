@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Plus } from "react-feather";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import { calendarApi, profileApi } from "../lib/apiClient.js";
+import { notifyProfileListChanged } from "../lib/profileEvents.js";
 import CalendarModal from "../components/CalendarModal.jsx";
 import ProfileModal from "../components/ProfileModal.jsx";
 
@@ -149,6 +151,7 @@ export default function CalendarProfiles() {
         return updated;
       });
 
+      notifyProfileListChanged();
       addFlash("success", "Profile deleted");
     } catch (error) {
       const message =
@@ -162,6 +165,10 @@ export default function CalendarProfiles() {
   async function handleSaveProfile(payload) {
     if (!payload.name.trim() || !payload.main_calendar_id) {
       addFlash("error", "Please enter a name and choose a main calendar.");
+      return;
+    }
+    if (payload.workday_end_hour <= payload.workday_start_hour) {
+      addFlash("error", "Workday end must be later than workday start.");
       return;
     }
 
@@ -181,6 +188,8 @@ export default function CalendarProfiles() {
         const response = await profileApi.updateProfile(editingProfile.id, {
           name: payload.name.trim(),
           main_calendar_id: payload.main_calendar_id,
+          workday_start_hour: payload.workday_start_hour,
+          workday_end_hour: payload.workday_end_hour,
         });
 
         setProfiles((current) =>
@@ -188,11 +197,14 @@ export default function CalendarProfiles() {
             p.id === editingProfile.id ? { ...p, ...response.data } : p
           )
         );
+        notifyProfileListChanged();
         addFlash("success", "Profile updated");
       } else {
         const response = await profileApi.createProfile({
           name: payload.name.trim(),
           main_calendar_id: payload.main_calendar_id,
+          workday_start_hour: payload.workday_start_hour,
+          workday_end_hour: payload.workday_end_hour,
         });
 
         const created = response.data;
@@ -202,6 +214,7 @@ export default function CalendarProfiles() {
           ...current,
           [created.id]: "",
         }));
+        notifyProfileListChanged();
         addFlash("success", "Profile created");
       }
 
@@ -322,7 +335,8 @@ export default function CalendarProfiles() {
           </p>
         </div>
         <button className="btn btn-primary" onClick={openCreateProfileModal}>
-          + Create Profile
+          <Plus className="btn-icon" aria-hidden="true" />
+          Create Profile
         </button>
       </div>
       <div className="spacer" />
@@ -362,6 +376,23 @@ export default function CalendarProfiles() {
                             : profile.main_calendar_id
                               ? `${profile.main_calendar_id.slice(0, 8)}…`
                               : "—"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="main-calendar-row">
+                      <p className="subtle" style={{ margin: 0 }}>
+                        Scheduling Window:{" "}
+                        <span>
+                          {String(profile.workday_start_hour ?? 9).padStart(
+                            2,
+                            "0"
+                          )}
+                          :00 -{" "}
+                          {String(profile.workday_end_hour ?? 17).padStart(
+                            2,
+                            "0"
+                          )}
+                          :00
                         </span>
                       </p>
                     </div>

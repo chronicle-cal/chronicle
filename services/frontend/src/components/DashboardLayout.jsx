@@ -1,14 +1,14 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-import PlainNavbar from "./PlainNavbar.jsx";
+import Navbar from "./Navbar.jsx";
 import FlashStack from "./FlashStack.jsx";
 
-export default function AppLayout() {
+export default function DashboardLayout() {
   return (
     <div>
       <div className="container">
         <header className="navbar">
-          <PlainNavbar />
+          <Navbar />
         </header>
 
         <FlashStack />

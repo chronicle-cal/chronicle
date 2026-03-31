@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field, ConfigDict, AliasChoices
+from pydantic import BaseModel, Field, ConfigDict, AliasChoices, model_validator
+
+from datetime import datetime
 
 
 class Condition(BaseModel):
@@ -83,7 +85,8 @@ class CalendarProfile(BaseModel):
     user_id: int
     name: str
     main_calendar_id: str | None
-    rules: list[Rule] = Field(default_factory=list)
+    workday_start_hour: int
+    workday_end_hour: int
 
 
 class CalendarProfileCreate(BaseModel):
@@ -100,6 +103,14 @@ class ProfileCreate(BaseModel):
     main_calendar_id: str = Field(
         ..., validation_alias=AliasChoices("main_calendar_id", "main_calendar")
     )
+    workday_start_hour: int = Field(9, ge=0, le=23)
+    workday_end_hour: int = Field(17, ge=1, le=24)
+
+    @model_validator(mode="after")
+    def validate_workday_hours(self):
+        if self.workday_end_hour <= self.workday_start_hour:
+            raise ValueError("workday_end_hour must be later than workday_start_hour")
+        return self
 
 
 class ProfileReadShort(BaseModel):
@@ -107,6 +118,8 @@ class ProfileReadShort(BaseModel):
     id: str
     name: str
     main_calendar_id: str | None
+    workday_start_hour: int
+    workday_end_hour: int
 
 
 class ProfileReadFull(ProfileReadShort):
@@ -126,3 +139,38 @@ class SourceCreate(BaseModel):
     calendar_id: str = Field(
         ..., validation_alias=AliasChoices("calendar_id", "calendar")
     )
+
+
+class Task(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    completed: bool
+    title: str
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int = 30
+    not_before: datetime | None = None
+    priority: int = 3
+    profile: ProfileReadShort | None = None
+    profile_id: str | None = None
+
+
+class CreateTask(BaseModel):
+    title: str
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int | None = 30
+    not_before: datetime | None = None
+    priority: int | None = 3
+    profile_id: str | None = None
+
+
+class UpdateTask(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    due_date: datetime | None = None
+    duration: int | None = None
+    not_before: datetime | None = None
+    priority: int | None = None
+    profile_id: str | None = None
+    completed: bool | None = None
