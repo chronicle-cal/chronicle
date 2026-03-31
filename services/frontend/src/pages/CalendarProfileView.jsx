@@ -182,7 +182,7 @@ export default function CalendarProfileView() {
             className="btn btn-small"
             onClick={() => handleTriggerSync(profileId)}
           >
-            Synchroize Now
+            Synchronize Now
           </button>
         </div>
       </div>
