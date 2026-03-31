@@ -116,6 +116,8 @@ async def create_profile(
         user_id=current_user.id,
         name=profile_data.name,
         main_calendar_id=profile_data.main_calendar_id,
+        workday_start_hour=profile_data.workday_start_hour,
+        workday_end_hour=profile_data.workday_end_hour,
     )
     db.add(new_profile)
     await db.commit()
@@ -171,6 +173,8 @@ async def update_profile(
         )
     profile.name = profile_data.name
     profile.main_calendar_id = profile_data.main_calendar_id
+    profile.workday_start_hour = profile_data.workday_start_hour
+    profile.workday_end_hour = profile_data.workday_end_hour
     await db.commit()
     await db.refresh(profile)
     return profile
@@ -255,9 +259,13 @@ async def trigger_profile_sync(
 
     channel = await conn.channel()
 
+    shared_profile = profile_to_shared_profile(profile).model_dump(mode="json")
+    shared_profile["workday_start_hour"] = profile.workday_start_hour
+    shared_profile["workday_end_hour"] = profile.workday_end_hour
+
     payload = {
         "type": "sync",
-        "payload": profile_to_shared_profile(profile).model_dump(mode="json"),
+        "payload": shared_profile,
     }
 
     print(f"Publishing message to queue: {payload}")

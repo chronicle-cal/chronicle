@@ -47,11 +47,12 @@ def merge_overlapping_events(events):
     return merged_events
 
 
-def update_schedule(target: CaldavTarget, tasks: list[Task]):
+def update_schedule(target: CaldavTarget, tasks: list[Task], work_day: tuple[int, int]):
     schedule_start, schedule_end = calc_schedule_start_end(HORIZON)
     logging.info(
         f"Calculated schedule start: {schedule_start}, schedule end: {schedule_end}"
     )
+    logging.info(f"Using scheduling window: {work_day[0]}:00-{work_day[1]}:00")
 
     # clear the schedule by deleting all previously created events (identified by X-CHRONICLE-TASK)
     target.clear_task_events()
@@ -105,7 +106,7 @@ def update_schedule(target: CaldavTarget, tasks: list[Task]):
     solver = SchedulingSolver(
         horizon_duration=horizon_duration_in_minutes,
         schedule_start=schedule_start,
-        work_day=(9, 17),
+        work_day=work_day,
         schedule_offset=schedule_start.hour * 60 + schedule_start.minute,
     )
 

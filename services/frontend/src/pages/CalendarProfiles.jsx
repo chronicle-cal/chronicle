@@ -167,6 +167,10 @@ export default function CalendarProfiles() {
       addFlash("error", "Please enter a name and choose a main calendar.");
       return;
     }
+    if (payload.workday_end_hour <= payload.workday_start_hour) {
+      addFlash("error", "Workday end must be later than workday start.");
+      return;
+    }
 
     const mainCalendar = calendars.find(
       (calendar) => calendar.id === payload.main_calendar_id
@@ -184,6 +188,8 @@ export default function CalendarProfiles() {
         const response = await profileApi.updateProfile(editingProfile.id, {
           name: payload.name.trim(),
           main_calendar_id: payload.main_calendar_id,
+          workday_start_hour: payload.workday_start_hour,
+          workday_end_hour: payload.workday_end_hour,
         });
 
         setProfiles((current) =>
@@ -197,6 +203,8 @@ export default function CalendarProfiles() {
         const response = await profileApi.createProfile({
           name: payload.name.trim(),
           main_calendar_id: payload.main_calendar_id,
+          workday_start_hour: payload.workday_start_hour,
+          workday_end_hour: payload.workday_end_hour,
         });
 
         const created = response.data;
@@ -368,6 +376,23 @@ export default function CalendarProfiles() {
                             : profile.main_calendar_id
                               ? `${profile.main_calendar_id.slice(0, 8)}…`
                               : "—"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="main-calendar-row">
+                      <p className="subtle" style={{ margin: 0 }}>
+                        Scheduling Window:{" "}
+                        <span>
+                          {String(profile.workday_start_hour ?? 9).padStart(
+                            2,
+                            "0"
+                          )}
+                          :00 -{" "}
+                          {String(profile.workday_end_hour ?? 17).padStart(
+                            2,
+                            "0"
+                          )}
+                          :00
                         </span>
                       </p>
                     </div>

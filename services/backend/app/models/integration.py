@@ -112,6 +112,8 @@ class CalendarProfile(Base):
     main_calendar_id: Mapped[str | None] = mapped_column(
         ForeignKey("calendars.id", ondelete="SET NULL"), nullable=True
     )
+    workday_start_hour: Mapped[int] = mapped_column(Integer, default=9, nullable=False)
+    workday_end_hour: Mapped[int] = mapped_column(Integer, default=17, nullable=False)
 
     calendar_sources = relationship(
         "CalendarSource",

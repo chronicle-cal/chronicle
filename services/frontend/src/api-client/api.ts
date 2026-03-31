@@ -86,11 +86,15 @@ export interface LoginRequest {
 export interface ProfileCreate {
   name: string;
   main_calendar_id: string;
+  workday_start_hour?: number;
+  workday_end_hour?: number;
 }
 export interface ProfileReadFull {
   id: string;
   name: string;
   main_calendar_id: string | null;
+  workday_start_hour: number;
+  workday_end_hour: number;
   main_calendar: CalendarRead | null;
   rules?: Array<Rule>;
 }
@@ -98,6 +102,8 @@ export interface ProfileReadShort {
   id: string;
   name: string;
   main_calendar_id: string | null;
+  workday_start_hour: number;
+  workday_end_hour: number;
 }
 export interface RegisterRequest {
   email: string;
