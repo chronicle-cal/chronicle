@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.4](https://github.com/chronicle-cal/chronicle/compare/v0.1.3...v0.1.4) (2026-03-31)
+
+
+### Features
+
+* API improvements ([#63](https://github.com/chronicle-cal/chronicle/issues/63)) ([b99b4f0](https://github.com/chronicle-cal/chronicle/commit/b99b4f00064bd5bf661ba1570f7347815a193a17))
+* **docker:** make images production-ready, add formatting for yaml/json files ([#43](https://github.com/chronicle-cal/chronicle/issues/43)) ([#58](https://github.com/chronicle-cal/chronicle/issues/58)) ([e5f9255](https://github.com/chronicle-cal/chronicle/commit/e5f9255d36bbced060b74adbc4f4cec7d6cbbf69))
+* **frontend:** new API client and page structure ([#52](https://github.com/chronicle-cal/chronicle/issues/52)) ([739ef15](https://github.com/chronicle-cal/chronicle/commit/739ef1588587732a029f4b12a6ec00c65fcf2dd6))
+* tasks ([#3](https://github.com/chronicle-cal/chronicle/issues/3)) ([#65](https://github.com/chronicle-cal/chronicle/issues/65)) ([30abe44](https://github.com/chronicle-cal/chronicle/commit/30abe444003aae8a8ee905fe458b075c1cc30c8c))
+
 ## [0.1.3](https://github.com/chronicle-cal/chronicle/compare/v0.1.2...v0.1.3) (2026-03-19)
 
 
