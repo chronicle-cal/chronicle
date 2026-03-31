@@ -80,7 +80,7 @@ async def list_profiles(
         .options(selectinload(CalendarProfile.calendar_sources))
         .where(CalendarProfile.user_id == current_user.id)
     )
-    profiles = result.scalars().all()
+    profiles = result.scalars().unique().all()
     return profiles
 
 
@@ -195,6 +195,7 @@ async def list_profile_sync(
     "/{profile_id}/source",
     status_code=status.HTTP_201_CREATED,
     operation_id="add_profile_source",
+    response_model=SourceRead,
 )
 async def add_profile_source(
     profile_id: str,
@@ -257,7 +258,7 @@ async def trigger_profile_sync(
 
     payload = {
         "type": "sync",
-        "payload": profile_to_shared_profile(profile).model_dump(),
+        "payload": profile_to_shared_profile(profile).model_dump(mode="json"),
     }
 
     print(f"Publishing message to queue: {payload}")

@@ -1,0 +1,287 @@
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { Calendar, Check, Clock, Edit2, Flag, Trash2, X } from "react-feather";
+
+function toDateTimeLocal(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function toIsoDateTime(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
+
+const localeStringOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+};
+
+export default function TaskList({
+  tasks,
+  onToggleComplete,
+  onDelete,
+  onUpdateDetails,
+  updatingTaskId,
+  deletingTaskId,
+}) {
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [form, setForm] = useState({
+    description: "",
+    duration: "",
+    priority: "",
+    dueDate: "",
+    notBeforeDate: "",
+  });
+
+  function openEditor(task) {
+    setEditingTaskId(task.id);
+    setForm({
+      description: task.description || "",
+      duration: task.duration ?? "",
+      priority: task.priority ?? "",
+      dueDate: toDateTimeLocal(task.due_date),
+      notBeforeDate: toDateTimeLocal(task.not_before),
+    });
+  }
+
+  function closeEditor() {
+    setEditingTaskId(null);
+    setForm({ description: "", duration: "", priority: "", dueDate: "" });
+  }
+
+  async function handleSave(taskId) {
+    const parsedDuration = form.duration ? Number(form.duration) : null;
+    const parsedPriority = form.priority ? Number(form.priority) : null;
+
+    await onUpdateDetails(taskId, {
+      description: form.description.trim() || null,
+      duration:
+        parsedDuration && Number.isFinite(parsedDuration)
+          ? parsedDuration
+          : null,
+      priority:
+        parsedPriority && Number.isFinite(parsedPriority)
+          ? parsedPriority
+          : null,
+      due_date: toIsoDateTime(form.dueDate),
+      not_before: toIsoDateTime(form.notBeforeDate),
+    });
+
+    closeEditor();
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <div className="task-empty-state">
+        <p className="subtle">No tasks yet for this profile.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="task-list">
+      {tasks.map((task) => (
+        <li key={task.id} className="task-item">
+          <div className="task-main">
+            <button
+              type="button"
+              className={`task-check ${task.completed ? "is-complete" : ""}`}
+              onClick={() => onToggleComplete(task)}
+              disabled={updatingTaskId === task.id}
+              aria-label={
+                task.completed ? "Mark task incomplete" : "Mark task complete"
+              }
+              aria-pressed={task.completed}
+            >
+              {task.completed ? (
+                <Check className="task-check-icon" aria-hidden="true" />
+              ) : null}
+            </button>
+
+            <div className="task-content">
+              <p
+                className={`task-title ${task.completed ? "is-complete" : ""}`}
+              >
+                {task.title}
+              </p>
+
+              <div className="task-meta">
+                <span className="pill task-pill">
+                  <Flag className="pill-icon" aria-hidden="true" />
+                  {task.priority ?? "-"}
+                </span>
+                <span className="pill task-pill">
+                  <Clock className="pill-icon" aria-hidden="true" />
+                  {task.duration ?? "-"} min
+                </span>
+                <span className="pill task-pill">
+                  <Calendar className="pill-icon" aria-hidden="true" />
+                  Due&nbsp;
+                  {task.due_date
+                    ? new Date(task.due_date).toLocaleString(
+                        "en-US",
+                        localeStringOptions
+                      )
+                    : "-"}
+                </span>
+                {task.not_before ? (
+                  <span className="pill task-pill">
+                    <Calendar className="pill-icon" aria-hidden="true" />
+                    Not before&nbsp;
+                    {new Date(task.not_before).toLocaleString(
+                      "en-US",
+                      localeStringOptions
+                    )}
+                  </span>
+                ) : null}
+              </div>
+
+              {task.description ? (
+                <p className="subtle task-description">{task.description}</p>
+              ) : null}
+
+              {editingTaskId === task.id ? (
+                <div className="task-edit-grid">
+                  <input
+                    type="text"
+                    value={form.description}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        description: event.target.value,
+                      }))
+                    }
+                    placeholder="Description"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={form.duration}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        duration: event.target.value,
+                      }))
+                    }
+                    placeholder="Duration (minutes)"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={form.priority}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        priority: event.target.value,
+                      }))
+                    }
+                    placeholder="Priority"
+                  />
+                  <input
+                    type="datetime-local"
+                    value={form.dueDate}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        dueDate: event.target.value,
+                      }))
+                    }
+                  />
+                  <input
+                    type="datetime-local"
+                    value={form.notBeforeDate}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        notBeforeDate: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="task-actions">
+            {editingTaskId === task.id ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-small btn-primary"
+                  onClick={() => handleSave(task.id)}
+                  disabled={updatingTaskId === task.id}
+                >
+                  <Check className="btn-icon" aria-hidden="true" />
+                  {updatingTaskId === task.id ? "Saving..." : "Save"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-small"
+                  onClick={closeEditor}
+                >
+                  <X className="btn-icon" aria-hidden="true" />
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-small"
+                onClick={() => openEditor(task)}
+              >
+                <Edit2 className="btn-icon" aria-hidden="true" />
+                Edit
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="btn btn-small btn-danger"
+              onClick={() => onDelete(task.id)}
+              disabled={deletingTaskId === task.id}
+            >
+              <Trash2 className="btn-icon" aria-hidden="true" />
+              {deletingTaskId === task.id ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+TaskList.propTypes = {
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      completed: PropTypes.bool.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      duration: PropTypes.number,
+      priority: PropTypes.number,
+      due_date: PropTypes.string,
+    })
+  ).isRequired,
+  onToggleComplete: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onUpdateDetails: PropTypes.func.isRequired,
+  updatingTaskId: PropTypes.string,
+  deletingTaskId: PropTypes.string,
+};

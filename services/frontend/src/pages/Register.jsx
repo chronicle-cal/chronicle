@@ -31,10 +31,10 @@ export default function Register() {
     <div className="hero">
       <section className="card auth-card">
         <h1>Create Account</h1>
-        <p className="subtle">Choose a strong password</p>
+        <p className="subtle">Get started with cronicle</p>
 
         <form className="form" onSubmit={onSubmit}>
-          <div>
+          <div className="form-group">
             <label>Email</label>
             <input
               value={email}
@@ -45,7 +45,7 @@ export default function Register() {
             />
           </div>
 
-          <div>
+          <div className="form-group">
             <label>Password</label>
             <input
               value={password}
@@ -67,7 +67,7 @@ export default function Register() {
               Register
             </button>
             <Link className="btn" to="/login">
-              Back to login
+              Log in instead
             </Link>
           </div>
         </form>

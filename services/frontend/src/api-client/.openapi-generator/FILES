@@ -11,6 +11,7 @@ docs/CalendarCreate.md
 docs/CalendarProfileApi.md
 docs/CalendarRead.md
 docs/Condition.md
+docs/CreateTask.md
 docs/HTTPValidationError.md
 docs/HealthApi.md
 docs/LocationInner.md
@@ -22,7 +23,10 @@ docs/RegisterRequest.md
 docs/Rule.md
 docs/SourceCreate.md
 docs/SourceRead.md
+docs/Task.md
+docs/TaskApi.md
 docs/TokenResponse.md
+docs/UpdateTask.md
 docs/ValidationError.md
 git_push.sh
 index.ts

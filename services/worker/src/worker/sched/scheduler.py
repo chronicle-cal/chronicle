@@ -1,31 +1,16 @@
 import datetime
 import logging
 from worker.sched.solver import SchedulingSolver
-import caldav
-from chronicle_shared.models import Profile
+from chronicle_shared.models import Task
 from worker.sched.utils import datetime_to_schedule_time
+from icalendar import Event
+from uuid import uuid4
+
+from worker.sync.targets import CaldavTarget
 
 HORIZON = datetime.timedelta(weeks=2)
 
 TZ_INFO = datetime.datetime.now().astimezone().tzinfo
-
-
-def get_events_between(
-    start: datetime.datetime,
-    end: datetime.datetime,
-    caldav_url: str,
-    username: str,
-    password: str,
-):
-    with caldav.DAVClient(
-        url=caldav_url,
-        username=username,
-        password=password,
-    ) as client:  # pyright: ignore[reportCallIssue]
-        calendar = client.calendar(url=caldav_url)
-        events = calendar.date_search(start, end)
-        print(events)
-        return events
 
 
 def calc_schedule_start_end(horizon: datetime.timedelta):
@@ -62,20 +47,17 @@ def merge_overlapping_events(events):
     return merged_events
 
 
-def update_schedule(profile_config: Profile):
+def update_schedule(target: CaldavTarget, tasks: list[Task]):
     schedule_start, schedule_end = calc_schedule_start_end(HORIZON)
     logging.info(
         f"Calculated schedule start: {schedule_start}, schedule end: {schedule_end}"
     )
 
+    # clear the schedule by deleting all previously created events (identified by X-CHRONICLE-TASK)
+    target.clear_task_events()
+
     # get all the events from the database that are between schedule start and schedule end
-    events = get_events_between(
-        schedule_start,
-        schedule_end,
-        profile_config.main_calendar.url,
-        profile_config.main_calendar.username,
-        profile_config.main_calendar.password,
-    )
+    events = target.get_events_between(schedule_start, schedule_end)
 
     for event in events:
         logging.info(
@@ -102,23 +84,23 @@ def update_schedule(profile_config: Profile):
 
     solver_events = merge_overlapping_events(solver_events)
 
-    print(solver_events)
+    logging.info(solver_events)
 
-    solver_tasks = profile_config.tasks.copy()
+    solver_tasks = tasks.copy()
 
-    for task in profile_config.tasks:
+    for task in tasks:
         logging.info(
-            f"Task: {task.title}, duration: {task.duration}, due_date: {task.due_date}"
+            f"Task: {task.title}, duration: {task.duration}, due_date: {task.due_date}, not_before: {task.not_before}"
         )
         if task.due_date:
             task.due_date = datetime_to_schedule_time(task.due_date, schedule_start)
         if task.not_before:
             task.not_before = datetime_to_schedule_time(task.not_before, schedule_start)
 
-    horizon_duration_in_minutes = 14 * 24 * 60
+    horizon_duration_in_minutes = 28 * 24 * 60
 
-    print(horizon_duration_in_minutes)
-    print(schedule_start.hour * 60 + schedule_start.minute)
+    logging.info(horizon_duration_in_minutes)
+    logging.info(schedule_start.hour * 60 + schedule_start.minute)
 
     solver = SchedulingSolver(
         horizon_duration=horizon_duration_in_minutes,
@@ -127,17 +109,46 @@ def update_schedule(profile_config: Profile):
         schedule_offset=schedule_start.hour * 60 + schedule_start.minute,
     )
 
-    print("Starting solver")
+    logging.info("Starting solver")
     schedule = solver.solve(solver_tasks, solver_events)
-    print("Solver finished")
+    logging.info("Solver finished")
     # print(schedule)
 
     if not schedule:
         logging.warning("No valid schedule found")
         return
 
-    for item in schedule:
-        print(item)
+    # for item in schedule:
+    #     logging.info(item)
+
+    # delete all events that have X-CHRONICLE-TASK set
+    # create new events for each task in the schedule, setting X-CHRONICLE-TASK to the task id
+    logging.info("Updating calendar with new schedule")
+
+    # Get existing events with X-CHRONICLE-TASK and delete them
+    # existing_events = calendar.search()
+    # for event in existing_events:
+    #     if event.component.get("X-CHRONICLE-TASK"):
+    #         logging.info(
+    #             f"Deleting existing scheduled event: {event.component.get('summary')}"
+    #         )
+    #         event.delete()
+
+    for task_event in schedule:
+        event = Event()
+        event.add("summary", task_event.title)
+        event.add("description", task_event.description or "")
+        event.add("dtstart", task_event.start)
+        event.add("dtend", task_event.end)
+        event.add("uid", str(uuid4()))
+        event.add("X-CHRONICLE-TASK", task_event.id)
+        event.add("X-CHRONICLE", "True")
+
+        target.create(event)
+
+        logging.info(
+            f"Created event for task: {task_event.title}, start: {task_event.start}, end: {task_event.end}"
+        )
 
 
 if __name__ == "__main__":

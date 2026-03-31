@@ -33,7 +33,7 @@ export default function Login() {
   return (
     <div className="hero">
       <section className="card auth-card">
-        <h1>Login</h1>
+        <h1>Log in</h1>
         <p className="subtle">Access your account</p>
 
         <form className="form" onSubmit={onSubmit}>
@@ -66,10 +66,10 @@ export default function Login() {
               type="submit"
               disabled={isSubmitting}
             >
-              Login
+              Log in
             </button>
             <Link className="btn" to="/register">
-              Register
+              Register instead
             </Link>
           </div>
         </form>

@@ -47,7 +47,7 @@ class SchedulingSolver:
 
         return cp_model.Domain.FromIntervals(intervals)
 
-    def solve(self, tasks: list[Task], existing_meetings):
+    def solve(self, tasks: list[Task], existing_meetings) -> list[TaskEvent] | None:
         work_domain = self._get_working_minutes_domain()
 
         # 1. Fixed Meetings (cannot overlap, threfore should be preprocessed)
@@ -83,26 +83,34 @@ class SchedulingSolver:
 
                 # self.model.add(end <= task.due_date)
 
+            if task.not_before:
+                assert isinstance(task.not_before, int), (
+                    "Not before must be an integer representing minutes from schedule start"
+                )
+                self.model.add(start >= task.not_before)
+
         self.model.add_no_overlap(self.all_intervals)
         self.model.minimize(sum(self.penalties))
 
         solver = cp_model.CpSolver()
-        solver.parameters.max_time_in_seconds = 10.0
+        solver.parameters.max_time_in_seconds = 30.0
         status = solver.Solve(self.model)
 
         if status in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
-            return self._format_results(solver)
+            return self._format_results(solver, tasks)
         return None
 
-    def _format_results(self, solver):
+    def _format_results(self, solver, tasks: list[Task]) -> list[TaskEvent]:
         results = []
         for v in self.task_vars:
             start_val = solver.Value(v["start"])
             end_val = solver.Value(v["end"])
+            task = next(task for task in tasks if task.id == v["id"])
             results.append(
                 TaskEvent(
                     id=v["id"],
-                    title="",  # TODO add title to task_vars
+                    title=task.title,
+                    description=task.description,
                     start=schedule_time_to_datetime(start_val, self.schedule_start),
                     end=schedule_time_to_datetime(end_val, self.schedule_start),
                 )

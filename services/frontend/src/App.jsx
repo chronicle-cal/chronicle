@@ -2,6 +2,8 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./components/AppLayout.jsx";
+import DashboardLayout from "./components/DashboardLayout.jsx";
+
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -13,6 +15,7 @@ import Home from "./pages/Home.jsx";
 import Legal from "./pages/Legal.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
+import CalendarProfileView from "./pages/CalendarProfileView.jsx";
 
 export default function App() {
   return (
@@ -26,7 +29,8 @@ export default function App() {
         <Route path="/legal" element={<Legal />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
-
+      </Route>
+      <Route element={<DashboardLayout />}>
         <Route
           path="/dashboard"
           element={
@@ -44,6 +48,14 @@ export default function App() {
           }
         />
         <Route
+          path="/calendar-profiles/:profileId"
+          element={
+            <ProtectedRoute>
+              <CalendarProfileView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/calendars"
           element={
             <ProtectedRoute>
@@ -52,7 +64,6 @@ export default function App() {
           }
         />
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
