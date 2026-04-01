@@ -1,30 +1,21 @@
 # Chronicle
 
-Chronicle is a web-based calendar app focused on calendar syncing, managing and smart scheduling.
+Chronicle is a web-based calendar app focused on syncing calendars and smart scheduling.
+It helps you to manage multiple calendars using profiles and scheduling tasks around your events.
 
-## Quick start
-
-You can quickly start Chronicle using Docker or Podman. Just run the following command in the root directory of the project:
-
-```bash
-docker compose -f compose.yaml up --build
-```
-
-## Installation
-
-Please refer to the [Admin Guide](docs/admin.md) for detailed instructions on how to set up Chronicle.
-
-## Architecture
-
-Chronicle is composed of several services that work together to provide the functionality of the application. The main services are:
-
-- `frontend`: The user interface of chronicle. It is a React application that runs in the browser.
-- `backend`: The backend service that handles the business logic and API endpoints. It is built with FastAPI and runs on a Python server.
-- `worker`: The worker service that handles background tasks such as synchronization with external calendar sources. It is built with Python and runs on a separate server.
+## Features
+- Connect multiple calendar sources (CalDAV, iCal)
+- Aggregate events into one main calendar
+- Organize calendars using profiles
+- Smart scheduling: create tasks, that will be scheduled and synced in your calendar
 
 ## Documentation
 
-The documentation is available in the [docs](docs) directory. It includes guides for installation, administration, and development.
+The documentation is available in the [docs](docs) directory. It provides comprehensive guides for installation, administration, development and usage.
+
+- [Admin Guide](docs/admin.md) – Detailed instructions for setting up and managing Chronicle
+- [Developer Guide](docs/dev.md) – Guidance for contributing to and extending Chronicle
+- [User Guide](docs/user.md) – Step-by-step instructions for using Chronicle effectively
 
 ## Versioning
 

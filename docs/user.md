@@ -1,63 +1,67 @@
-# User Documentation
+# User 
 
-Chronicle is a web-based calendar app focused on calendar syncing, managing and smart scheduling.
+Chronicle is a web-based calendar app designed for calendar syncing, managing and smart scheduling.
 
-# Chronicle User Guide (Quick Start)
+# Features
 
-This User Guide will provide the informations on how to:
+- Connect multiple calendar sources (CalDAV, iCal)
+- Aggregate events into one main calendar
+- Organize calendars using profiles
+- Smart scheduling: create tasks that will be scheduled and synced in your calendar
 
-- create,
-- manage and
-- schedule events
+This guide explains how to:
 
-inside chronicle.
+- create profiles
+- add calendars and sync them
+- add tasks for smart scheduling
 
-## Description - Core Features
-
-Chronicle is based on a few core principles:
-
-- **Calendar Profiles**: Containers for events (e.g., Work, Personal, Team).
-- **Calendar Sources**: External calendar sources which can be used to sync events and apppointments.
+within Chronicle.
 
 ## Usage
 
-### Sign in/up
+### Sign in / Sign up
 
-To use chronicle you need an user account (email and password). If you already have one just sign in.
+To use Chronicle, you need a user account (email and password). If you already have one just sign in.
 
-## Create a calendar profile
+### Create a calendar profile
 
-As a first step you should create a calendar profile. This is a container for your events and appointments. You can create one or multiple of these to keep track of things. We suggest to create one for each area of your life. This way you can keep track of your work, personal and other appointments in a clear way.
+A calendar profile is a container for your events and appointments. You can create multiple profiles (e.g. work, personal).
 
-For your profile you need to specify a main calendar, which is the calendar where all your events and appointments will be stored. You can also specify a name for your profile.
-Your main calendar must be a calendar source which supports CalDAV, so you can sync your events and appointments with your devices. If you don't have a calendar source which supports CalDAV, create one.
+Each profile requires a main calendar. This is where all events and scheduled tasks will be stored.
 
-It is currently not possible to use a Google or iCloud Calendar.
+The main calendar must support CalDAV.
 
-## Add calendar sources
+> Important: Google Calendar and iCloud are currently not supported.
 
-You can connect external calendar sources (iCal or CalDAV) with the **Calendar Sources** feature. This way you can sync your events and appointments into your calendar profile.
+### Add calendar sources
 
-Click the "Sync" button to start the sync manually.
+You can connect external calendar sources (iCal or CalDAV) to your profile using the **Calendar Sources** feature. This way you can sync your events and appointments into your calendar profile. After adding your calendar sources, use `Sync Now` to push them to your main calendar.
 
-## Smart Scheduling
+You can get an overview of all added calendars and add additional, new sources in the **Calendars** tab. 
 
-You can create tasks in chronicle which can be smart scheduled. This means that you can specify a task with a priority, a deadline and a duration and chronicle will find free slots in your calendar and create appointments for you.
+### Smart Scheduling
 
-### Soon: Smart Scheduling Feature
+You can create tasks in Chronicle which support smart scheduling. This means that you can specify a task with a priority, a deadline and a duration and Chronicle will find free slots in your calendar and create appointments for you. After adding tasks, you need to synchronize them:
+
+1. Click `Synchronize Now` to process tasks
+2. Then go to `Manage` → `Sync Now` to push them to your calendar
+
+After creating your profile, it will appear in the navigation bar where you can add tasks for your profile. 
 
 Chronicle Events can be smart scheduled. So you can input something like:
 
 - Work out, 3 times a week for one hour
 - Study for the exam, every day for 2 hours, until the 30th of June
 
-With this information chronicle finds free slots, creates these appointments and syncs these with your connected calendars.
+With this information Chronicle finds free slots, creates these appointments and syncs these with your connected calendars.
 
 ## Common Errors/Mistakes/Tips
 
-- Consistent calendar names so it doesn't get messy.
-- TBD: haben wir zeitzonen? soll man das einstellen können
+- Make sure your main calendar supports CalDAV
+- Always run `Sync Now` after adding tasks
+- Check that your calendar sources are connected correctly
 
-## FAQ
+# Questions?
 
 Feel free to open Issues if you have any questions.
+

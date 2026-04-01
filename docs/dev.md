@@ -2,34 +2,79 @@
 
 ## Requirements
 
-Copy from admin.md
+- Docker / Podman
+- Python (backend / worker)
+- uv 
+- Node.js (frontend)
 
-## Local Startup / Usage
+## Local Development
 
-Copy Usage from Admin.md
+You can either run Chronicle using Docker (recommended) or run services individually for development.
 
-## Config / Enviroment
-
-To dev a venv is needet:
+### Using Docker
 
 ```bash
-uv sync
+docker compose -f compose.yaml up --build -d
 ```
 
-The .env variables are stored inside `services/backend/.env.example`
+### Backend
+```bash
+cd services/backend
+uv sync
+uv run uvicorn app.main:app --reload
+```
 
-## Consistency Checks
+The backend will be available at: `http://localhost:8000`
 
-All tests, lintings and formating checks do run with the pre commit hook. After `git push`there are also checked in the CI/CD Pipeline in GitHub.
+### Frontend
+```bash
+cd services/frontend
+npm install
+npm run dev
+```
 
-**Pre-Commit-Hook**:
+The frontend will be available at: `http://localhost:3000`
+
+## Environment Configuration
+
+Environment variables are defined in: `.env.example`
+
+## API Client Generation (Frontend)
+
+The frontend uses a generated API client based on the backend OpenAPI specification.
+
+If the backend API changes, you must regenerate the client. Run this command from the `services/frontend` directory.
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i http://localhost:8000/openapi.json \
+  -g typescript-axios \
+  -o src/api-client
+```
+
+Make sure the backend is running before executing this command.
+
+The generated client is used by the frontend to interact with the backend API.
+
+After regenerating the client, restart the frontend development server.
+
+## Code Quality
+
+Pre-commit hooks are used for:
+
+- linting
+- formatting
+- basic checks
+
+Configuration:
+
 `./.pre-commit-config.yaml`
 
-\*\*CI/CD Workflows are saved in `.github/workflows/`
+CI/CD workflows are located in: `.github/workflows/`
 
 ### Testing
 
-**Run all tests:**
+Run all tests:
 
 ```bash
 cd services/backend
@@ -48,127 +93,76 @@ pytest tests/test_integration.py::test_create_sync_config -v
 pytest tests/ --cov --cov-report=term-missing
 ```
 
-## Updates
+## Database Migration
 
-### Database - Alembic
+### Alembic
 
-To keep the DB stable and healthy Alembic is used.
+Alembic is used for database migrations.
 
-If models of the db are changed the following steps are needet before commit/push:
+If database models are changed, create and apply a new migration before committing:
 
-0. A initial migration already exists. If not or you start fresh use
-
-```bash
-alembic init migrations
-```
-
-to generate this.
-
-1. Create a revision file
+Create a migration:
 
 ```bash
-alembic revision -m "write what you have changed"
+alembic revision -m "describe your change"
 ```
 
-2. Inside `migrations/versions`should be created that looks as follows:
-
-```python
-"""DB Upgrade to add feat/XXXX
-
-Revision ID: REVISION_ID
-Revises:
-Create Date: XXXX-XX-XX XX:XX:XX
-
-"""
-from typing import Sequence, Union
-
-from alembic import op
-import sqlalchemy as sa
-
-
-# revision identifiers, used by Alembic.
-revision: str = 'REVISION_ID'
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
-
-
-def upgrade() -> None:
-    pass
-
-
-def downgrade() -> None:
-    pass
-```
-
-3. Apply the migration
-   To run the migration and create the table in your database, use the upgrade command. Head tells Alembic to upgrade to the very latest revision.
-
+Apply migrations:
 ```bash
 alembic upgrade head
 ```
 
-4. Check
-
+Check current state:
 ```bash
-# See the full history of migrations
 alembic history
-# See which revision is currently applied
 alembic current
 ```
 
-5. Roll Back Your Changes
-
+Rollback (if needed):
 ```bash
-# Go back one revision
 alembic downgrade -1
 ```
 
-More Informations about Alembic: https://cbarkinozer.medium.com/database-migrations-with-alembic-3c0e2158ac9a
-
 ## API
 
-### Endpoints
+The available endpoints can be accessed via the Swagger UI: `http://localhost:8000/docs`
 
-The available endpoints can be accessed via the **Swagger UI**: http://localhost:8000/docs#/
-
-### Example Requests
-
-Export von Postman wenn möglich, sonst Swagger Docu example Requests erstellen
 
 ## File Structure
 
 <!-- tree -L 2-->
 
 ```bash
+├── CHANGELOG.md
 ├── compose.yaml
 ├── docs
+│   ├── admin.md
 │   ├── architecture
-│   ├── guides
-│   └── overview.md
-├── migrations
-│   └── versions
+│   ├── dev.md
+│   ├── readme.md
+│   └── user.md
+├── LICENSE
+├── package-lock.json
 ├── packages
 │   └── chronicle-shared
 ├── README.md
+├── release-please-config.json
 ├── scripts
-│   ├── precommit
 │   ├── smoke
+│   ├── update_version.sh
 │   └── worker
-└── services
-    ├── backend
-    ├── frontend
-    └── worker
+├── services
+│   ├── backend
+│   ├── frontend
+│   └── worker
+└── version.txt
 ```
 
 **docs:**
-Docs for User, Dev and Admin.
-
-**migrations:**
-Alembic revision files. These will be changed automaticly (see chapter 'Database - Alembic' above).
+Docs for User, Dev and Admin
 
 **scripts:**
-Various scripts required for this project.
+Various scripts required for this project
 
 **services:**
 Includes the main parts of this repo.
